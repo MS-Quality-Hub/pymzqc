@@ -16,6 +16,7 @@ setup(
     install_requires=[
         "jsonschema",
         "pronto",
+        "numpy",
         ],
     include_package_data=True,
 )
