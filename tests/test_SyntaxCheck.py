@@ -1,7 +1,7 @@
 __author__ = 'walzer'
 import pytest  # Eeeeeeverything needs to be prefixed with test ito be picked up by pytest, i.e. TestClass() and test_function()
-from MZQC import MZQCFile as qc
-from MZQC import SyntaxCheck as sy
+from mzqc import MZQCFile as qc
+from mzqc import SyntaxCheck as sy
 
 def test_SyntaxCheck():
     cvt = qc.CvParameter(cvRef="REF", accession="TEST:123", name="testname", value=99)

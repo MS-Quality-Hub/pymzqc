@@ -1,6 +1,6 @@
 __author__ = 'walzer'
 import pytest  # Eeeeeeverything needs to be prefixed with test ito be picked up by pytest, i.e. TestClass() and test_function()
-from MZQC import MZQCFile as qc
+from mzqc import MZQCFile as qc
 import numpy as np
 
 """
