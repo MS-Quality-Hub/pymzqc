@@ -8,11 +8,11 @@ A python library to use mzQC files. Specifically, have a usable object represent
 
 ## Install
 ```
-pip install -e git+'https://github.com/HUPO-PSI/mzQC@mzqc-pylib#egg=MZQC-0.0.1&subdirectory=pylib'
+pip install -e git+'https://github.com/bigbio/mzQC'
 ```
 
 ## MZQC
-Schema see parent repository.
+Schema see https://github.com/HUPO-PSI/mzQC/
 
 ---
 

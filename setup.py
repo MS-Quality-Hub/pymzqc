@@ -6,10 +6,13 @@ with open("README.md", "r") as fh:
 setup(
     name='MZQC',
     version='0.0.1',
-    packages=find_packages(),
-    url='https://github.com/HUPO-PSI/mzQC/tree/mzqc-pylib/pylib',
-    description='This is a description for abc',
+    packages=find_packages(exclude=("tests",)),
+    author='Mathias Walzer',
+    author_email='walzer@ebi.ack.uk',    
+    url='https://github.com/bigbio/mzqc-pylib',
+    description='Python library for the PSI-mzQC quality control file format.',
     long_description=long_description,
+    long_description_content_type="text/markdown",
     install_requires=[
         "jsonschema",
         "pronto",
