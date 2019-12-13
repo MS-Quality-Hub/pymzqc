@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
     
 setup(
-    name='MZQC',
+    name='mzqc-pylib',
     version='0.0.1',
     packages=find_packages(exclude=("tests",)),
     author='Mathias Walzer',
