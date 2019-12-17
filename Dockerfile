@@ -6,6 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
  
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \ 
   vim \
+  git \
   libgomp1 \
   zlib1g \
   libstdc++6 \
