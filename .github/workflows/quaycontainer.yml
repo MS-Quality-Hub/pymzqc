@@ -11,6 +11,6 @@ jobs:
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: mwalzer/mzqc-pylib
-        username: ${{ secrets.quay_pw_mzqc_action }}
-        password: ${{ secrets.quay_user_mzqc_action }}
+        username: ${{ secrets.quay_user_mzqc_action }}
+        password: ${{ secrets.quay_pw_mzqc_action }}
         registry: quay.io
