@@ -8,7 +8,7 @@ A python library to use mzQC files. Specifically, have a usable object represent
 
 ## Install
 ```
-pip install -e git+'https://github.com/bigbio/mzQC'
+pip install -U git+https://github.com/bigbio/mzqc-pylib.git#egg=mzqc-pylib
 ```
 
 ## MZQC

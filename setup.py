@@ -18,6 +18,7 @@ setup(
         "pronto",
         "numpy",
         ],
+    setup_requires=['wheel'],
     python_requires='>=3.6',
     include_package_data=True,
 )
