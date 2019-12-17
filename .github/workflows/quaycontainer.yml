@@ -1,0 +1,16 @@
+name: Publish Docker
+on:
+    pull_request:
+      types: ['opened', 'edited', 'reopened', 'synchronize']  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: mwalzer/mzqc-pylib
+        username: ${{ secrets.quay_pw_mzqc_action }}
+        password: ${{ secrets.quay_user_mzqc_action }}
+        registry: quay.io
