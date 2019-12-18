@@ -1,0 +1,8 @@
+dependencies:
+  - pip:
+    - pip    
+    - numpy
+    - pronto
+    - requests 
+    - matplotlib
+    - git+https://github.com/bigbio/mzqc-pylib.git#egg=mzqc-pylib
