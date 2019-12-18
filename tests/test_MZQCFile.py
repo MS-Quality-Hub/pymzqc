@@ -77,6 +77,12 @@ class TestSerialisation:
         nup.value= {"np":npnd}
         assert qc.JsonSerialisable.ToJson(nup) == NPQM
 
+    def test_DateTime(self):
+        try:
+            zqc = qc.MzQcFile(version="0.1.0", creationDate=datetime.now().isoformat(), runQualities=[], setQualities=[], controlledVocabularies=[])       
+        except Exception as error:
+            raise AssertionError(f"An unexpected exception {error} raised.") 
+
 #First, serialisation should be tested separately!
 class TestDeserialisation:
     def test_ControlledVocabulary(self):
@@ -120,3 +126,6 @@ class TestDeserialisation:
     def test_MzQcFile(self):
         assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(mzqc)) == mzqc        
         assert isinstance(qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(mzqc)),qc.MzQcFile)
+
+
+class
