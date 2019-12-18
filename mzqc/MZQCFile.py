@@ -35,7 +35,13 @@ class JsonSerialisable(object):
             return maxcls(**d)
         else:
             if {'creationDate': None}.keys() == d.keys():
-                return datetime.strptime(d['creationDate'], '%Y-%m-%dT%H:%M:%S')
+                try:
+                    if d['creationDate'] > 19:
+                        return datetime.strptime(d['creationDate'], '%Y-%m-%dT%H:%M:%S.%f')
+                    elif d['creationDate'] <= 19:
+                        return datetime.strptime(d['creationDate'], '%Y-%m-%dT%H:%M:%S')
+                except ValueError:
+                    raise ValueError("It appears the creationDate of your file is not of ISO 8601 format including time to the second: {}".format(d['creationDate']))
             else:
                 # raise ValueError('Unable to find a matching class for object: {d} (keys: {k})' .format(d=d,k=d.keys()))
                 return d
