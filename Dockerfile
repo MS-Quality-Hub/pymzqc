@@ -19,5 +19,5 @@ ENV LC_ALL C.UTF-8
 
 RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list.d/debian-unstable.list
 
-RUN pip install numpy pronto jupyter pyopenms==2.3.*
+RUN pip install numpy pronto jupyter pyopenms==2.3.* requests matplotlib
 RUN pip install -U git+https://github.com/bigbio/mzqc-pylib.git#egg=mzqc-pylib
