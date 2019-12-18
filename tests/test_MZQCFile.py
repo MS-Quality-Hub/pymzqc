@@ -2,6 +2,7 @@ __author__ = 'walzer'
 import pytest  # Eeeeeeverything needs to be prefixed with test ito be picked up by pytest, i.e. TestClass() and test_function()
 from mzqc import MZQCFile as qc
 import numpy as np
+from datetime import datetime
 
 """
 Unit tests for the MZQCFile library
@@ -126,6 +127,3 @@ class TestDeserialisation:
     def test_MzQcFile(self):
         assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(mzqc)) == mzqc        
         assert isinstance(qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(mzqc)),qc.MzQcFile)
-
-
-class
