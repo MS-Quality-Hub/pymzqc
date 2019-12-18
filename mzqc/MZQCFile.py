@@ -20,6 +20,13 @@ Table = Dict[str,List]
 class JsonSerialisable(object):
     mappings: Dict[str, Any] = dict()
 
+    @staticmethod
+    def time_helper(da):
+        if len(da) > 19:
+            return datetime.strptime(da, '%Y-%m-%dT%H:%M:%S.%f')
+        elif len(da) <= 19:
+            return datetime.strptime(da, '%Y-%m-%dT%H:%M:%S')
+
     @classmethod
     def class_mapper(classself, d):
         maxcls: Any = None
@@ -35,7 +42,10 @@ class JsonSerialisable(object):
             return maxcls(**d)
         else:
             if {'creationDate': None}.keys() == d.keys():
-                return datetime.strptime(d['creationDate'], '%Y-%m-%dT%H:%M:%S')
+                try:
+                    return JsonSerialisable.time_helper(d['creationDate'])
+                except ValueError:
+                    raise ValueError("It appears the creationDate of your file is not of ISO 8601 format including time to the second: {}".format(d['creationDate']))
             else:
                 # raise ValueError('Unable to find a matching class for object: {d} (keys: {k})' .format(d=d,k=d.keys()))
                 return d
@@ -222,7 +232,7 @@ class MzQcFile(jsonobject):
                     setQualities: List[SetQuality]=None, 
                     controlledVocabularies: List[ControlledVocabulary]=None 
                     ):
-        self.creationDate = datetime.strptime(creationDate, '%Y-%m-%dT%H:%M:%S') if isinstance(creationDate, str) else creationDate  # not in schema, IMO should be
+        self.creationDate = JsonSerialisable.time_helper(creationDate) if isinstance(creationDate, str) else creationDate  # not in schema, IMO should be
         self.version = version
         self.runQualities = [] if runQualities is None else runQualities
         self.setQualities = [] if setQualities is None else setQualities

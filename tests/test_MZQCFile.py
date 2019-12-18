@@ -2,6 +2,7 @@ __author__ = 'walzer'
 import pytest  # Eeeeeeverything needs to be prefixed with test ito be picked up by pytest, i.e. TestClass() and test_function()
 from mzqc import MZQCFile as qc
 import numpy as np
+from datetime import datetime
 
 """
 Unit tests for the MZQCFile library
@@ -76,6 +77,12 @@ class TestSerialisation:
         npnd = np.array([1/9,2/8,3/7], dtype=np.float32)
         nup.value= {"np":npnd}
         assert qc.JsonSerialisable.ToJson(nup) == NPQM
+
+    def test_DateTime(self):
+        try:
+            zqc = qc.MzQcFile(version="0.1.0", creationDate=datetime.now().isoformat(), runQualities=[], setQualities=[], controlledVocabularies=[])       
+        except Exception as error:
+            raise AssertionError(f"An unexpected exception {error} raised.") 
 
 #First, serialisation should be tested separately!
 class TestDeserialisation:
