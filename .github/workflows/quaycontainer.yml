@@ -1,4 +1,4 @@
-name: Publish Docker
+name: container-build
 on:
     pull_request:
       types: ['opened', 'edited', 'reopened', 'synchronize']  
