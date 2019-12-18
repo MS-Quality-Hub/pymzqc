@@ -1,7 +1,7 @@
 # MZQC python library
 ![](https://github.com/bigbio/mzqc-pylib/workflows/unit-tests/badge.svg)
 ![](https://github.com/bigbio/mzqc-pylib/workflows/release-container/badge.svg)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.0.2?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.0.3?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
 
 A python library to use mzQC files. Specifically, have a usable object representation of mzQC that can
 * serialise
@@ -20,4 +20,4 @@ However, we recommend using the [containers](https://quay.io/repository/mwalzer/
 Schema see https://github.com/HUPO-PSI/mzQC/
 
 ## 5min interactive guide
-Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.0.2?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/bigbio/mzqc-pylib/blob/master/jupyter/MZQC_in_5_minutes.ipynb))
+Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.0.3?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/bigbio/mzqc-pylib/blob/master/jupyter/MZQC_in_5_minutes.ipynb))

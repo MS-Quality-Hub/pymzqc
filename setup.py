@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     
 setup(
     name='mzqc-pylib',
-    version='0.0.2',
+    version='0.0.3',
     packages=find_packages(exclude=("tests",)),
     author='Mathias Walzer',
     author_email='walzer@ebi.ack.uk',    
