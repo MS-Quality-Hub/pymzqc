@@ -1,4 +1,7 @@
 # MZQC python library
+![](https://github.com/bigbio/mzqc-pylib/workflows/unit-tests/badge.svg)
+![](https://github.com/bigbio/mzqc-pylib/workflows/release-container/badge.svg)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.0.2?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
 
 A python library to use mzQC files. Specifically, have a usable object representation of mzQC that can
 * serialise
@@ -7,13 +10,14 @@ A python library to use mzQC files. Specifically, have a usable object represent
 * semantic checks
 
 ## Install
+Please install mzqc-pylib via [PyPI](https://pypi.org/). If you want the latest development install
 ```
 pip install -U git+https://github.com/bigbio/mzqc-pylib.git#egg=mzqc-pylib
 ```
+However, we recommend using the [containers](https://quay.io/repository/mwalzer/mzqc-pylib) to check out the latest updates.
 
 ## MZQC
 Schema see https://github.com/HUPO-PSI/mzQC/
 
----
-
-Author @mwalzer
+## 5min interactive guide
+Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.0.2?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/bigbio/mzqc-pylib/blob/master/jupyter/MZQC_in_5_minutes.ipynb))
