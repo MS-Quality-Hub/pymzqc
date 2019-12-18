@@ -14,3 +14,4 @@ jobs:
         username: ${{ secrets.quay_user_mzqc_action }}
         password: ${{ secrets.quay_pw_mzqc_action }}
         registry: quay.io
+        dockerfile: containers/Dockerfile
