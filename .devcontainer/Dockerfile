@@ -72,7 +72,7 @@ RUN Rscript -e "library('devtools'); install_github('twitter/AnomalyDetection')"
 #&& Rscript /tmp/packages.R
 
 
-RUN pip install numpy mypy pronto pytest jupyter rpy2 pyopenms==2.3.* flask
+RUN pip install numpy mypy pronto pytest jupyter rpy2 pyopenms==2.3.* flask requests matplotlib
 #RUN pip install -e .  # devcontainer.json: "postCreateCommand": "pip install -e .",
 
 ARG USERNAME=vscode
