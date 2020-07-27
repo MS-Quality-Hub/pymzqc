@@ -133,21 +133,18 @@ class jsonobject(object):
 
 @JsonSerialisable.register
 class ControlledVocabulary(jsonobject):
-    def __init__(self, ref: str="", name: str="", uri: str="", version: str=""):
-        self.ref = ref  # not in schema
+    def __init__(self, name: str="", uri: str="", version: str=""):
         self.name = name  # required
         self.uri = uri  # required
         self.version = version  # optional
 
 @JsonSerialisable.register
 class CvParameter(jsonobject):
-    def __init__(self, cvRef: str="", 
-                       accession: str="", 
+    def __init__(self, accession: str="", 
                        name: str="", 
                        description: str="", 
                        value: Union[int,str,float,IntVector,StringVector,FloatVector,IntMatrix,StringMatrix,FloatMatrix,Table, None]=None,
                        unit: str=""):
-        self.cvRef = cvRef  # required
         self.accession = accession  # required "pattern": "^[A-Z]+:[0-9]{7}$"
         self.name = name  # required
         self.description = description  # optional, "pattern": "^[A-Z]+$"
@@ -156,15 +153,14 @@ class CvParameter(jsonobject):
 
 @JsonSerialisable.register
 class AnalysisSoftware(CvParameter):
-    def __init__(self, cvRef: str="", 
-                       accession: str="", 
+    def __init__(self, accession: str="", 
                        name: str="", 
                        description: str="", 
                        value: str="", 
                        unit: str="", 
                        version: str = "", 
                        uri: str = ""):
-        super().__init__(cvRef, accession, name, description, value, unit)  # optional, this will set None to optional omitted arguments
+        super().__init__(accession, name, description, value, unit)  # optional, this will set None to optional omitted arguments
         self.version = version  # required
         self.uri = uri  # required
 
