@@ -68,6 +68,8 @@ class TestSerialisation:
         
     def test_MzQcFile(self):
         pass 
+        # with open("/tmp/test.mzQC","w") as f:
+        #     f.write(qc.JsonSerialisable.ToJson(mzqc))
 
     def test_NumpyValues(self):
         nup = qc.QualityMetric()

@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
   libstdc++6 \
   sudo \
   build-essential \
-  libcurl4-openssl-dev
+  libcurl4-openssl-dev \
+  ssh-client
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
@@ -72,7 +73,7 @@ RUN Rscript -e "library('devtools'); install_github('twitter/AnomalyDetection')"
 #&& Rscript /tmp/packages.R
 
 
-RUN pip install numpy mypy pronto pytest jupyter rpy2 pyopenms==2.3.* flask requests matplotlib
+RUN pip install numpy mypy pronto pytest jupyter rpy2 pyopenms==2.3.* flask requests matplotlib sphinx
 #RUN pip install -e .  # devcontainer.json: "postCreateCommand": "pip install -e .",
 
 ARG USERNAME=vscode

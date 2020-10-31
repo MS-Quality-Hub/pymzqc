@@ -16,6 +16,10 @@ pip install -U git+https://github.com/bigbio/mzqc-pylib.git#egg=mzqc-pylib
 ```
 However, we recommend using the [containers](https://quay.io/repository/mwalzer/mzqc-pylib) to check out the latest updates.
 
+## Documentation
+To get a nice and simple overview of how the mzQC-pylib works, visit [here](RtD).
+The code documentation style convention is of the type "Sphinx/numpy".
+
 ## MZQC
 Schema see https://github.com/HUPO-PSI/mzQC/
 
