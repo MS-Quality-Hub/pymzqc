@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code structure &#8212; mzQC-pylib 0.1.1 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="mzqc" href="_codegen/modules.html" />
+    <link rel="prev" title="Introduction" href="intro.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="code-structure">
+<h1>Code structure<a class="headerlink" href="#code-structure" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<div class="graphviz"><img src="_images/inheritance-d97557939c911d5038dcf166c07497b90c992e4b.png" alt="Inheritance diagram of mzqc.MZQCFile" usemap="#inheritancefdd79abd6f" class="inheritance graphviz" /></div>
+<map id="inheritancefdd79abd6f" name="inheritancefdd79abd6f">
+<area shape="rect" id="node11" href="_codegen/mzqc.html#mzqc.MZQCFile.MzqcJSONEncoder" target="_top" title="MzqcJSONEncoder The encoder used to facilitate indented encoding " alt="" coords="269,321,491,344"/>
+<area shape="rect" id="node2" href="_codegen/mzqc.html#mzqc.MZQCFile.AnalysisSoftware" target="_top" title="AnalysisSoftware Object representation for mzQC schema type AnalysisSoftware" alt="" coords="545,5,763,28"/>
+<area shape="rect" id="node3" href="_codegen/mzqc.html#mzqc.MZQCFile.CvParameter" target="_top" title="CvParameter Object representation for mzQC schema type CvParameter" alt="" coords="283,50,476,73"/>
+<area shape="rect" id="node12" href="_codegen/mzqc.html#mzqc.MZQCFile.QualityMetric" target="_top" title="QualityMetric Object representation is passed for its more concrete derivatives" alt="" coords="556,50,752,73"/>
+<area shape="rect" id="node4" href="_codegen/mzqc.html#mzqc.MZQCFile.BaseQuality" target="_top" title="BaseQuality Object representation for mzQC schema type BaseQuality" alt="" coords="286,95,474,118"/>
+<area shape="rect" id="node13" href="_codegen/mzqc.html#mzqc.MZQCFile.RunQuality" target="_top" title="QualityMetric Object representation is passed for its more general basis" alt="" coords="564,95,744,118"/>
+<area shape="rect" id="node14" href="_codegen/mzqc.html#mzqc.MZQCFile.SetQuality" target="_top" title="SetQuality Object representation is passed for its more general basis" alt="" coords="565,140,743,163"/>
+<area shape="rect" id="node5" href="_codegen/mzqc.html#mzqc.MZQCFile.jsonobject" target="_top" title="jsonobject Proxy object for better integration of mzQC objects" alt="" coords="21,163,198,187"/>
+<area shape="rect" id="node6" href="_codegen/mzqc.html#mzqc.MZQCFile.ControlledVocabulary" target="_top" title="ControlledVocabulary Object representation for mzQC schema type ControlledVocabulary" alt="" coords="258,140,501,163"/>
+<area shape="rect" id="node7" href="_codegen/mzqc.html#mzqc.MZQCFile.InputFile" target="_top" title="InputFile Object representation for mzQC schema type InputFile" alt="" coords="297,185,463,208"/>
+<area shape="rect" id="node9" href="_codegen/mzqc.html#mzqc.MZQCFile.MetaDataParameters" target="_top" title="MetaDataParameters Object representation for mzQC schema type MetaDataParameters" alt="" coords="260,230,500,254"/>
+<area shape="rect" id="node10" href="_codegen/mzqc.html#mzqc.MZQCFile.MzQcFile" target="_top" title="MzQcFile Object representation for mzQC schema type MzQcFile" alt="" coords="296,276,463,299"/>
+<area shape="rect" id="node8" href="_codegen/mzqc.html#mzqc.MZQCFile.JsonSerialisable" target="_top" title="JsonSerialisable Main structure template for mzQC objects" alt="" coords="5,118,215,141"/>
+</map></div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">mzQC-pylib</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Code structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="_codegen/modules.html">mzqc</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="intro.html" title="previous chapter">Introduction</a></li>
+      <li>Next: <a href="_codegen/modules.html" title="next chapter">mzqc</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mathias Walzer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/codestructure.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
