@@ -23,7 +23,7 @@ ENV LC_ALL C.UTF-8
 RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list.d/debian-unstable.list
 
 
-RUN pip install numpy mypy pronto pytest jupyter pyopenms==2.4.* flask requests matplotlib sphinx
+RUN pip install numpy requests matplotlib pronto jupyter flask matplotlib pytest mypy sphinx
 #RUN pip install -e .  # devcontainer.json: "postCreateCommand": "pip install -e .",
 
 ARG USERNAME=vscode
