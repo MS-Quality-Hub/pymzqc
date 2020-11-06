@@ -13,7 +13,7 @@ Welcome to mzQC-pylib's documentation!
    
    intro
    codestructure
-   _codegen/modules
+   codegen/modules
 
 Indices and tables
 ==================

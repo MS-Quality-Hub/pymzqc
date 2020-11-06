@@ -5,4 +5,5 @@ dependencies:
     - pronto
     - requests 
     - matplotlib
+    - jupyter
     - git+https://github.com/bigbio/mzqc-pylib.git#egg=mzqc-pylib

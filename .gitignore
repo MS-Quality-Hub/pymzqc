@@ -9,4 +9,4 @@ tests/__pycache__/
 
 mzqc_pylib.egg-info/
 
-doc/build/
+doc/build/*
