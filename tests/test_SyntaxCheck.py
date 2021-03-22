@@ -1,5 +1,5 @@
 __author__ = 'walzer'
-import pytest  # Eeeeeeverything needs to be prefixed with test ito be picked up by pytest, i.e. TestClass() and test_function()
+import pytest  # Eeeeeeverything needs to be prefixed with test in order to be picked up by pytest, i.e. TestClass() and test_function()
 from mzqc import MZQCFile as qc
 from mzqc import SyntaxCheck as sy
 
