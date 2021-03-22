@@ -3,7 +3,7 @@
 	"dockerFile": "Dockerfile",
 	"context": "..",
 	"extensions": [
-		"ms-python.python"
+		"ms-python.python", "littlefoxteam.vscode-python-test-adapter", "njpwerner.autodocstring"
 	],
 	"settings": {
 		"python.pythonPath": "/usr/local/bin/python"

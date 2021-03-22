@@ -3,11 +3,11 @@ import json
 import os
 import urllib.request
 from typing import Dict, List, Set, Union
-from MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, QualityMetric
+from mzqc.MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, QualityMetric
 from itertools import chain
 
 import jsonschema
-from pronto import Ontology, Term, TermList
+from pronto import Ontology, Term
 from jsonschema.exceptions import ValidationError
 
 class SemanticError(ValidationError):
@@ -37,7 +37,7 @@ class SemanticCheck(object):
                                     List[SetQuality]]):
         for quality in qualities:
             file_names : List[str] = list()
-            for input_file in quality.metadata.input_files:
+            for input_file in quality.metadata.inputFiles:
                 # filename and location
                 infilo = os.path.splitext(
                     os.path.basename(input_file.location))[0]
@@ -52,12 +52,12 @@ class SemanticCheck(object):
     def validate(self, mzqc: MzQcFile):
         # Semantic validation of the JSON file.
         # Load the mzqc file specific ontologies
-        cvs: Dict[str, TermList] = dict()
-        for cv in mzqc.controlled_vocabularies:
-            try:
-                cvs[cv.ref] = Ontology(cv.uri, False) 
-            except:
-                SemanticError(f'Failed to load cv {cv.name} from {cv.uri}. Does {cv.ref} exist?')
+        cvs: Dict[str, List[Term]] = dict()
+        # for cv in mzqc.controlled_vocabularies:
+        #     try:
+        #         cvs[cv.ref] = Ontology(cv.uri, False) 
+        #     except:
+        #         SemanticError(f'Failed to load cv {cv.name} from {cv.uri}. Does {cv.ref} exist?')
         
         # For all cv terms involved:
         for cv_parameter in self._get_cv_parameters(mzqc):
@@ -78,8 +78,8 @@ class SemanticCheck(object):
                     f'"{cv_parameter.name}" != "{cv_term.name}"')
 
         # Regarding metadata, verify that input files are consistent and unique.
-        self._inputFileConsistency(mzqc.run_qualities)
-        self._inputFileConsistency(mzqc.set_qualities)
+        self._inputFileConsistency(mzqc.runQualities)
+        self._inputFileConsistency(mzqc.setQualities)
 
         # For all metrics (which are basing on cv type)
         #run_and_set_quality_collection: List[BaseQuality] = list()

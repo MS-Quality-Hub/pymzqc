@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     
 setup(
     name='mzqc-pylib',
-    version='0.0.3',
+    version='0.1.1',
     packages=find_packages(exclude=("tests",)),
     author='Mathias Walzer',
     author_email='walzer@ebi.ack.uk',    
@@ -17,7 +17,10 @@ setup(
         "jsonschema",
         "pronto",
         "numpy",
-        ],
+        "requests",
+        "matplotlib",
+        "jupyter",
+    ],
     setup_requires=['wheel'],
     python_requires='>=3.6',
     include_package_data=True,
