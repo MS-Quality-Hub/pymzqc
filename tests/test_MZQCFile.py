@@ -14,9 +14,9 @@ CV = '{"name": "TEST", "uri": "www.eff.off", "version": ""}'
 CVT = '{"accession": "TEST:123", "name": "testname", "description": "", "value": 99, "unit": ""}'
 ANSO = '{"accession": "QC:9999999", "name": "bigwhopqc", "description": "", "value": "", "unit": "", "version": "1.2.3", "uri": "file:///dev/null"}'
 INFI = '{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}'
-META = '{"inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}]}'
-RUQU = '{"metadata": {"inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}]}, "qualityMetrics": [{"accession": "QC:4000053", "name": "RT duration", "value": 99}]}'
-SEQU = '{"metadata": {"inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}]}, "qualityMetrics": [{"accession": "QC:4000053", "name": "RT duration", "value": 99}]}'
+META = '{"label": "test_metadata", "inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}]}'
+RUQU = '{"metadata": {"label": "test_metadata", "inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}]}, "qualityMetrics": [{"accession": "QC:4000053", "name": "RT duration", "value": 99}]}'
+SEQU = '{"metadata": {"label": "test_metadata", "inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}]}, "qualityMetrics": [{"accession": "QC:4000053", "name": "RT duration", "value": 99}]}'
 NPQM = '{"accession": "QC:123", "name": "einszweidrei", "description": "", "value": {"np": [0.1111111119389534, 0.25, 0.4285714328289032]}, "unit": ""}'
 
 cvt = qc.CvParameter(accession="TEST:123", name="testname", value=99)
@@ -27,12 +27,15 @@ infi = qc.InputFile(name="file.raw",location="file:///dev/null",
                                                     value="2017-12-08-T15:38:57Z")
                     ])
 anso = qc.AnalysisSoftware(accession="QC:9999999", name="bigwhopqc", version="1.2.3", uri="file:///dev/null")   # isn't requiring a uri a bit too much?
-meta = qc.MetaDataParameters(inputFiles=[infi],analysisSoftware=[anso])
+meta = qc.MetaDataParameters(inputFiles=[infi], analysisSoftware=[anso], label="test_metadata")
 qm = qc.QualityMetric(accession="QC:4000053", name="RT duration", value=99)
 rq = qc.RunQuality(metadata=meta, qualityMetrics=[qm])
 sq = qc.SetQuality(metadata=meta, qualityMetrics=[qm])
 cv = qc.ControlledVocabulary(name="TEST", uri="www.eff.off")
-mzqc = qc.MzQcFile(version="0.1.1", runQualities=[rq], setQualities=[sq], controlledVocabularies=[cv]) 
+mzqc = qc.MzQcFile(version="1.0.0", 
+            description="unit-test file", 
+            runQualities=[rq], setQualities=[sq], 
+            controlledVocabularies=[cv]) 
 
 
 class TestSerialisation:
@@ -67,9 +70,9 @@ class TestSerialisation:
         assert qc.JsonSerialisable.ToJson(sq) == SEQU
         
     def test_MzQcFile(self):
-        pass 
-        # with open("/tmp/test.mzQC","w") as f:
-        #     f.write(qc.JsonSerialisable.ToJson(mzqc))
+        #pass 
+        with open("/tmp/test.mzQC","w") as f:
+            f.write(qc.JsonSerialisable.ToJson(mzqc,2))
 
     def test_NumpyValues(self):
         nup = qc.QualityMetric()

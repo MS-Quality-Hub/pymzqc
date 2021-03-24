@@ -9,6 +9,7 @@ tests/__pycache__/
 
 mzqc_pylib.egg-info/
 
+_build/
 doc/build/**
 
 doc/source/codegen/**

@@ -361,11 +361,13 @@ class MetaDataParameters(jsonobject):
     def __init__(self, 
                     # fileProvenance: str="", 
                     # cv_params: List[CvParameter] = None ,
+                    label: str = "",
                     inputFiles: List[InputFile] = None, 
                     analysisSoftware: List[AnalysisSoftware]=None 
                 ):
         # self.fileProvenance = fileProvenance  # not in schema
         # self.cv_params = [] if cv_params is None else cv_params  # not in schema, IMO should be in there
+        self.label = label  # optional
         self.inputFiles =  [] if inputFiles is None else inputFiles  # required
         self.analysisSoftware = [] if analysisSoftware is None else analysisSoftware  # required
         
@@ -424,18 +426,33 @@ class MzQcFile(jsonobject):
     MzQcFile Object representation for mzQC schema type MzQcFile
 
     """    
-    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), version: str = "0.0.11",  
+    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), version: str = "1.0.0", 
+                        contactName: str = "", contactAddress: str = "", description: str = "",  
                     runQualities: List[RunQuality]=None, 
                     setQualities: List[SetQuality]=None, 
                     controlledVocabularies: List[ControlledVocabulary]=None 
                     ):
-        self.creationDate = JsonSerialisable.time_helper(creationDate) if isinstance(creationDate, str) else creationDate  # not in schema, IMO should be
-        self.version = version
-        self.runQualities = [] if runQualities is None else runQualities
-        self.setQualities = [] if setQualities is None else setQualities
+        self.creationDate = JsonSerialisable.time_helper(creationDate) if isinstance(creationDate, str) else creationDate  # required
+        self.version = version  # required
+        self.contactName = contactName  # optional
+        self.contactAddress = contactAddress  # optional
+        self.description = description  # optional
+        self.runQualities = [] if runQualities is None else runQualities  # either or set required
+        self.setQualities = [] if setQualities is None else setQualities  # either or run required
         self.controlledVocabularies = [] if controlledVocabularies is None else controlledVocabularies  # required
     # schema: at least one cv in controlled_vocabularies
     # schema: at least one of run_qualities or set_qualities
     # schema: at least one item in run_qualities or set_qualities
 
+# TODOs
+# root:
+# 	contactName
+# 	contactAddress
+# 	description
+# shows up if empty!	
 
+# metadata:
+# 	label
+	
+# qualityMetric:
+# 	unit
