@@ -14,6 +14,7 @@ Welcome to mzQC-pylib's documentation!
    intro
    codestructure
    mzqc
+   modules
    examples
 
 Indices and tables
