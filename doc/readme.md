@@ -2,9 +2,10 @@
 bootstrap: `sphinx-quickstart`
 N.B. source and build folders are kept separate!
 Edit `doc/source/index.rst`, adding static rst like intro, etc. and code generated class documentation. Use `:glob:` for wildcards.
-Build the from code generated documentation: `sphinx-apidoc -f -o doc/source/codegen mzqc`
-Then, check the doc representation: `sphinx-build doc/source -W -b linkcheck -d _build/doctrees _build`
-And finally, build html with `sphinx-build doc/source _build`
+Build autodoc rst files the from code generated documentation. From `doc` folder: `sphinx-apidoc -f sphinx-apidoc -o ./source ../mzqc`
+These might need updating if structure in the modules has changed! 
+Then, check the doc representation: `sphinx-build doc/source -W -b linkcheck -d build/doctrees build`
+And finally, build all with `sphinx-build doc/source doc/build`
 
 
 
