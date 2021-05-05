@@ -20,6 +20,5 @@ Welcome to mzQC-pylib's documentation!
 Indices and tables
 ==================
 
-* :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
