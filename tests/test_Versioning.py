@@ -10,7 +10,7 @@ import re
 """
 Code content tests for mzQC versioning
 """
-version = pkg_resources.require("mzqc-pylib")[0].version  # setup.py is _the_ refernce for the version number
+version = pkg_resources.require("mzqc-pylib")[0].version  # main branch setup.py is _the_ reference for the version number
 
 def extract_version_and_check(line, ref_ver):
     """
@@ -44,10 +44,13 @@ class TestVersions:
             if "[interactive python notebook]" in line:
                 extract_version_and_check(line,version)
        
+    """
+    This is a final test to check if the versions used in the local tests match the version in main branch
+    """
     def test_docs(self):
         with open("doc/source/conf.py", 'r') as fh:
             scpy = fh.readlines()
         for line in scpy:
             if "release =" in line:
-                extract_version_and_check(line,version)
+                extract_version_and_check(line.strip(),version)
         

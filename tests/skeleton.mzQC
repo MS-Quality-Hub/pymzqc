@@ -5,7 +5,7 @@
 		{"name": "Unit Ontology", "uri": "http://ontologies.berkeleybop.org/uo.obo", "version": "releases/2020-03-10"}
 	],
 	"creationDate": "2020-07-29T11:17:09", 
-	"version": "0.1.1",
+	"version": "1.0.0",
 	"runQualities": [
 		{"metadata": 
 			{"analysisSoftware": [{"accession": "QC:9999999", "name": "bestqctool", "uri": "http://www.qc-for-protein-pros.org", "version": "1.2.3"}],
