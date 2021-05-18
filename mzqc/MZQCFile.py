@@ -201,8 +201,11 @@ class JsonSerialisable(object):
         -------
         [type]
             [description]
-        """    
-        j = json.loads(json_str, object_hook=classself.class_mapper)
+        """ 
+        if isinstance(json_str, str):   
+            j = json.loads(json_str, object_hook=classself.class_mapper)
+        else:  # assume it is a IO wrapper
+            j = json.load(json_str, object_hook=classself.class_mapper)
         return rectify(j)
 
 
