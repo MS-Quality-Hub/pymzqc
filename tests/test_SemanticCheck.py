@@ -1,9 +1,9 @@
 __author__ = 'walzer'
 import pytest  # Eeeeeeverything needs to be prefixed with test in order to be picked up by pytest, i.e. TestClass() and test_function()
 import mzqc.MZQCFile as qc
-from mzqc.SyntaxCheck import SyntacticCheck
+from mzqc.SemanticCheck import SemanticCheck
 
-def test_SyntaxCheck():
+def test_SemanticCheck():
     cvt = qc.CvParameter(accession="TEST:123", name="testname", value=99)
     infi = qc.InputFile(name="file.raw",location="file:///dev/null", 
                         fileFormat=qc.CvParameter("MS:1000584", "mzML format"), 
@@ -24,5 +24,6 @@ def test_SyntaxCheck():
     # with open('tests/mzqc_lib_out.mzqc', 'w') as f:
     #     f.write("{ \"mzQC\": " + qc.JsonSerialisable.ToJson(mzqc) + " }")
         
-    syn_check = SyntacticCheck()
-    syn_check.validate("{ \"mzQC\": " + qc.JsonSerialisable.ToJson(mzqc) + " }")
+    sem_check = SemanticCheck()
+    sem_check.validate(mzqc) 
+
