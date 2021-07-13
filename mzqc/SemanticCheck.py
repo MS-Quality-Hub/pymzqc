@@ -1,5 +1,6 @@
 __author__ = 'bittremieux, walzer'
 import json
+import mzqc
 import os
 import urllib.request
 from typing import Dict, List, Set, Union, Tuple, Any
@@ -15,14 +16,8 @@ class SemanticError(ValidationError):
     pass
 
 class SemanticCheck(object):
-    def __init__(self, mzqc_obj: MzQcFile, version: str=""):
+    def __init__(self, version: str=""):
         self.version = version  
-            # with open(filename) as json_in:
-                # Syntactic validation of the mzQC file against the JSON schema.
-                # instance = json.load(json_in)
-                # version = instance['mzQC']['version'].replace('.', '_')
-        self.errors = self.validate(mzqc_obj)
-        # TODO incorporate version when SemanticValidation may differ between versions
 
     def _get_cv_parameters(self, val: object):
         if hasattr(val, 'accession'):
@@ -38,14 +33,14 @@ class SemanticCheck(object):
             pass
 
     def _getVocabularies(self, mzqc_obj: MzQcFile) -> Tuple[Dict[str,Ontology], List[SemanticError]]:
-        vocs = {cve.name: Ontology(cve.uri) for cve in mzqc_obj.controlledVocabularies}
+        #vocs = {cve.name: Ontology(cve.uri) for cve in mzqc_obj.controlledVocabularies}
         vocs = dict()
         errs = list()
         for cve in mzqc_obj.controlledVocabularies:
             try:
                 vocs[cve.name] = Ontology(cve.uri)
             except Exception as e:
-                errs.append(SemanticError(f'Error loading ontology referenced in file: {e}'))
+                errs.append(SemanticError(f'Error loading the following ontology referenced in file: {e}'))
         return vocs, errs
 
     def _inputFileConsistency(self, mzqc_obj: MzQcFile) -> List[SemanticError]:
@@ -114,6 +109,7 @@ class SemanticCheck(object):
         return term_errs
 
     def validate(self, mzqc_obj: MzQcFile):
+        # TODO incorporate version when SemanticValidation may differ between versions
         #! Semantic validation of the JSON file.
         #? Check that label (metadata) must be unique in the file
         #? Verify that the term exists in the CV.
@@ -126,6 +122,12 @@ class SemanticCheck(object):
 
         # create validation error list object
         validation_errs = dict()  # need to keep it flexible
+
+        if type(mzqc_obj) != MzQcFile:
+            if type(mzqc_obj) == dict and mzqc_obj.get('mzQC', None):
+                mzqc_obj = mzqc_obj.get('mzQC', None)
+        else:
+            return {"general": "incompatible object given to validation"}
 
         #? Check that label (metadata) must be unique in the file
         uniq_labels = set()
@@ -211,5 +213,7 @@ class SemanticCheck(object):
 
         # Regarding metadata, verify that input files are consistent and unique.
         validation_errs['input_files'] = self._inputFileConsistency(mzqc_obj)
-
+        
+        # keep last check and return
+        self.errors = validation_errs
         return validation_errs
