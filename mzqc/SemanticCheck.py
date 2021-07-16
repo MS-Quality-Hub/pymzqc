@@ -123,8 +123,9 @@ class SemanticCheck(object):
         # create validation error list object
         validation_errs = dict()  # need to keep it flexible
 
-        if type(mzqc_obj) != MzQcFile:
-            if type(mzqc_obj) == dict and mzqc_obj.get('mzQC', None):
+        if type(mzqc_obj) == MzQcFile:
+            pass
+        elif type(mzqc_obj) == dict and mzqc_obj.get('mzQC', None):
                 mzqc_obj = mzqc_obj.get('mzQC', None)
         else:
             return {"general": "incompatible object given to validation"}
