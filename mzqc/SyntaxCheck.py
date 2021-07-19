@@ -5,6 +5,7 @@ import urllib.request
 from typing import Dict, List, Union
 
 import jsonschema
+#from jsonschema import Draft7Validator
 from jsonschema.exceptions import ValidationError
 
 class SyntacticCheck(object):
@@ -25,5 +26,11 @@ class SyntacticCheck(object):
         try:
             mzqc_json = json.loads(mzqc_str)
         except:
-            raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
-        return jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
+            #raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
+            return {'schema': "Given mzqc seems not to be a string representation of a json type."}
+
+        try:
+            jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
+        except ValidationError as e:
+            return { 'schema': str(e) }
+        return { 'schema': 'success' }        

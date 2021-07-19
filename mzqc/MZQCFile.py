@@ -176,11 +176,14 @@ class JsonSerialisable(object):
             The serialisation result
         """        
         if readability==0:
-            return json.dumps(obj.__dict__, default=classself.complex_handler)
+            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler)
         elif readability == 1:
-            return json.dumps(obj.__dict__, default=classself.complex_handler, indent=2, cls=MzqcJSONEncoder)
+            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=2, cls=MzqcJSONEncoder)
         else:
-            return json.dumps(obj.__dict__, default=classself.complex_handler, indent=4)
+            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=4)
+        
+        #TODO remove empty run/setQualities, return with mzqc root, 
+        return ret.replace('"setQualities": [],', '').replace('"runQualities": [],', '') # Q'n'D 
 
     @classmethod
     def FromJson(classself, json_str):
