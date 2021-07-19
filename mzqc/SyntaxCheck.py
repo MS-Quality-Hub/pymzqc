@@ -8,19 +8,19 @@ import jsonschema
 #from jsonschema import Draft7Validator
 from jsonschema.exceptions import ValidationError
 
-class SyntacticCheck(object):
-    def __init__(self, version: str=""):
+class SyntaxCheck(object):
+    def __init__(self, version: str="1.0.0"):
         self.version = version  
-        # self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
-        #              'mzqc-pylib/schema/v{v}/mzqc_{v}.schema.json'.format(v=version)
-        with open('tests/schema.json', 'r') as s:
-            self.schema = json.loads(s.read())
+        self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
+                    'mzQC/main/schema/v{v}/mzqc_schema.json'.format(v=version)  # TODO the URI should go into the config.ini
         # self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
                     #  'master/schema/v{v}/mzqc_{v}.schema.json'.format(v=version)
         # self.schema_url = "https://raw.githubusercontent.com/HUPO-PSI/mzQC/master/schema/v0_0_11/mzqc_0_0_11.schema.json"
         # self.schema = None
-        # with urllib.request.urlopen(self.schema_url, timeout=2) as schema_in:
-        #     self.schema = json.loads(schema_in.read().decode())
+        # with open('tests/schema.json', 'r') as s:
+        #    self.schema = json.loads(s.read())
+        with urllib.request.urlopen(self.schema_url, timeout=2) as schema_in:
+            self.schema = json.loads(schema_in.read().decode())
 
     def validate(self, mzqc_str: str):
         try:
