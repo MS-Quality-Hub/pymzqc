@@ -12,7 +12,7 @@ class SyntaxCheck(object):
     def __init__(self, version: str="1.0.0"):
         self.version = version  
         self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
-                    'mzQC/main/schema/v{v}/mzqc_schema.json'.format(v=version)  # TODO the URI should go into the config.ini
+                    'v{v}/schema/mzqc_schema.json'.format(v=version)  # TODO the URI should go into the config.ini
         # self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
                     #  'master/schema/v{v}/mzqc_{v}.schema.json'.format(v=version)
         # self.schema_url = "https://raw.githubusercontent.com/HUPO-PSI/mzQC/master/schema/v0_0_11/mzqc_0_0_11.schema.json"
