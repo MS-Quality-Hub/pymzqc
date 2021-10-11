@@ -235,9 +235,14 @@ def rectify(obj):
     if hasattr(obj, '__dict__'):
         for k,v in obj.__dict__.items():
             if k in static_list_typemap.keys():
-                v = [rectify((static_list_typemap[k])(**i.__dict__ if hasattr(i, '__dict__') else i)) for i in v]
+                v[:] = [rectify((static_list_typemap[k])(**i.__dict__ if hasattr(i, '__dict__') else i)) for i in v]
             elif k in static_singlet_typemap.keys():
                 k = rectify((static_singlet_typemap[k])(**v.__dict__ if hasattr(v, '__dict__') else v))
+            else:
+                rectify(v)
+    elif isinstance(obj, dict):
+        for k,v in obj.items():
+            rectify(v)
     return obj
 
 
