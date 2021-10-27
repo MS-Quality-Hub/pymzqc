@@ -1,6 +1,7 @@
 # MZQC python library
 ![](https://github.com/bigbio/mzqc-pylib/workflows/unit-tests/badge.svg)
 ![](https://github.com/bigbio/mzqc-pylib/workflows/release-container/badge.svg)
+![](https://readthedocs.org/projects/mzqc-pylib/badge/?version=v1.0.0&style=flat)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.1.1?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
 
 A python library to use mzQC files. Specifically, have a usable object representation of mzQC that can
