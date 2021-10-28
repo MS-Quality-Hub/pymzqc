@@ -1,9 +1,12 @@
 dependencies:
   - pip:
     - pip    
-    - numpy
+    - numpy 
+    - pandas 
+    - scipy
+    - plotly 
+    - kaleido
+    - jsonschema
     - pronto
-    - requests 
-    - matplotlib
-    - jupyter
-    - git+https://github.com/bigbio/mzqc-pylib.git#egg=mzqc-pylib
+    - requests
+    - git+https://github.com/bigbio/mzqc-pylib.git@v1.0.0#egg=mzqc-pylib

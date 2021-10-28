@@ -14,12 +14,14 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=[
+        "numpy",
+        "pandas", 
+        "scipy",
+        "plotly", 
+        "kaleido",
         "jsonschema",
         "pronto",
-        "numpy",
-        "requests",
-        "matplotlib",
-        "jupyter",
+        "requests"
     ],
     setup_requires=['wheel'],
     python_requires='>=3.6',

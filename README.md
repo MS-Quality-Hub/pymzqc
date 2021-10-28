@@ -2,7 +2,7 @@
 ![](https://github.com/bigbio/mzqc-pylib/workflows/unit-tests/badge.svg)
 ![](https://github.com/bigbio/mzqc-pylib/workflows/release-container/badge.svg)
 ![](https://readthedocs.org/projects/mzqc-pylib/badge/?version=v1.0.0&style=flat)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.1.1?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v1.0.0?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
 
 A python library to use mzQC files. Specifically, have a usable object representation of mzQC that can
 * serialise
@@ -34,4 +34,4 @@ Contributions are welcome! (Fork and open PR)
 This library implements python modules for (de-)serialisation and validity checks of the [PSI fileformat mzQC](http://www.psidev.info/groups/quality-control). To see the raw fileformat, including json schema and specification documentation, see https://github.com/HUPO-PSI/mzQC/. **The library follows the formats versioning**(which is 'v(Major).(Minor).(Patch)').
 
 ## 5min interactive guide
-Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v0.1.1?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/bigbio/mzqc-pylib/blob/master/jupyter/MZQC_in_5_minutes.ipynb))
+Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/bigbio/mzqc-pylib/v1.0.0?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/bigbio/mzqc-pylib/blob/master/jupyter/MZQC_in_5_minutes.ipynb))

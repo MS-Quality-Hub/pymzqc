@@ -1,8 +1,8 @@
+numpy 
+pandas 
+scipy
+plotly 
+kaleido
 jsonschema
 pronto
-numpy
 requests
-matplotlib
-jupyter
-sphinx
-sphinx-rtd-theme
