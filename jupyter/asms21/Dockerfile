@@ -4,9 +4,9 @@ FROM python:3.9-slim-buster
 #FROM python:2.7-slim-jessie
  
 ENV DEBIAN_FRONTEND noninteractive 
-COPY jupyter/asms21/asms21-pylib_demo.complete.ipynb asms21-pylib_demo.complete.ipynb
-COPY jupyter/asms21/CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09_ids.csv CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09_ids.csv
-COPY jupyter/asms21/CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.mzQC CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.mzQC
+COPY asms21-pylib_demo.complete.ipynb /asms21-pylib_demo.complete.ipynb
+COPY CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09_ids.csv /CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09_ids.csv
+COPY CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.mzQC /CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.mzQC
 
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \ 
   vim \
