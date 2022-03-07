@@ -9,19 +9,44 @@ import jsonschema
 from jsonschema.exceptions import ValidationError
 
 class SyntaxCheck(object):
-    def __init__(self, version: str="1.0.0"):
+    """
+    SyntaxCheck class for syntax validations of mzQC objects (after JSON dump)
+
+    Using member function validate of the SytnaxCheck class, mzQC objects can 
+    be checked for correct syntax in its built-in serialisation.
+    """
+    def __init__(self, version: str="main"):
+        """
+        __init__ default function, essential to instantiate the object with the
+        correct version of the mzQC schema to validate with. 
+
+        The (default) value to the version parameter will decide which version
+        is chosen from the GitHub repository to validate any files. 
+        The parameter value should correspond to a branch or (release) tag name
+        as it exists in the repository. There, the schema is expected to be 
+        located at `/schema/mzqc_schema.json`. The naming convention of regular
+        branches or tags is `vMINOR.Major.MINOR.PATCH` with `v` indicating a 
+        regularly versioned branch or tag. Other names are to be treated as 
+        experimental but should work with the SyntaxCheck class. One exception
+        is (the default value) `main` which points to the tip of the main 
+        development branch.
+
+        Parameters
+        ----------
+        version : str, optional
+            _description_, by default "main"
+        """        
         self.version = version  
         # with open('tests/schema.json', 'r') as s:
         #    self.schema = json.loads(s.read())
         # self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
         #             'v{v}/schema/mzqc_schema.json'.format(v=version)  
-        # TODO the URI should go into the config.ini
-        # TODO the versions should be available via the github branches
+        # TODO the URI should go into a config.ini
         self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
-                      'main/schema/mzqc_schema.json'.format(v=version)
+                        + '{branch}/schema/mzqc_schema.json'.format(branch=version)
         with urllib.request.urlopen(self.schema_url, timeout=2) as schema_in:
             self.schema = json.loads(schema_in.read().decode())
-    
+
     def validate(self, mzqc_str: str):
         try:
             mzqc_json = json.loads(mzqc_str)
