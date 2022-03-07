@@ -41,22 +41,22 @@ mzqc = qc.MzQcFile(version="1.0.0",
 class TestSerialisation:
 
     def test_ControlledVocabulary(self):
-        assert qc.JsonSerialisable.ToJson(cv) == CV 
+        assert qc.JsonSerialisable.ToJson(cv, complete=False) == CV 
         
     def test_CvParameter(self):
-        assert  qc.JsonSerialisable.ToJson(cvt) == CVT
+        assert  qc.JsonSerialisable.ToJson(cvt, complete=False) == CVT
         
     def test_AnalysisSoftware(self):
-        assert qc.JsonSerialisable.ToJson(anso) == ANSO
+        assert qc.JsonSerialisable.ToJson(anso, complete=False) == ANSO
         
     def test_InputFile(self):
-        assert qc.JsonSerialisable.ToJson(infi) == INFI
+        assert qc.JsonSerialisable.ToJson(infi, complete=False) == INFI
         
     def test_MetaDataParameters(self):
-        assert qc.JsonSerialisable.ToJson(meta) == META
+        assert qc.JsonSerialisable.ToJson(meta, complete=False) == META
 
     def test_QualityMetric(self):
-        assert qc.JsonSerialisable.ToJson(qm) == QM
+        assert qc.JsonSerialisable.ToJson(qm, complete=False) == QM
 
         #TODO more metric value types (str, float, List[float], Dict[str,float])
         
@@ -64,15 +64,15 @@ class TestSerialisation:
         pass 
         
     def test_RunQuality(self):
-        assert qc.JsonSerialisable.ToJson(rq) == RUQU
+        assert qc.JsonSerialisable.ToJson(rq, complete=False) == RUQU
 
     def test_SetQuality(self):
-        assert qc.JsonSerialisable.ToJson(sq) == SEQU
+        assert qc.JsonSerialisable.ToJson(sq, complete=False) == SEQU
         
     def test_MzQcFile(self):
         #pass 
         with open("/tmp/test.mzQC","w") as f:
-            f.write(qc.JsonSerialisable.ToJson(mzqc,2))
+            f.write(qc.JsonSerialisable.ToJson(mzqc,2, complete=False))
 
     def test_NumpyValues(self):
         nup = qc.QualityMetric()
@@ -80,7 +80,7 @@ class TestSerialisation:
         nup.name = "einszweidrei"
         npnd = np.array([1/9,2/8,3/7], dtype=np.float32)
         nup.value= {"np":npnd}
-        assert qc.JsonSerialisable.ToJson(nup) == NPQM
+        assert qc.JsonSerialisable.ToJson(nup, complete=False) == NPQM
 
     def test_DateTime(self):
         try:

@@ -3,7 +3,7 @@ import json
 import operator
 from datetime import datetime
 from typing import List,Dict,Union,Any,Tuple
-import numpy as np 
+import numpy as np
 
 #int
 #str
@@ -156,7 +156,7 @@ class JsonSerialisable(object):
         return cls
 
     @classmethod
-    def ToJson(classself, obj, readability=0):
+    def ToJson(classself, obj, readability=0, complete=True):
         """
         ToJson Main method for serialisation
 
@@ -168,7 +168,12 @@ class JsonSerialisable(object):
             The object to be serialised
         readability : int, optional
             The indentation level, by default 0 (=no indentation, 
-            1=minor indentation on MZQC objects, >1 heavy indentation for max. human readability)
+            1=minor indentation on MZQC objects, >1 heavy indentation for max. 
+            human readability)
+        complete: bool, optional 
+            Flag to indicate if the object is to be left without the 
+            enclosing `mzQC` key or if the JSON is to be amended to full 
+            schema compliance (default).
 
         Returns
         -------
@@ -183,15 +188,19 @@ class JsonSerialisable(object):
             ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=4)
         
         #TODO remove empty run/setQualities, return with mzqc root, 
-        return ret.replace('"setQualities": [],', '').replace('"runQualities": [],', '') # Q'n'D 
+        ret = ret.replace('"setQualities": [],', '').replace('"runQualities": [],', '')
+        ret = ret.replace('"contactName": "",\n', '').replace('"contactAddress": "",\n', '').replace('"description": "",\n', '')
+        ret = "{{\"mzQC\": \n{dump} \n}}".format(dump=ret) if complete else ret
+        return ret
 
     @classmethod
-    def FromJson(classself, json_str):
+    def FromJson(classself, json_str, complete=False):
         """
         FromJson Main method for deserialisation
 
-        Accounts for neccessary object rectification due to same-attribute class footprints.
-        N.B.: for this to work the class init variables must be same name as the corresponding member attributes (self).
+        Accounts for neccessary object rectification due to same-attribute 
+        class footprints. N.B.: for this to work the class init variables must
+        be same name as the corresponding member attributes (self). 
 
         Parameters
         ----------
@@ -199,16 +208,21 @@ class JsonSerialisable(object):
             The objects class self
         json_str : str
             The JSON string to be deserialised
+        complete : bool, optional
+            Flag to indicate if the whole JSON is to be returned deserialised, 
+            or just the `mzQC` entry (default).
 
         Returns
         -------
-        [type]
-            [description]
+        MzQcFile object
+            The deserialised JSON string
         """ 
         if isinstance(json_str, str):   
             j = json.loads(json_str, object_hook=classself.class_mapper)
         else:  # assume it is a IO wrapper
             j = json.load(json_str, object_hook=classself.class_mapper)
+        if not(complete) and 'mzQC' in j.keys():
+            j = j['mzQC']
         return rectify(j)
 
 
@@ -461,9 +475,3 @@ class MzQcFile(jsonobject):
 # 	contactAddress
 # 	description
 # shows up if empty!	
-
-# metadata:
-# 	label
-	
-# qualityMetric:
-# 	unit
