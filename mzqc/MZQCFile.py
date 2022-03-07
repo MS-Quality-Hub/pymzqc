@@ -468,10 +468,3 @@ class MzQcFile(jsonobject):
     # schema: at least one cv in controlled_vocabularies
     # schema: at least one of run_qualities or set_qualities
     # schema: at least one item in run_qualities or set_qualities
-
-# TODOs
-# root:
-# 	contactName
-# 	contactAddress
-# 	description
-# shows up if empty!	
