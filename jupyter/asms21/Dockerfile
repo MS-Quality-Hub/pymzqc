@@ -24,4 +24,4 @@ ENV LC_ALL C.UTF-8
 RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list.d/debian-unstable.list
 
 RUN pip install pandas numpy scipy pronto jupyter requests plotly kaleido
-RUN pip install -U git+https://github.com/bigbio/mzqc-pylib.git@v1.0.0#egg=mzqc-pylib
+RUN pip install -U git+https://github.com/MS-Quality-hub/mzqc-pylib.git@v1.0.0#egg=mzqc-pylib
