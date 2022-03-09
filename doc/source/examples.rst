@@ -10,6 +10,7 @@ Load
 ------------------------------
 
 .. code-block:: python
+
     from mzqc import MZQCFile as qc
     with open("nameOfYourFile.mzQC", "r") as file:
         my_run_qualities = qc.JsonSerialisable.FromJson(file)
@@ -19,6 +20,7 @@ Access elements
 see `schema <https://github.com/HUPO-PSI/mzQC/tree/main/schema>`_ for a general overview of available elements.
 
 .. code-block:: python
+
     # An in-memory mzQC file will still have the same hierarchical structure as the schema
     print(my_run_qualities.description)
 
@@ -34,6 +36,7 @@ Store
 ------------------------------
 
 .. code-block:: python
+
     inmem_file = qc.JsonSerialisable.ToJson(mzqc, readability=1)
     with open("nameOfYourFile.mzQC", "w") as file:
         file.write(inmem_file)
