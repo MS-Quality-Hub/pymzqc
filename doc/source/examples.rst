@@ -5,8 +5,10 @@ Several hands-on examples can be found `here. <https://github.com/MS-Quality-hub
 A video version for ASMS'22 is `on youtube: <https://www.youtube.com/watch?v=vZXJuPl2yGw>`_
 
 The copy&paste essentials:
+
 Load
 ------------------------------
+
 .. code-block:: python
     from mzqc import MZQCFile as qc
     with open("nameOfYourFile.mzQC", "r") as file:
@@ -14,8 +16,9 @@ Load
 
 Access elements
 ------------------------------
-see `schema: <https://github.com/HUPO-PSI/mzQC/tree/main/schema>`_ for a general overview of available elements.
- .. code-block:: python
+see `schema <https://github.com/HUPO-PSI/mzQC/tree/main/schema>`_ for a general overview of available elements.
+
+.. code-block:: python
     # An in-memory mzQC file will still have the same hierarchical structure as the schema
     print(my_run_qualities.description)
 
@@ -29,6 +32,7 @@ see `schema: <https://github.com/HUPO-PSI/mzQC/tree/main/schema>`_ for a general
 
 Store
 ------------------------------
+
 .. code-block:: python
     inmem_file = qc.JsonSerialisable.ToJson(mzqc, readability=1)
     with open("nameOfYourFile.mzQC", "w") as file:
