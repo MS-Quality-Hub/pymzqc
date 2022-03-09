@@ -9,4 +9,4 @@ dependencies:
     - jsonschema
     - pronto
     - requests
-    - git+https://github.com/MS-Quality-hub/mzqc-pylib.git@v1.0.0#egg=mzqc-pylib
+    - git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0#egg=mzqc-pylib
