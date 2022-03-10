@@ -10,7 +10,7 @@ import re
 """
 Code content tests for mzQC versioning
 """
-version = pkg_resources.require("mzqc-pylib")[0].version  # main branch setup.py is _the_ reference for the version number
+version = pkg_resources.require("pymzqc")[0].version  # main branch setup.py is _the_ reference for the version number
 
 def extract_version_and_check(line, ref_ver):
     """

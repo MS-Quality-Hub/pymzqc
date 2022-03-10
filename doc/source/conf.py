@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('../../mzqc/'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'mzQC-pylib'
+project = 'pymzqc'
 copyright = '2020, Mathias Walzer'
 author = 'Mathias Walzer'
 

@@ -10,7 +10,7 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
-        name: mwalzer/mzqc-pylib
+        name: mwalzer/pymzqc
         username: ${{ secrets.quay_user_mzqc_action }}
         password: ${{ secrets.quay_pw_mzqc_action }}
         registry: quay.io
