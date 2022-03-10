@@ -1,6 +1,6 @@
 # MZQC python library
 ![](https://github.com/MS-Quality-hub/pymzqc/workflows/unit-tests/badge.svg)
-![](https://github.com/MS-Quality-hub/pymzqc/workflows/release-container/badge.svg)
+[![Docker Repository on Quay](https://quay.io/repository/mwalzer/pymzqc/status "Docker Repository on Quay")](https://quay.io/repository/mwalzer/pymzqc)
 ![](https://readthedocs.org/projects/pymzqc/badge/?version=v1.0.0&style=flat)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0.0?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
 
