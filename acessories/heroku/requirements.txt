@@ -1,3 +1,4 @@
+git+git://github.com/MS-Quality-hub/pymzqc.git@v1.0.0
 aniso8601==9.0.1
 argon2-cffi==20.1.0
 async-generator==1.10
@@ -39,7 +40,6 @@ MarkupSafe==2.0.1
 matplotlib==3.4.2
 matplotlib-inline==0.1.2
 mistune==0.8.4
-git+git://github.com/MS-Quality-hub/mzqc-pylib.git@v1.0.0
 nbclient==0.5.3
 nbconvert==6.1.0
 nbformat==5.1.3
