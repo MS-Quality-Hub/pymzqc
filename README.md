@@ -1,6 +1,6 @@
 # MZQC python library
 ![](https://github.com/MS-Quality-hub/pymzqc/workflows/unit-tests/badge.svg)
-![](https://github.com/MS-Quality-hub/pymzqc/workflows/release-container/badge.svg)
+[![Docker Repository on Quay](https://quay.io/repository/mwalzer/pymzqc/status "Docker Repository on Quay")](https://quay.io/repository/mwalzer/pymzqc)
 ![](https://readthedocs.org/projects/pymzqc/badge/?version=v1.0.0&style=flat)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0.0?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
 
@@ -18,7 +18,7 @@ pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#egg=pymzqc
 However, we recommend using the [containers](https://quay.io/repository/mwalzer/pymzqc) to check out the latest updates.
 
 ## Documentation
-To get a nice and simple overview of how pymzqc works, visit [here](https://mzqc-pylib.readthedocs.io).
+To get a nice and simple overview of how pymzqc works, visit [here](https://pymzqc.readthedocs.io).
 The code documentation style convention is of the type "Sphinx/numpy".
 If you however have successfully installed the library and want to **jump right in and use the library**, we suggest the [interactive guide](#5min-interactive-guide).
 
