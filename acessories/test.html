@@ -1,0 +1,140 @@
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		.accordion {
+		  background-color: #eee;
+		  color: #444;
+		  cursor: pointer;
+		  padding: 18px;
+		  width: 100%;
+		  border: none;
+		  text-align: left;
+		  outline: none;
+		  font-size: 15px;
+		  transition: 0.4s;
+		}
+		
+		.active, .accordion:hover {
+		  background-color: #ccc;
+		}
+		
+		.accordion:after {
+		  content: '\002B';
+		  color: #777;
+		  font-weight: bold;
+		  float: right;
+		  margin-left: 5px;
+		}
+		
+		.active:after {
+		  content: "\2212";
+		}
+		
+		.panel {
+		  padding: 0 18px;
+		  background-color: white;
+		  max-height: 0;
+		  overflow: hidden;
+		  transition: max-height 0.2s ease-out;
+		}
+	</style>
+</head>
+<input type="file" id="file-selector" accept=".mzQC, .mzqc">
+<p id="status"></p>
+<div id="output"></div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+	function activateAccordion(){
+		var acc = document.getElementsByClassName("accordion");
+		var i;
+		
+		for (i = 0; i < acc.length; i++) {
+		acc[i].addEventListener("click", function() {
+			this.classList.toggle("active");
+			var panel = this.nextElementSibling;
+			if (panel.style.maxHeight) {
+			panel.style.maxHeight = null;
+			} else {
+			panel.style.maxHeight = panel.scrollHeight + "px";
+			} 
+		});
+		}
+	}
+
+	function appendAccordionElement (elem, k, v) {
+		if (v.length) {
+			let btn = document.createElement("button");
+			btn.innerHTML = k;
+			btn.className = "accordion";
+			elem.appendChild(btn);
+			let niv = document.createElement("div");
+			niv.className = "panel";
+			let nc = document.createElement('ul');
+			$.each(v, function(i) {
+				let li = document.createElement('li');
+			    li.appendChild(document.createTextNode(v[i]));
+    			nc.appendChild(li);
+				console.log(v[i]);
+			});
+			niv.appendChild(nc);
+			elem.appendChild(niv);
+		}
+	}
+
+	const status = document.getElementById('status');
+	const output = document.getElementById('output');
+
+	if (window.FileReader && window.Blob) {
+		var control = document.getElementById('file-selector');
+		control.addEventListener('change', event => {
+			//output.src = '';
+			output.textContent = '';
+			status.textContent = '';
+			for (var i = 0; i < control.files.length; i++) {
+				console.log("Filename: " + control.files[i].name);
+				console.log("Type: " + control.files[i].type);
+				console.log("Size: " + control.files[i].size + " bytes");
+			}
+			if (!control.files[0].type) {
+				console.log('Error: The File.type property does not appear to be supported on this browser.');
+			}
+			console.log("No. of  files: " + control.files.length);
+			
+			
+			const reader = new FileReader();
+			reader.readAsText(control.files[0]);
+			
+			reader.onload = function(event) {
+				try {
+					var mzqc = JSON.parse(event.target.result);
+					//output.textContent = JSON.stringify(mzqc);
+					if (mzqc) {
+						console.log("validating...")
+						$.ajax({
+						type: "POST",
+						data: {validator_input: JSON.stringify(mzqc)},
+						url: "https://45.88.80.81:5000/mzqc-validator",
+						dataType: "jsonp",
+						success: function(result){
+							console.dir(result);
+						}
+						});
+						$.post("https://45.88.80.81:5000/mzqc-validator", {validator_input: JSON.stringify(mzqc)}, 'json').done(function(response) {
+							//output.textContent = JSON.stringify(response);
+							$.each(response, function(k,v) {
+  								appendAccordionElement(output, k,v)
+								});
+							activateAccordion();
+							}).fail(function() {
+							status.textContent = "Uhoh, seems your file broke the validator. Or something broke down during communication. Actually, that's way more likely. Your connection is fine? No proxy, etc.?";
+						})
+					}
+				} catch(err) {
+					status.textContent = "File does not appear to be a JSON format. (" + err.message + ")";
+				}
+			}
+			
+		}, false);
+	} else { status.textContent = "Your browser seems a bit outdated. Please try with a contemporary version."; }
+</script>
+	

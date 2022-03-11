@@ -5,25 +5,57 @@ import urllib.request
 from typing import Dict, List, Union
 
 import jsonschema
+#from jsonschema import Draft7Validator
 from jsonschema.exceptions import ValidationError
 
-class SyntacticCheck(object):
-    def __init__(self, version: str=""):
+class SyntaxCheck(object):
+    """
+    SyntaxCheck class for syntax validations of mzQC objects (after JSON dump)
+
+    Using member function validate of the SytnaxCheck class, mzQC objects can 
+    be checked for correct syntax in its built-in serialisation.
+    """
+    def __init__(self, version: str="main"):
+        """
+        __init__ default function, essential to instantiate the object with the
+        correct version of the mzQC schema to validate with. 
+
+        The (default) value to the version parameter will decide which version
+        is chosen from the GitHub repository to validate any files. 
+        The parameter value should correspond to a branch or (release) tag name
+        as it exists in the repository. There, the schema is expected to be 
+        located at `/schema/mzqc_schema.json`. The naming convention of regular
+        branches or tags is `vMINOR.Major.MINOR.PATCH` with `v` indicating a 
+        regularly versioned branch or tag. Other names are to be treated as 
+        experimental but should work with the SyntaxCheck class. One exception
+        is (the default value) `main` which points to the tip of the main 
+        development branch.
+
+        Parameters
+        ----------
+        version : str, optional
+            _description_, by default "main"
+        """        
         self.version = version  
+        # with open('tests/schema.json', 'r') as s:
+        #    self.schema = json.loads(s.read())
         # self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
-        #              'mzqc-pylib/schema/v{v}/mzqc_{v}.schema.json'.format(v=version)
-        with open('tests/schema.json', 'r') as s:
-            self.schema = json.loads(s.read())
-        # self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
-                    #  'master/schema/v{v}/mzqc_{v}.schema.json'.format(v=version)
-        # self.schema_url = "https://raw.githubusercontent.com/HUPO-PSI/mzQC/master/schema/v0_0_11/mzqc_0_0_11.schema.json"
-        # self.schema = None
-        # with urllib.request.urlopen(self.schema_url, timeout=2) as schema_in:
-        #     self.schema = json.loads(schema_in.read().decode())
+        #             'v{v}/schema/mzqc_schema.json'.format(v=version)  
+        # TODO the URI should go into a config.ini
+        self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
+                        + '{branch}/schema/mzqc_schema.json'.format(branch=version)
+        with urllib.request.urlopen(self.schema_url, timeout=2) as schema_in:
+            self.schema = json.loads(schema_in.read().decode())
 
     def validate(self, mzqc_str: str):
         try:
             mzqc_json = json.loads(mzqc_str)
         except:
-            raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
-        return jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
+            #raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
+            return {'schema': ["Given mzqc seems not to be a string representation of a json type."]}
+
+        try:
+            jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
+        except ValidationError as e:
+            return { 'schema': [str(e)] }
+        return { 'schema': ['success'] }        

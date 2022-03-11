@@ -3,7 +3,7 @@ import json
 import operator
 from datetime import datetime
 from typing import List,Dict,Union,Any,Tuple
-import numpy as np 
+import numpy as np
 
 #int
 #str
@@ -156,7 +156,7 @@ class JsonSerialisable(object):
         return cls
 
     @classmethod
-    def ToJson(classself, obj, readability=0):
+    def ToJson(classself, obj, readability=0, complete=True):
         """
         ToJson Main method for serialisation
 
@@ -168,7 +168,12 @@ class JsonSerialisable(object):
             The object to be serialised
         readability : int, optional
             The indentation level, by default 0 (=no indentation, 
-            1=minor indentation on MZQC objects, >1 heavy indentation for max. human readability)
+            1=minor indentation on MZQC objects, >1 heavy indentation for max. 
+            human readability)
+        complete: bool, optional 
+            Flag to indicate if the object is to be left without the 
+            enclosing `mzQC` key or if the JSON is to be amended to full 
+            schema compliance (default).
 
         Returns
         -------
@@ -176,19 +181,26 @@ class JsonSerialisable(object):
             The serialisation result
         """        
         if readability==0:
-            return json.dumps(obj.__dict__, default=classself.complex_handler)
+            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler)
         elif readability == 1:
-            return json.dumps(obj.__dict__, default=classself.complex_handler, indent=2, cls=MzqcJSONEncoder)
+            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=2, cls=MzqcJSONEncoder)
         else:
-            return json.dumps(obj.__dict__, default=classself.complex_handler, indent=4)
+            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=4)
+        
+        #TODO remove empty run/setQualities, return with mzqc root, 
+        ret = ret.replace('"setQualities": [],', '').replace('"runQualities": [],', '')
+        ret = ret.replace('"contactName": "",\n', '').replace('"contactAddress": "",\n', '').replace('"description": "",\n', '')
+        ret = "{{\"mzQC\": \n{dump} \n}}".format(dump=ret) if complete else ret
+        return ret
 
     @classmethod
-    def FromJson(classself, json_str):
+    def FromJson(classself, json_str, complete=False):
         """
         FromJson Main method for deserialisation
 
-        Accounts for neccessary object rectification due to same-attribute class footprints.
-        N.B.: for this to work the class init variables must be same name as the corresponding member attributes (self).
+        Accounts for neccessary object rectification due to same-attribute 
+        class footprints. N.B.: for this to work the class init variables must
+        be same name as the corresponding member attributes (self). 
 
         Parameters
         ----------
@@ -196,13 +208,21 @@ class JsonSerialisable(object):
             The objects class self
         json_str : str
             The JSON string to be deserialised
+        complete : bool, optional
+            Flag to indicate if the whole JSON is to be returned deserialised, 
+            or just the `mzQC` entry (default).
 
         Returns
         -------
-        [type]
-            [description]
-        """    
-        j = json.loads(json_str, object_hook=classself.class_mapper)
+        MzQcFile object
+            The deserialised JSON string
+        """ 
+        if isinstance(json_str, str):   
+            j = json.loads(json_str, object_hook=classself.class_mapper)
+        else:  # assume it is a IO wrapper
+            j = json.load(json_str, object_hook=classself.class_mapper)
+        if not(complete) and 'mzQC' in j.keys():
+            j = j['mzQC']
         return rectify(j)
 
 
@@ -229,9 +249,14 @@ def rectify(obj):
     if hasattr(obj, '__dict__'):
         for k,v in obj.__dict__.items():
             if k in static_list_typemap.keys():
-                v = [rectify((static_list_typemap[k])(**i.__dict__ if hasattr(i, '__dict__') else i)) for i in v]
+                v[:] = [rectify((static_list_typemap[k])(**i.__dict__ if hasattr(i, '__dict__') else i)) for i in v]
             elif k in static_singlet_typemap.keys():
                 k = rectify((static_singlet_typemap[k])(**v.__dict__ if hasattr(v, '__dict__') else v))
+            else:
+                rectify(v)
+    elif isinstance(obj, dict):
+        for k,v in obj.items():
+            rectify(v)
     return obj
 
 
@@ -361,11 +386,13 @@ class MetaDataParameters(jsonobject):
     def __init__(self, 
                     # fileProvenance: str="", 
                     # cv_params: List[CvParameter] = None ,
+                    label: str = "",
                     inputFiles: List[InputFile] = None, 
                     analysisSoftware: List[AnalysisSoftware]=None 
                 ):
         # self.fileProvenance = fileProvenance  # not in schema
         # self.cv_params = [] if cv_params is None else cv_params  # not in schema, IMO should be in there
+        self.label = label  # optional
         self.inputFiles =  [] if inputFiles is None else inputFiles  # required
         self.analysisSoftware = [] if analysisSoftware is None else analysisSoftware  # required
         
@@ -424,18 +451,20 @@ class MzQcFile(jsonobject):
     MzQcFile Object representation for mzQC schema type MzQcFile
 
     """    
-    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), version: str = "0.0.11",  
+    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), version: str = "1.0.0", 
+                        contactName: str = "", contactAddress: str = "", description: str = "",  
                     runQualities: List[RunQuality]=None, 
                     setQualities: List[SetQuality]=None, 
                     controlledVocabularies: List[ControlledVocabulary]=None 
                     ):
-        self.creationDate = JsonSerialisable.time_helper(creationDate) if isinstance(creationDate, str) else creationDate  # not in schema, IMO should be
-        self.version = version
-        self.runQualities = [] if runQualities is None else runQualities
-        self.setQualities = [] if setQualities is None else setQualities
+        self.creationDate = JsonSerialisable.time_helper(creationDate) if isinstance(creationDate, str) else creationDate  # required
+        self.version = version  # required
+        self.contactName = contactName  # optional
+        self.contactAddress = contactAddress  # optional
+        self.description = description  # optional
+        self.runQualities = [] if runQualities is None else runQualities  # either or set required
+        self.setQualities = [] if setQualities is None else setQualities  # either or run required
         self.controlledVocabularies = [] if controlledVocabularies is None else controlledVocabularies  # required
     # schema: at least one cv in controlled_vocabularies
     # schema: at least one of run_qualities or set_qualities
     # schema: at least one item in run_qualities or set_qualities
-
-

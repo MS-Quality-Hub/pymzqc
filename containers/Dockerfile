@@ -1,4 +1,5 @@
-FROM python:3.6.9-slim-buster
+FROM python:3.9-slim-buster
+#FROM python:3.6.9-slim-buster
 #FROM python:3.6.5-slim-jessie
 #FROM python:2.7-slim-jessie
  
@@ -19,5 +20,5 @@ ENV LC_ALL C.UTF-8
 
 RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list.d/debian-unstable.list
 
-RUN pip install numpy requests matplotlib pronto
-RUN pip install -U git+https://github.com/bigbio/mzqc-pylib.git#egg=mzqc-pylib
+RUN pip install pandas numpy scipy pronto jupyter requests plotly kaleido
+RUN python -m pip install --upgrade --no-cache-dir git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0#egg=pymzqc
