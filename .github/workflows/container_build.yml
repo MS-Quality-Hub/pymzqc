@@ -11,6 +11,9 @@ jobs:
         name: Checkout
         uses: actions/checkout@v2
       -
+        name: Set tags
+        run: echo mwalzerpymzqc:${GITHUB_REF##*/}
+      -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       -
@@ -35,9 +38,8 @@ jobs:
         with:
           context: .
           file: containers/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
             quay.io/mwalzer/pymzqc:latest_pullrequest_build
-            quay.io/mwalzer/pymzqc:fudging_with_tags
-#            quay.io/mwalzer/pymzqc:${{ env.GITHUB_HEAD_REF_env.GITHUB_SHA }}
+            quay.io/mwalzer/pymzqc:${{ github.head_ref }}_${{ github.sha }}
