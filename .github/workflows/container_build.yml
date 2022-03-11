@@ -15,3 +15,4 @@ jobs:
         password: ${{ secrets.quay_pw_mzqc_action }}
         registry: quay.io
         dockerfile: containers/Dockerfile
+        tags: "${{ env.GITHUB_HEAD_REF_env.GITHUB_SHA }}"
