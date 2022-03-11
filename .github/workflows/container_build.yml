@@ -39,4 +39,5 @@ jobs:
           push: true
           tags: |
             quay.io/mwalzer/pymzqc:latest_pullrequest_build
-            #quay.io/mwalzer/pymzqc:${{ env.GITHUB_HEAD_REF_env.GITHUB_SHA }}
+            quay.io/mwalzer/pymzqc:fudging_with_tags
+#            quay.io/mwalzer/pymzqc:${{ env.GITHUB_HEAD_REF_env.GITHUB_SHA }}
