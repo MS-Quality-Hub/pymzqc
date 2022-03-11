@@ -1,0 +1,88 @@
+{"mzQC": 
+{
+  "creationDate": "2022-03-07T15:01:48",
+  "version": "1.0.0",
+        "runQualities": [
+    {
+      "metadata": {
+        "inputFiles": [
+          {
+            "location": "file:///dev/null/file.raw",
+            "name": "file.raw",
+            "fileFormat": {
+              "accession": "MS",
+              "name": "MS:1000563",
+              "description": "Thermo RAW format"
+            },
+            "fileProperties": [
+              {
+                "accession": "MS:1000747",
+                "name": "completion time",
+                "value": "2015-10-03-T10:18:27Z"
+              },
+              {
+                "accession": "MS:1000569",
+                "name": "SHA-1",
+                "value": "76de62feccaaaadb608e89d897db57135e39ad87"
+              },
+              {
+                "accession": "MS:1000031",
+                "name": "instrument model",
+                "value": "LTQ Orbitrap Velos"
+              }
+            ]
+          },
+          {
+            "location": "file:///dev/null",
+            "name": "afteridbeforepercolat.tsv",
+            "fileFormat": {
+              "accession": "MS:1000914",
+              "name": "tab delimited text format"
+            },
+            "fileProperties": []
+          }
+        ],
+        "analysisSoftware": [
+          {
+            "accession": "MS:1002251",
+            "name": "Comet",
+            "version": "2018.01.1",
+            "uri": "http://proteomicsresource.washington.edu/sequest.php"
+          },
+          {
+            "version": "0.1.2.3",
+            "uri": "file:///mylocal/jupyter/host"
+          }
+        ]
+      },
+      "qualityMetrics": [
+        {
+          "accession": "QC:0000000",
+          "name": "Mass error sigma",
+          "value": 0.008799662813544273
+        },
+        {
+          "accession": "QC:0000000",
+          "name": "Mass error Q1, Q2, Q3",
+          "value": [
+            -0.0098876953125,0.0,0.00299072265625
+            ]
+        }
+      ]
+    }
+  ],
+  
+  "controlledVocabularies": [
+    {
+      "name": "Proteomics Standards Initiative Quality Control Ontology",
+      "uri": "https://github.com/HUPO-PSI/qcML-development/blob/master/cv/v0_1_0/qc-cv.obo",
+      "version": "0.1.0"
+    },
+    {
+      "name": "Proteomics Standards Initiative Mass Spectrometry Ontology",
+      "uri": "https://github.com/HUPO-PSI/psi-ms-CV/blob/master/psi-ms.obo",
+      "version": "4.1.7"
+    }
+  ]
+} 
+}
