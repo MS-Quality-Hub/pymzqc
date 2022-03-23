@@ -1,12 +1,9 @@
 dependencies:
   - pip:
     - pip    
+    - jsonschema
     - numpy 
     - pandas 
-    - scipy
-    - plotly 
-    - kaleido
-    - jsonschema
-    - pronto
+    - pronto<2.2.1
     - requests
-    - git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0#egg=pymzqc
+    #- git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0#egg=pymzqc
