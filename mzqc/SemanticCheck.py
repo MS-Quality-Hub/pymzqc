@@ -32,13 +32,19 @@ class SemanticCheck(object):
             # recursion dead-end
             pass
 
-    def _getVocabularies(self, mzqc_obj: MzQcFile) -> Tuple[Dict[str,Ontology], List[SemanticError]]:
+    def _getVocabularies(self, mzqc_obj: MzQcFile, load_local=False) -> Tuple[Dict[str,Ontology], List[SemanticError]]:
         #vocs = {cve.name: Ontology(cve.uri) for cve in mzqc_obj.controlledVocabularies}
         vocs = dict()
         errs = list()
         for cve in mzqc_obj.controlledVocabularies:
             try:
-                vocs[cve.name] = Ontology(cve.uri)
+                if load_local:
+                    loc = cve.uri
+                    if loc.startswith('file://'):
+                        loc = loc[len('file://'):]
+                    vocs[cve.name] = Ontology(loc)
+                else:
+                    vocs[cve.name] = Ontology(cve.uri)
             except Exception as e:
                 errs.append(SemanticError(f'Error loading the following ontology referenced in file: {e}'))
         return vocs, errs
@@ -108,7 +114,7 @@ class SemanticCheck(object):
         # error/warning/other messages) to collect all the stuff while going through the validation
         return term_errs
 
-    def validate(self, mzqc_obj: MzQcFile):
+    def validate(self, mzqc_obj: MzQcFile, load_local=False):
         # TODO incorporate version when SemanticValidation may differ between versions
         #! Semantic validation of the JSON file.
         #? Check that label (metadata) must be unique in the file
@@ -138,7 +144,7 @@ class SemanticCheck(object):
         validation_errs['label issues'] = label_errs
 
         #? Check that all cvs referenced are linked to valid ontology
-        file_vocabularies, voc_errs = self._getVocabularies(mzqc_obj)
+        file_vocabularies, voc_errs = self._getVocabularies(mzqc_obj, load_local=load_local)
         # check if ontologies are listed multiple times (different versions etc)
         validation_errs['ontology errors'] = voc_errs
 
