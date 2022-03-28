@@ -78,7 +78,7 @@ class SyntaxCheck(object):
         except ValidationError as e:
             try:
                 #res = "{} # {}".format(e.message, e.json_path )  # not what ValidationError doc says
-                res = e.message.partition('\n')[0]
+                res = e.message.partition('\n')[0] + ' @ ' + ''.join('[{}]'.format(k) for k in e.path )
             except:
                 res = str(e)
             return { 'schema validation': res }
