@@ -1,9 +1,0 @@
-dependencies:
-  - pip:
-    - pip    
-    - jsonschema
-    - numpy 
-    - pandas 
-    - pronto<2.2.1
-    - requests
-    #- git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0#egg=pymzqc

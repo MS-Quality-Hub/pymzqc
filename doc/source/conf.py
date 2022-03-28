@@ -21,7 +21,7 @@ copyright = '2019-2022, Mathias Walzer'
 author = 'Mathias Walzer'
 
 # The full version, including alpha/beta/rc tags
-release = 'v1.0.0rc'
+release = 'v1.0.0rc1'
 
 
 # -- General configuration ---------------------------------------------------
