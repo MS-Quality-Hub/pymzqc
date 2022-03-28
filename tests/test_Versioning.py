@@ -26,7 +26,7 @@ def extract_version_and_check(line, ref_ver):
     ref_ver : str
         Given version to check against
     """    
-    matches = re.finditer('v\d+\.\d+\.\d+', line)
+    matches = re.finditer('v\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
     if matches:
         for k in matches:
             assert k.group(0)[1:] == ref_ver
