@@ -141,7 +141,7 @@ class SemanticCheck(object):
                     "Run/SetQuality label {} is not unique in file!".format(qle.metadata.label)))
             else: 
                 uniq_labels.add(qle.metadata.label)
-        validation_errs['label issues'] = label_errs
+        validation_errs['label uniqueness'] = label_errs
 
         #? Check that all cvs referenced are linked to valid ontology
         file_vocabularies, voc_errs = self._getVocabularies(mzqc_obj, load_local=load_local)
