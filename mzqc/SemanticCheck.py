@@ -79,7 +79,7 @@ class SemanticCheck(object):
         metricsubclass_sets_list = list()
         for k,v in filevocabularies.items():
             try:
-                metricsubclass_sets_list.append({x.id for x in v['MS:4000001'].subclasses().to_set()})
+                metricsubclass_sets_list.append({x.id for x in v['MS:4000002'].subclasses().to_set()})
             except KeyError:
                 pass
         return set().union(chain.from_iterable(metricsubclass_sets_list))
@@ -196,7 +196,7 @@ class SemanticCheck(object):
                                                 f'accession = {quality_metric.accession}'))
 
                 # check value types and column lengths
-                if quality_metric.accession in metric_cvs:
+                if quality_metric.accession in table_cvs:
                     if not isinstance(quality_metric.value , dict):
                         metric_type_errs.append(SemanticError(f'Table metric CV term used without being a table: '
                                                 f'accession = {quality_metric.accession}'))
@@ -208,7 +208,7 @@ class SemanticCheck(object):
                                                 f'accession = {quality_metric.accession}'))
 
         validation_errs['metric uniqueness'] = metrics_uniq_warns
-        if len(metric_cvs) > 1:
+        if len(metric_cvs) < 1:
             actual_metric_warns.append(SemanticError(f'No dedicated metric CV terms found in file ontologies!'))
         validation_errs['metric usage errors'] = actual_metric_warns
         validation_errs['value type errors'] = metric_type_errs
