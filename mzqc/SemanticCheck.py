@@ -93,6 +93,19 @@ class SemanticCheck(object):
                 pass
         return set().union(chain.from_iterable(tablesubclass_sets_list))
 
+    def _getRequiredCols(self, accession: str, filevocabularies: Dict[str,Ontology]) -> Tuple[Set[Term],Set[Term]]:
+        tab_def = None
+        for k,v in filevocabularies.items():
+            try:
+                tab_def = v[accession]
+                break
+            except KeyError:
+                pass
+        if not tab_def:
+            return set(),set()
+        else:
+            return set(next(filter(lambda x: x[0].name=='has_column', tab_def.relationships.items()), (None,frozenset()))[1]), set(next(filter(lambda x: x[0].name=='has_optional_column', tab_def.relationships.items()), (None,frozenset()))[1])
+
     def _cvmatch(self, cv_par: CvParameter, voc_par: Term) -> List[SemanticError]:
         cv_par.accession == voc_par.id
         cv_par.name == voc_par.name
@@ -130,7 +143,7 @@ class SemanticCheck(object):
         validation_errs = dict()  # need to keep it flexible
 
         if type(mzqc_obj) != MzQcFile:
-            return {"semantics": {"validation": "incompatible object given to validation"} }
+            return {"semantic validation": {"general": "incompatible object given to validation"} }
 
         #? Check that label (metadata) must be unique in the file
         uniq_labels = set()
@@ -146,7 +159,7 @@ class SemanticCheck(object):
         #? Check that all cvs referenced are linked to valid ontology
         file_vocabularies, voc_errs = self._getVocabularies(mzqc_obj, load_local=load_local)
         # check if ontologies are listed multiple times (different versions etc)
-        validation_errs['ontology errors'] = voc_errs
+        validation_errs['ontology load errors'] = voc_errs
 
         # For all cv terms involved:
         term_errs = list()
@@ -197,6 +210,9 @@ class SemanticCheck(object):
 
                 # check value types and column lengths
                 if quality_metric.accession in table_cvs:
+                    req_col_accs = {x.id for x in self._getRequiredCols(quality_metric.accession, file_vocabularies)[0]}
+                    opt_col_accs = {x.id for x in self._getRequiredCols(quality_metric.accession, file_vocabularies)[1]}
+                    
                     if not isinstance(quality_metric.value , dict):
                         metric_type_errs.append(SemanticError(f'Table metric CV term used without being a table: '
                                                 f'accession = {quality_metric.accession}'))
@@ -206,6 +222,14 @@ class SemanticCheck(object):
                     elif len({len(sv) for sv in quality_metric.value.values()}) != 1:
                         metric_type_errs.append(SemanticError(f'Table metric CV term used with differing column lengths: '
                                                 f'accession = {quality_metric.accession}'))
+                    elif not req_col_accs.issubset(set(quality_metric.value.keys())):
+                        deviants = ','.join(req_col_accs.difference(set(quality_metric.value.keys())))
+                        metric_type_errs.append(SemanticError(f'Table metric CV term used missing required column(s): '
+                                                f'accession(s) = {deviants}'))
+                    elif not set(quality_metric.value.keys()).issubset(req_col_accs.union(opt_col_accs)):
+                        extras = ','.join(set(quality_metric.value.keys()).difference(req_col_accs.union(opt_col_accs)))
+                        metric_type_errs.append(SemanticError(f'WARNING: Table metric CV term used with extra (undefined) columns: '
+                                                f'accession(s) = {extras}'))
 
         validation_errs['metric uniqueness'] = metrics_uniq_warns
         if len(metric_cvs) < 1:
