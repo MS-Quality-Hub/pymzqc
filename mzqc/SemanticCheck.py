@@ -9,7 +9,20 @@ from itertools import chain
 
 import jsonschema
 from pronto import Ontology, Term
+from contextlib import contextmanager
+import os
+import sys
 from jsonschema.exceptions import ValidationError
+
+@contextmanager
+def suppress_verbose_modules():
+    with open(os.devnull, "w") as devnull:
+        sys_stdout_bak = sys.stdout
+        sys.stdout = devnull
+        try:  
+            yield
+        finally:
+            sys.stdout = sys_stdout_bak
 
 class SemanticError(ValidationError):
     """Base class for exceptions in this module."""
@@ -42,9 +55,11 @@ class SemanticCheck(object):
                     loc = cve.uri
                     if loc.startswith('file://'):
                         loc = loc[len('file://'):]
-                    vocs[cve.name] = Ontology(loc)
+                    with suppress_verbose_modules:
+                        vocs[cve.name] = Ontology(loc)
                 else:
-                    vocs[cve.name] = Ontology(cve.uri)
+                    with suppress_verbose_modules:
+                        vocs[cve.name] = Ontology(cve.uri)
             except Exception as e:
                 errs.append(SemanticError(f'Error loading the following ontology referenced in file: {e}'))
         return vocs, errs
