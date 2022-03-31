@@ -4,12 +4,74 @@ on:
       types: ['opened', 'edited', 'reopened', 'synchronize']  
 
 jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.6, 3.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v1 
+      with:
+        fetch-depth: 1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install pytest
+        pip install -e .
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --exit-zero --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        pytest
+
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.9]
+
+    steps:
+    - uses: actions/checkout@v1 
+      with:
+        fetch-depth: 1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install build wheel
+        python3 -m build --wheel
+        ls -l dist/
+        ls -l .
+    - name: upload wheel
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheel_${{ github.sha }}
+        path: dist/pymzqc-*any.whl
+        retention-days: 14
+
   docker:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Checkout
-        uses: actions/checkout@v2
+        name: Get wheel
+        uses: actions/download-artifact@v3
+        with:
+          name: wheel_${{ github.sha }}
       -
         name: Set tags
         run: echo mwalzerpymzqc:${GITHUB_REF##*/}
