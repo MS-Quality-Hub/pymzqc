@@ -1,7 +1,5 @@
-FROM python:3.9-slim-buster
+FROM python:3.8-slim-buster
 #FROM python:3.6.9-slim-buster
-#FROM python:3.6.5-slim-jessie
-#FROM python:2.7-slim-jessie
  
 ENV DEBIAN_FRONTEND noninteractive 
  

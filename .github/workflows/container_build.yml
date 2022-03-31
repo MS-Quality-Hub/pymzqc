@@ -9,7 +9,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.9]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v1 
@@ -35,37 +35,41 @@ jobs:
       run: |
         pytest
 
-  build:
+  wheel-build:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.9]
+        python-version: [3.8]
+    needs: unit-tests
 
     steps:
-    - uses: actions/checkout@v1 
+    - name: Checkout git
+      uses: actions/checkout@v1 
       with:
         fetch-depth: 1
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Build wheel
       run: |
         python3 -m pip install --upgrade pip
         pip install build wheel
         python3 -m build --wheel
         ls -l dist/
         ls -l .
-    - name: upload wheel
+    - name: Upload wheel
       uses: actions/upload-artifact@v3
       with:
         name: wheel_${{ github.sha }}
         path: dist/pymzqc-*any.whl
         retention-days: 14
 
-  docker:
+  container-build:
     runs-on: ubuntu-latest
+    needs: wheel-build
+
     steps:
       -
         name: Get wheel
