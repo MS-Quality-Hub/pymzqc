@@ -1,12 +1,13 @@
 
 mzqc/__pycache__/
 tests/__pycache__/
-
 .mypy_cache/
 .pytest_cache/
 
 mzqc_pylib.egg-info/
 pymzqc.egg-info/
+build/
+dist/
 
 _build/
 doc/build/**
