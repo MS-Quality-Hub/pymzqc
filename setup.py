@@ -23,5 +23,5 @@ setup(
     setup_requires=['wheel'],
     python_requires='>=3.6',
     include_package_data=True,
-    package_dir = {'': 'dist'}
+    package_dir = {'': 'dist/'}
 )
