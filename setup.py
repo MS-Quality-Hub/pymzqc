@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     
 setup(
     name='pymzqc',
-    version='1.0.0',
+    version='1.0.0rc1',
     packages=find_packages(exclude=("tests",)),
     author='Mathias Walzer',
     author_email='walzer@ebi.ack.uk',    
@@ -14,16 +14,14 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=[
-        "numpy",
-        "pandas", 
-        "scipy",
-        "plotly", 
-        "kaleido",
         "jsonschema",
-        "pronto",
+        "numpy",
+        "pandas",
+        "pronto<2.2.1",
         "requests"
     ],
     setup_requires=['wheel'],
     python_requires='>=3.6',
     include_package_data=True,
+    # package_dir = {'': 'dist/'}
 )

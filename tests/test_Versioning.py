@@ -1,18 +1,22 @@
 __author__ = 'walzer'
 import pytest  # Eeeeeeverything needs to be prefixed with test ito be picked up by pytest, i.e. TestClass() and test_function()
+from collections import defaultdict
 from mzqc import MZQCFile as qc
-import numpy as np
-from datetime import datetime
 import pkg_resources
 import re
 
+"""
+Code content tests for mzQC versioning:
+    * package
+    * docs
+    * examples
+    * GH page
+Runs only if explicitly required (pytest -v --checkversioning)
+"""
 
-"""
-Code content tests for mzQC versioning
-"""
 version = pkg_resources.require("pymzqc")[0].version  # main branch setup.py is _the_ reference for the version number
 
-def extract_version_and_check(line, ref_ver):
+def extract_version_and_check(line, ref_ver, no_v = False):
     """
     extract_version_and_check
 
@@ -26,14 +30,21 @@ def extract_version_and_check(line, ref_ver):
     ref_ver : str
         Given version to check against
     """    
-    matches = re.finditer('v\d+\.\d+\.\d+', line)
+    matches = re.finditer('v\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
+    if no_v:
+        matches = re.finditer('\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
+
     if matches:
         for k in matches:
-            assert k.group(0)[1:] == ref_ver
+            if no_v:
+                assert k.group(0) == ref_ver
+            else:
+                assert k.group(0)[1:] == ref_ver
+
     else:
         assert False 
 
-
+@pytest.mark.check_versioning
 class TestVersions:
     def test_readme(self):
         with open("README.md", 'r') as fh:
@@ -53,4 +64,11 @@ class TestVersions:
         for line in scpy:
             if "release =" in line:
                 extract_version_and_check(line.strip(),version)
+        
+    def test_setup(self):
+        with open("setup.py", 'r') as fh:
+            scpy = fh.readlines()
+        for line in scpy:
+            if "version=" in line:
+                extract_version_and_check(line.strip(),version, no_v=True)
         

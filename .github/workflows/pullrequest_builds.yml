@@ -1,0 +1,108 @@
+name: pullrequest-builds
+on:
+    pull_request:
+      types: ['opened', 'edited', 'reopened', 'synchronize']  
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v1 
+      with:
+        fetch-depth: 1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install pytest
+        pip install -e .
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --exit-zero --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        pytest -v
+
+  wheel-build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.8]
+    needs: unit-tests
+
+    steps:
+    - name: Checkout git
+      uses: actions/checkout@v1 
+      with:
+        fetch-depth: 1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Build wheel
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install build wheel
+        python3 -m build --wheel
+        ls -l dist/
+        ls -l .
+    - name: Upload wheel
+      uses: actions/upload-artifact@v3
+      with:
+        name: wheel_${{ github.sha }}
+        path: dist/pymzqc-*any.whl
+        retention-days: 14
+
+  container-build:
+    runs-on: ubuntu-latest
+    needs: wheel-build
+
+    steps:
+      - name: Get dockerfile
+        uses: actions/checkout@v1 
+        with:
+          fetch-depth: 1
+      - name: Get wheel
+        uses: actions/download-artifact@v3
+        with:
+          name: wheel_${{ github.sha }}
+      - name: Set tags
+        run: echo mwalzerpymzqc:${GITHUB_REF##*/}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+#      - name: Login to DockerHub
+#        uses: docker/login-action@v1 
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to quay.io
+        uses: docker/login-action@v1 
+        with:
+          registry: quay.io
+          username: ${{ secrets.quay_user_mzqc_action }}
+          password: ${{ secrets.quay_pw_mzqc_action }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: containers/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            quay.io/mwalzer/pymzqc:latest_pullrequest_build
+            quay.io/mwalzer/pymzqc:${{ github.head_ref }}_${{ github.sha }}

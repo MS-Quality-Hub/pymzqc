@@ -1,7 +1,5 @@
-FROM python:3.9-slim-buster
+FROM python:3.8-slim-buster
 #FROM python:3.6.9-slim-buster
-#FROM python:3.6.5-slim-jessie
-#FROM python:2.7-slim-jessie
  
 ENV DEBIAN_FRONTEND noninteractive 
  
@@ -20,5 +18,6 @@ ENV LC_ALL C.UTF-8
 
 RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list.d/debian-unstable.list
 
-RUN pip install pandas numpy scipy pronto jupyter requests plotly kaleido
-RUN python -m pip install --upgrade --no-cache-dir git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0#egg=pymzqc
+COPY pymzqc-*-any.whl dist/
+RUN python -m pip install --upgrade pip
+RUN pip install dist/pymzqc-*-any.whl

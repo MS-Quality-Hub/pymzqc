@@ -22,8 +22,9 @@ ENV LC_ALL C.UTF-8
 
 RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list.d/debian-unstable.list
 
-
-RUN pip install numpy scipy requests matplotlib pronto jupyter flask matplotlib pytest mypy sphinx pandas plotly kaleido
+# # only packages related to dev, project dependencies will get resolved via pip and setup.py
+RUN python3 -m pip install --upgrade pip 
+RUN pip install matplotlib pytest mypy types-setuptools sphinx build wheel twine
 #RUN pip install -e .  # devcontainer.json: "postCreateCommand": "pip install -e .",
 
 ARG USERNAME=vscode

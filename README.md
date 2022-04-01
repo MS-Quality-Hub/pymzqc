@@ -1,8 +1,8 @@
 # MZQC python library
 [![unit-tests](https://github.com/MS-Quality-hub/pymzqc/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/MS-Quality-hub/pymzqc/actions/workflows/unit_tests.yml)
 [![Docker Repository on Quay](https://quay.io/repository/mwalzer/pymzqc/status "Docker Repository on Quay")](https://quay.io/repository/mwalzer/pymzqc)
-![](https://readthedocs.org/projects/pymzqc/badge/?version=v1.0.0&style=flat)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0.0?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
+![](https://readthedocs.org/projects/pymzqc/badge/?version=v1.0.0rc1&style=flat)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0.0rc1?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
 
 A python library to use mzQC files. Specifically, have a usable object representation of mzQC that can
 * serialise
@@ -34,4 +34,4 @@ Contributions are welcome! (Fork and open PR)
 This library implements python modules for (de-)serialisation and validity checks of the [PSI fileformat mzQC](http://www.psidev.info/groups/quality-control). To see the raw fileformat, including json schema and specification documentation, see https://github.com/HUPO-PSI/mzQC/. **The library follows the formats versioning**(which is 'v(Major).(Minor).(Patch)').
 
 ## 5min interactive guide
-Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0.0?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/MS-Quality-hub/pymzqc/blob/master/jupyter/MZQC_in_5_minutes.ipynb))
+Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0RC?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/MS-Quality-hub/pymzqc/blob/main/jupyter/MZQC_in_5_minutes.ipynb))

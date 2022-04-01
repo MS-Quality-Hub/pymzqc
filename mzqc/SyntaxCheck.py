@@ -14,6 +14,8 @@ class SyntaxCheck(object):
 
     Using member function validate of the SytnaxCheck class, mzQC objects can 
     be checked for correct syntax in its built-in serialisation.
+    The result dict object from schema validation is compatible with the result
+    dict object from semantic validation of the SemanticCheck class.
     """
     def __init__(self, version: str="main"):
         """
@@ -48,14 +50,36 @@ class SyntaxCheck(object):
             self.schema = json.loads(schema_in.read().decode())
 
     def validate(self, mzqc_str: str):
+        """
+        The validation function validates the given json string representation 
+        against the class objects set schema (see __init__) with 
+        jsonschema.validate and jsonschema.FormatChecker (default arguments).
+
+        Parameters
+        ----------
+        mzqc_str : str
+            The json object to be validated in string representation.
+
+        Returns
+        -------
+        dict
+            Returns a dictionary with key 'schema validation', containing a 
+            truncated error message or in the absence of an error 'success', 
+            both string type.
+        """        
         try:
             mzqc_json = json.loads(mzqc_str)
         except:
             #raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
-            return {'schema': ["Given mzqc seems not to be a string representation of a json type."]}
+            return {'schema validation': ["Given mzqc seems not to be a string representation of a json type."]}
 
         try:
             jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
         except ValidationError as e:
-            return { 'schema': [str(e)] }
-        return { 'schema': ['success'] }        
+            try:
+                #res = "{} # {}".format(e.message, e.json_path )  # not what ValidationError doc says
+                res = e.message.partition('\n')[0] + ' @ ' + ''.join('[{}]'.format(k) for k in e.path )
+            except:
+                res = str(e)
+            return { 'schema validation': res }
+        return { 'schema validation': 'success' }        
