@@ -15,7 +15,7 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=[
         "jsonschema>=3.2.0",
-        "numpy>=1.21.0",
+        "numpy",
         "pandas>=1.1.5",
         "pronto<2.2.1",
         "requests>=2.27.1"
