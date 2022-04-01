@@ -1,7 +1,7 @@
-name: container-build-and-push
+name: release-builds
 on:
-    pull_request:
-      types: ['opened', 'edited', 'reopened', 'synchronize']  
+    release:
+      types: ['published','created','edited']  
 
 jobs:
   unit-tests:
@@ -33,7 +33,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest -v
+        pytest -v --checkversioning
 
   wheel-build:
     runs-on: ubuntu-latest
@@ -104,5 +104,5 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            quay.io/mwalzer/pymzqc:latest_pullrequest_build
-            quay.io/mwalzer/pymzqc:${{ github.head_ref }}_${{ github.sha }}
+            quay.io/mwalzer/pymzqc:latest
+            quay.io/mwalzer/pymzqc:${{ github.event.release.tag_name }}
