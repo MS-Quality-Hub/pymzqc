@@ -14,11 +14,11 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=[
-        "jsonschema",
-        "numpy",
-        "pandas",
+        "jsonschema>=3.2.0",
+        "numpy>=1.21.0",
+        "pandas>=1.1.5",
         "pronto<2.2.1",
-        "requests"
+        "requests>=2.27.1"
     ],
     setup_requires=['wheel'],
     python_requires='>=3.6',
