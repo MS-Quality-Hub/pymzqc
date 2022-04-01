@@ -4,6 +4,14 @@ import json
 from mzqc.SemanticCheck import SemanticCheck
 from mzqc.MZQCFile import MzQcFile as mzqc_file
 from mzqc.MZQCFile import JsonSerialisable as mzqc_io
+import warnings
+
+"""
+    Semantic tests with pymzqc
+     
+    NOTE: warnings from the semantic test class (esp. those from fastobo or 
+        pronto) are ignored!
+"""
 
 def test_SemanticCheck_nonMetricTerm():
     infi = "tests/examples/individual-runs_nonMetricTerm.mzQC"  # test good detection
@@ -13,7 +21,10 @@ def test_SemanticCheck_nonMetricTerm():
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
-    sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
 
     assert("metric usage errors" in sem_val.keys())
     assert("Non-metric CV term used in metric context: accession = MS:1002040" in 
@@ -27,7 +38,10 @@ def test_SemanticCheck_tableExtraColumn():
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
-    sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
 
     assert("value type errors" in sem_val.keys())
     assert("WARNING: Table metric CV term used with extra (undefined) columns: accession(s) = wron col" in 
@@ -41,7 +55,10 @@ def test_SemanticCheck_wrongTermName():
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
-    sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
 
     assert("value type errors" in sem_val.keys())
     assert("Table metric CV term used without being a table: accession = MS:4000063" in 
@@ -55,7 +72,10 @@ def test_SemanticCheck_tableIncomplete():
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
-    sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
 
     assert("value type errors" in sem_val.keys())
     assert("Table metric CV term used missing required column(s): accession(s) = UO:0000191" in 
@@ -69,7 +89,10 @@ def test_SemanticCheck_unequalTableCols():
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
-    sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
 
     assert("value type errors" in sem_val.keys())
     assert("Table metric CV term used with differing column lengths: accession = MS:4000063" in 
@@ -83,7 +106,10 @@ def test_SemanticCheck_duplicateMetric():
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
-    sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+    
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
 
     assert("metric uniqueness" in sem_val.keys())
     assert("Duplicate quality metric in a run/set: accession = MS:4000059" in 
@@ -97,7 +123,10 @@ def test_SemanticCheck_success():
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
-    sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
 
     assert(len(sem_val.get("label uniqueness",list()))==0)
     assert(len(sem_val.get("metric uniqueness",list()))==0)
