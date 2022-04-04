@@ -1,7 +1,8 @@
 # MZQC python library
 [![unit-tests](https://github.com/MS-Quality-hub/pymzqc/actions/workflows/unit_tests.yml/badge.svg)](https://github.com/MS-Quality-hub/pymzqc/actions/workflows/unit_tests.yml)
-[![Docker Repository on Quay](https://quay.io/repository/mwalzer/pymzqc/status "Docker Repository on Quay")](https://quay.io/repository/mwalzer/pymzqc)
-![](https://readthedocs.org/projects/pymzqc/badge/?version=v1.0.0rc1&style=flat)
+[![Documentation Status](https://readthedocs.org/projects/pymzqc/badge/?version=latest)](https://pymzqc.readthedocs.io/en/latest/?badge=latest)
+[![Docker Repository on Quay](https://img.shields.io/badge/container-ready-brightgreen.svg "Docker Repository on Quay")](https://quay.io/repository/mwalzer/pymzqc?tab=tags)
+[![pypi](https://img.shields.io/pypi/wheel/pymzqc)](https://pypi.org/project/pymzqc/)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0.0rc1?filepath=jupyter%2FMZQC_in_5_minutes.ipynb)
 
 A python library to use mzQC files. Specifically, have a usable object representation of mzQC that can
@@ -11,24 +12,27 @@ A python library to use mzQC files. Specifically, have a usable object represent
 * semantic checks
 
 ## Install
-Please install pymzqc via [PyPI](https://pypi.org/). If you want the latest development install
-```
-pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#egg=pymzqc
-```
-However, we recommend using the [containers](https://quay.io/repository/mwalzer/pymzqc) to check out the latest updates.
+Please install pymzqc via [**pypi**](https://pypi.org/project/pymzqc/): `pip install pymzqc`. 
+
+If you want the latest development version, use: `pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#egg=pymzqc`
+However, we recommend using the [**containers**](https://quay.io/repository/mwalzer/pymzqc?tab=tags) to check out the latest updates.
 
 ## Documentation
-To get a nice and simple overview of how pymzqc works, visit [here](https://pymzqc.readthedocs.io).
-The code documentation style convention is of the type "Sphinx/numpy".
-If you however have successfully installed the library and want to **jump right in and use the library**, we suggest the [interactive guide](#5min-interactive-guide).
+To get a nice and simple overview of how pymzqc works, visit [here](https://pymzqc.readthedocs.io/en/latest/examples.html). 
+successfully installed the library and want to **jump right in and use the library**, we suggest the a peek at the [codestructure](https://pymzqc.readthedocs.io/en/latest/codestructure.html).
+
+If you however you just want to get your toes wet, have a look at the [interactive guide](#5min-interactive-guide).
 
 ## Development 
 
 ### Repository structure
-The python package's code is located in the `mzqc` folder, continuous testing code in `tests`, the documentation in `doc`. The **libray-use** container descriptions are in `containers`, if you want to **develop** for the library with a container, please use the container description within `.devcontainer`.
+The python package's code is located in the `mzqc` folder, continuous testing code in `tests`, the documentation in `doc`. The **libray-use** container descriptions are in `containers`, if you want to **develop** for the library with a container, you can use the container description within `.devcontainer`, more development presets can be found in `.vscode`. The `jupyter` and `accessories` folders are subprojects making use of the library.
 
 ### Contribution
 Contributions are welcome! (Fork and open PR)
+
+### Documentation
+The code documentation style convention is of the type "Sphinx/numpy".
 
 ## MZQC
 This library implements python modules for (de-)serialisation and validity checks of the [PSI fileformat mzQC](http://www.psidev.info/groups/quality-control). To see the raw fileformat, including json schema and specification documentation, see https://github.com/HUPO-PSI/mzQC/. **The library follows the formats versioning**(which is 'v(Major).(Minor).(Patch)').
