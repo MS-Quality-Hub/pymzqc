@@ -34,4 +34,4 @@ Contributions are welcome! (Fork and open PR)
 This library implements python modules for (de-)serialisation and validity checks of the [PSI fileformat mzQC](http://www.psidev.info/groups/quality-control). To see the raw fileformat, including json schema and specification documentation, see https://github.com/HUPO-PSI/mzQC/. **The library follows the formats versioning**(which is 'v(Major).(Minor).(Patch)').
 
 ## 5min interactive guide
-Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0RC?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/MS-Quality-hub/pymzqc/blob/main/jupyter/MZQC_in_5_minutes.ipynb))
+Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0RC?filepath=jupyter%2Fmzqc_in_5%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/MS-Quality-hub/pymzqc/blob/main/jupyter/mzqc_in_5/MZQC_in_5_minutes.ipynb))
