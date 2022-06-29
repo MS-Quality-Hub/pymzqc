@@ -71,7 +71,7 @@ class SyntaxCheck(object):
             mzqc_json = json.loads(mzqc_str)
         except:
             #raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
-            return {'schema validation': ["Given mzqc seems not to be a string representation of a json type."]}
+            return {'schema validation': "Given mzqc seems not to be a string representation of a json type."}
 
         try:
             jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
