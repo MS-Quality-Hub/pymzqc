@@ -103,7 +103,7 @@ class Validator(Resource):
 
 
 api.add_resource(Status, '/','/status/')
-api.add_resource(Documentation, '/','/documentation/')
+api.add_resource(Documentation, '/documentation/')
 api.add_resource(Validator, '/validator/')
 
 if __name__ == '__main__':
