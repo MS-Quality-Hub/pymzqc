@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from recommonmark.parser import CommonMarkParser
 sys.path.insert(0, os.path.abspath('../../mzqc/'))
 
 # -- Project information -----------------------------------------------------
@@ -29,7 +30,14 @@ release = 'v1.0.0rc1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.napoleon', 'sphinx.ext.graphviz', 'sphinx.ext.inheritance_diagram']
+extensions = ['sphinx.ext.napoleon', 'sphinx.ext.graphviz', 'sphinx.ext.inheritance_diagram', 'recommonmark']
+# for Sphinx-1.3
+
+source_parsers = {
+    '.md': CommonMarkParser,
+}
+
+source_suffix = ['.rst', '.md']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
