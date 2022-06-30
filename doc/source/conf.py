@@ -47,6 +47,7 @@ exclude_patterns = []
 #
 html_theme = 'alabaster'
 html_theme_options = {
-    'github_repo': 'MS-Quality-hub/pymzqc',
+    'github_repo': 'pymzqc',
+    'github_user': 'MS-Quality-hub',
     'page_width': '80%',
 }
