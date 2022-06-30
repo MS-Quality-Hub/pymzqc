@@ -1,4 +1,3 @@
-# Containers
 
 This folder contains various container build instruction files.
 The `DevDockerfile` builds a container from github sources and installs some helpful modules before that.
