@@ -1,4 +1,4 @@
-## simple API
+### simple API
 
 The simple API has three endpoints: 
 1. indicating '/status/' (GET)
@@ -7,7 +7,7 @@ The simple API has three endpoints:
 
 The documentation provides a `dict` with details to each part of the validation (key) as text (value).
 
-## test & local validation
+### test & local validation
 ```
 python3 -m venv /tmp/vval
 source /tmp/vval/bin/activate
@@ -16,7 +16,7 @@ python accessories/heroku/mzqc_heroku_validator.py
 ```
 e.g. with `accessories/heroku/local_validator.html`
 
-## deploy
+### deploy
 ```
 cd /tmp/
 curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
