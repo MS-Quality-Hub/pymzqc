@@ -13,9 +13,12 @@ Welcome to mzQC's python library documentation!
    
    intro
    codestructure
-   mzqc
    modules
    examples
+   builds
+   containers
+   notebooks
+   accessories
 
 Indices and tables
 ==================
