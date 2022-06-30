@@ -36,10 +36,10 @@ However, we recommend using the ready-built [**containers**](https://quay.io/rep
 To get a nice and simple overview of how pymzqc works, visit [here](https://pymzqc.readthedocs.io/en/latest/examples.html). 
 successfully installed the library and want to **jump right in and use the library**, we suggest the a peek at the [codestructure](https://pymzqc.readthedocs.io/en/latest/codestructure.html).
 
-If you however you just want to get your toes wet, have a look at the interactive guides.
+If you however just want to get your toes wet, have a look at the interactive guides.
 
 ### Interactive pymzqc
-Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0RC?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/MS-Quality-hub/pymzqc/blob/main/jupyter/MZQC_in_5_minutes.ipynb))
+Have a go with our [interactive python notebooks](jupyter/README.md) to explore what is possible.
 
 
 ## Development 
