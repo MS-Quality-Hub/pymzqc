@@ -8,34 +8,47 @@
 A python library to use mzQC files. Specifically, have a usable object representation of mzQC that can
 * serialise
 * deserialise
-* syntactic checks
-* semantic checks
+* check syntax
+* check semantics
+
+**The library follows the formats versioning** (which is 'v(Major).(Minor).(Patch)').
+
+This library implements python modules for (de-)serialisation and validity checks of the [PSI fileformat](http://www.psidev.info/groups/quality-control) [**mzQC**](https://hupo-psi.github.io/mzQC/). Find the specification document, examples, and and further documentation there.
+
 
 ## Install
-Please install pymzqc via [**pypi**](https://pypi.org/project/pymzqc/): `pip install pymzqc`. 
 
-If you want the latest development version, use: `pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#egg=pymzqc`
-However, we recommend using the [**containers**](https://quay.io/repository/mwalzer/pymzqc?tab=tags) to check out the latest updates.
+### Latest Release
+Most people will want to install the latest release version of pymzqc. Please install pymzqc via [**pypi**](https://pypi.org/project/pymzqc/): 
+```
+pip install pymzqc
+```
+
+### From Git
+If you want the latest development version, use: 
+```
+pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#egg=pymzqc
+```
+### Containers
+However, we recommend using the ready-built [**containers**](https://quay.io/repository/mwalzer/pymzqc?tab=tags) to check out the latest updates.
 
 ## Documentation
 To get a nice and simple overview of how pymzqc works, visit [here](https://pymzqc.readthedocs.io/en/latest/examples.html). 
 successfully installed the library and want to **jump right in and use the library**, we suggest the a peek at the [codestructure](https://pymzqc.readthedocs.io/en/latest/codestructure.html).
 
-If you however you just want to get your toes wet, have a look at the [interactive guide](#5min-interactive-guide).
+If you however you just want to get your toes wet, have a look at the interactive guides.
+
+### Interactive pymzqc
+Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0RC?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/MS-Quality-hub/pymzqc/blob/main/jupyter/MZQC_in_5_minutes.ipynb))
+
 
 ## Development 
 
-### Repository structure
-The python package's code is located in the `mzqc` folder, continuous testing code in `tests`, the documentation in `doc`. The **libray-use** container descriptions are in `containers`, if you want to **develop** for the library with a container, you can use the container description within `.devcontainer`, more development presets can be found in `.vscode`. The `jupyter` and `accessories` folders are subprojects making use of the library.
+Contributions are welcome! (Just fork, develop, and open PR.)
 
-### Contribution
-Contributions are welcome! (Fork and open PR)
+### Repository structure
+The python package's code is located in the `mzqc` folder, continuous testing code in `tests`, the documentation in `doc`. The libray-**use** container descriptions are in `containers`, if you want a container for library-**development**, you can use the container description within `.devcontainer`, more development presets can be found in `.vscode`. The `jupyter` and `accessories` folders are subprojects making use of the library. See their README in the respective sub-folders.
 
 ### Documentation
-The code documentation style convention is of the type "Sphinx/numpy".
+The code documentation style convention is of the type `Sphinx/numpy`.
 
-## MZQC
-This library implements python modules for (de-)serialisation and validity checks of the [PSI fileformat mzQC](http://www.psidev.info/groups/quality-control). To see the raw fileformat, including json schema and specification documentation, see https://github.com/HUPO-PSI/mzQC/. **The library follows the formats versioning**(which is 'v(Major).(Minor).(Patch)').
-
-## 5min interactive guide
-Have a go with our [interactive python notebook](https://mybinder.org/v2/gh/MS-Quality-hub/pymzqc/v1.0RC?filepath=jupyter%2FMZQC_in_5_minutes.ipynb) to explore what is possible. ([static version](https://github.com/MS-Quality-hub/pymzqc/blob/main/jupyter/MZQC_in_5_minutes.ipynb))
