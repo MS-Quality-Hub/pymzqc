@@ -61,7 +61,7 @@ html_sidebars = {
                 'navigation.html',
                 'relations.html',
                 'searchbox.html',
-                'pypibadge.html',
+                'sidebarbadges.html',
             ]
         } # [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.com/project/pymzqc)
 
