@@ -48,8 +48,20 @@ exclude_patterns = []
 #
 html_theme = 'alabaster'
 html_theme_options = {
+    "description": "A python library to use mzQC files",
     'github_repo': 'pymzqc',
     'github_user': 'MS-Quality-hub',
-    'page_width': '800px',
+    'page_width': '1024px',
     'sidebar_width': '300px;',
 }
+
+html_sidebars = {
+        '**': [# located at _templates/
+                'about.html',
+                'navigation.html',
+                'relations.html',
+                'searchbox.html',
+                'pypibadge.html',
+            ]
+        } # [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.com/project/pymzqc)
+
