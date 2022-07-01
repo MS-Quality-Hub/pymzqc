@@ -51,10 +51,9 @@ html_theme_options = {
     "description": "A python library to use mzQC files",
     'github_repo': 'pymzqc',
     'github_user': 'MS-Quality-hub',
-    'page_width': '1024px',
-    'sidebar_width': '300px;',
+    'page_width': '1200px',
+    'sidebar_width': '280px;',
 }
-
 html_sidebars = {
         '**': [# located at _templates/
                 'about.html',

@@ -4,7 +4,9 @@
 [![Docker Repository on Quay](https://img.shields.io/badge/container-ready-brightgreen.svg "Docker Repository on Quay")](https://quay.io/repository/mwalzer/pymzqc?tab=tags)
 [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.com/project/pymzqc)
 
-A python library to use mzQC files. Specifically, have a usable object representation of mzQC that can
+A python library to create and use mzQC files. Specifically, the library facilitates access to 
+mzQC files in form of a **directly usable object representation of mzQC** and offers additional 
+functionality to:
 * serialise
 * deserialise
 * check syntax
@@ -42,7 +44,6 @@ Have a go with our [interactive python notebooks](jupyter/README.md) to explore 
 
 
 ## Development 
-
 Contributions are welcome! (Just fork, develop, and open PR.)
 
 ### Repository structure
