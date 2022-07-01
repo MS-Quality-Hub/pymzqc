@@ -13,7 +13,7 @@ Welcome to mzQC's python library documentation!
    
    intro
    codestructure
-   modules
+   package
    examples
    builds
    containers

@@ -31,7 +31,7 @@ release = 'v1.0.0rc1'
 # ones.
 extensions = ['sphinx.ext.napoleon', 'sphinx.ext.graphviz', 
     'sphinx.ext.inheritance_diagram', 'sphinx.ext.autosectionlabel',
-    'myst_nb']
+    'myst_parser']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

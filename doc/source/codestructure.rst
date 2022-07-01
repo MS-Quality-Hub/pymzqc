@@ -1,4 +1,3 @@
-
 Code Structure
 **************
 The library consists of three modules, the syntactic check module, the semantic check module, 
