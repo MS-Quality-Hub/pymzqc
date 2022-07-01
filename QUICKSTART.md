@@ -1,8 +1,8 @@
 # Usage examples
 I am a fan of quick hands-on overviews to get to know software, that I might or might not use in the future.
-Several hands-on examples can be found `here. <https://github.com/MS-Quality-hub/pymzqc/tree/main/jupyter>`_ 
-Simply open them from `colab. <https://colab.research.google.com/>`_ 
-A video version for ASMS'22 is `on youtube: <https://www.youtube.com/watch?v=vZXJuPl2yGw>`_
+Several hands-on examples can be found [here](https://github.com/MS-Quality-hub/pymzqc/tree/main/jupyter)
+Simply open them from [colab](https://colab.research.google.com/)
+A video version for ASMS'22 is `on [youtube](https://www.youtube.com/watch?v=vZXJuPl2yGw)
 
 **The copy&paste essentials:**
 
