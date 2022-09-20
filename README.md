@@ -3,6 +3,7 @@
 [![Documentation Status](https://readthedocs.org/projects/pymzqc/badge/?version=latest)](https://pymzqc.readthedocs.io/en/latest/?badge=latest)
 [![Docker Repository on Quay](https://img.shields.io/badge/container-ready-brightgreen.svg "Docker Repository on Quay")](https://quay.io/repository/mwalzer/pymzqc?tab=tags)
 [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.com/project/pymzqc)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MS-Quality-hub/pymzqc/blob/main/jupyter/mzqc_in_5/write_in_5_minutes.ipynb)
 
 A python library to create and use mzQC files. Specifically, the library facilitates access to 
 mzQC files in form of a **directly usable object representation of mzQC** and offers additional 
