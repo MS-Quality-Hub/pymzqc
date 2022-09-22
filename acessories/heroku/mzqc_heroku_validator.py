@@ -32,7 +32,7 @@ class Validator(Resource):
         default_unknown = jsonify({"general": "No mzQC structure detectable."})
         inpu = request.form.get('validator_input', None)
         try:
-            target = mzqc_io.FromJson(inpu)
+            target = mzqc_io.from_json(inpu)
         except Exception as e:
             return default_unknown
 
@@ -43,13 +43,13 @@ class Validator(Resource):
             removed_items = list(filter(lambda x: not x.uri.startswith('http'), safe.controlledVocabularies))
             safe.controlledVocabularies = list(filter(lambda x: x.uri.startswith('http'), safe.controlledVocabularies))
             print(safe)
-            sem_val_res = SemanticCheck().validate(safe)
+            sem_val_res = SemanticCheck(safe).validate()
             print(sem_val_res)
             proto_response = {k: [str(i) for i in v] for k,v in sem_val_res.items()}
             proto_response.update({"unrecognised CVs": [str(it) for it in removed_items]})
             print(proto_response)
-            valt = mzqc_io.ToJson(target)
-            syn_val_res = SyntaxCheck().validate(valt)
+            valt = mzqc_io.to_json(target)
+            syn_val_res = SyntaxCheck(valt).validate()
             proto_response.update(syn_val_res)
             # convert val_res ErrorTypes to strings
             # add note on removed CVs

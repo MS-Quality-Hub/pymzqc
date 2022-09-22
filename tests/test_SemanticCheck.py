@@ -16,7 +16,7 @@ import warnings
 def test_SemanticCheck_nonMetricTerm():
     infi = "tests/examples/individual-runs_nonMetricTerm.mzQC"  # test good detection
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -33,7 +33,7 @@ def test_SemanticCheck_nonMetricTerm():
 def test_SemanticCheck_tableExtraColumn():
     infi = "tests/examples/individual-runs_tableExtraColumn.mzQC"  # test good detectin
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -50,7 +50,7 @@ def test_SemanticCheck_tableExtraColumn():
 def test_SemanticCheck_wrongTermName():
     infi = "tests/examples/individual-runs_wrongTermName.mzQC"  # test good detectin
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -67,7 +67,7 @@ def test_SemanticCheck_wrongTermName():
 def test_SemanticCheck_tableIncomplete():
     infi = "tests/examples/individual-runs_tableIncomplete.mzQC"  # test good detectin
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -84,7 +84,7 @@ def test_SemanticCheck_tableIncomplete():
 def test_SemanticCheck_unequalTableCols():
     infi = "tests/examples/individual-runs_unequalTableCols.mzQC"  # test good detection
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -101,7 +101,7 @@ def test_SemanticCheck_unequalTableCols():
 def test_SemanticCheck_duplicateMetric():
     infi = "tests/examples/individual-runs_duplicateMetric.mzQC"  # test good detection
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -118,7 +118,7 @@ def test_SemanticCheck_duplicateMetric():
 def test_SemanticCheck_success():
     infi = "tests/examples/individual-runs.mzQC"  # success test
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -134,4 +134,3 @@ def test_SemanticCheck_success():
     assert(len(sem_val.get("ontology load errors",list()))==0)
     assert(len(sem_val.get("value type errors",list()))==0)
     assert(all([x.startswith("WARNING") for x in sem_val.get("ontology term errors",list())]))
-    

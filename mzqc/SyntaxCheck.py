@@ -1,12 +1,12 @@
 __author__ = 'bittremieux, walzer'
+
 import json
-import os
 import urllib.request
-from typing import Dict, List, Union
 
 import jsonschema
-#from jsonschema import Draft7Validator
+# from jsonschema import Draft7Validator
 from jsonschema.exceptions import ValidationError
+
 
 class SyntaxCheck(object):
     """
@@ -17,7 +17,8 @@ class SyntaxCheck(object):
     The result dict object from schema validation is compatible with the result
     dict object from semantic validation of the SemanticCheck class.
     """
-    def __init__(self, version: str="main"):
+
+    def __init__(self, version: str = "main"):
         """
         __init__ default function, essential to instantiate the object with the
         correct version of the mzQC schema to validate with. 
@@ -37,15 +38,15 @@ class SyntaxCheck(object):
         ----------
         version : str, optional
             _description_, by default "main"
-        """        
-        self.version = version  
+        """
+        self.version = version
         # with open('tests/schema.json', 'r') as s:
         #    self.schema = json.loads(s.read())
         # self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
         #             'v{v}/schema/mzqc_schema.json'.format(v=version)  
         # TODO the URI should go into a config.ini
         self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
-                        + '{branch}/schema/mzqc_schema.json'.format(branch=version)
+                          + '{branch}/schema/mzqc_schema.json'.format(branch=version)
         with urllib.request.urlopen(self.schema_url, timeout=2) as schema_in:
             self.schema = json.loads(schema_in.read().decode())
 
@@ -66,20 +67,25 @@ class SyntaxCheck(object):
             Returns a dictionary with key 'schema validation', containing a 
             truncated error message or in the absence of an error 'success', 
             both string type.
-        """        
+        """
         try:
             mzqc_json = json.loads(mzqc_str)
         except:
-            #raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
-            return {'schema validation': ["Given mzqc seems not to be a string representation of a json type."]}
+            # raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
+            return {'schema validation': [
+                "Given mzqc seems not to be a string representation of a json type."]}
 
         try:
-            jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
+            jsonschema.validate(
+                mzqc_json, self.schema, format_checker=jsonschema.FormatChecker()
+            )
         except ValidationError as e:
             try:
-                #res = "{} # {}".format(e.message, e.json_path )  # not what ValidationError doc says
-                res = e.message.partition('\n')[0] + ' @ ' + ''.join('[{}]'.format(k) for k in e.path )
+                # res = "{} # {}".format(e.message, e.json_path )  # not what ValidationError doc says
+                res = e.message.partition('\n')[0] + ' @ ' + ''.join(
+                    '[{}]'.format(k) for k in e.path
+                )
             except:
                 res = str(e)
-            return { 'schema validation': res }
-        return { 'schema validation': 'success' }        
+            return {'schema validation': res}
+        return {'schema validation': 'success'}
