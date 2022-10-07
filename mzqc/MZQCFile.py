@@ -1,12 +1,11 @@
 __author__ = "walzer"
 
 import json
-from _typeshed import SupportsRead
 from datetime import datetime
+from io import IOBase
 from typing import Any, Dict, List, Union
 
 import numpy as np
-
 
 # int
 # str
@@ -131,9 +130,7 @@ class JsonSerialisable(object):
             functionalities.
         """
         if hasattr(obj, "__dict__"):
-            return {
-                k: v for k, v in obj.__dict__.items() if v is not None and v is not ""
-            }
+            return {k: v for k, v in obj.__dict__.items() if v is not None and v != ""}
 
         elif "numpy" in str(type(obj)):
             if isinstance(obj, np.ndarray):
@@ -229,7 +226,7 @@ class JsonSerialisable(object):
         return ret
 
     @classmethod
-    def from_json(cls, json_str: Union[str, SupportsRead[str, bytes]], complete=False):
+    def from_json(cls, json_str: Union[str, IOBase], complete=False):
         """
         FromJson Main method for deserialisation
 
@@ -341,7 +338,7 @@ class MzqcJSONEncoder(json.JSONEncoder):
             yield s
 
 
-class jsonobject(object):
+class JsonObject(object):
     """
     jsonobject Proxy object for better integration of mzQC objects
 
@@ -384,7 +381,7 @@ class jsonobject(object):
 
 
 @JsonSerialisable.register
-class ControlledVocabulary(jsonobject):
+class ControlledVocabulary(JsonObject):
     """
     ControlledVocabulary Object representation for mzQC schema type ControlledVocabulary
 
@@ -397,7 +394,7 @@ class ControlledVocabulary(jsonobject):
 
 
 @JsonSerialisable.register
-class CvParameter(jsonobject):
+class CvParameter(JsonObject):
     """
     CvParameter Object representation for mzQC schema type CvParameter
 
@@ -457,7 +454,7 @@ class AnalysisSoftware(CvParameter):
 
 
 @JsonSerialisable.register
-class InputFile(jsonobject):
+class InputFile(JsonObject):
     """
     InputFile Object representation for mzQC schema type InputFile
 
@@ -481,7 +478,7 @@ class InputFile(jsonobject):
 
 
 @JsonSerialisable.register
-class MetaDataParameters(jsonobject):
+class MetaDataParameters(JsonObject):
     """
     MetaDataParameters Object representation for mzQC schema type MetaDataParameters
 
@@ -528,7 +525,7 @@ class QualityMetric(CvParameter):
 
 
 @JsonSerialisable.register
-class BaseQuality(jsonobject):
+class BaseQuality(JsonObject):
     """
     BaseQuality Object representation for mzQC schema type BaseQuality
 
@@ -568,7 +565,7 @@ class SetQuality(BaseQuality):
 
 
 @JsonSerialisable.register
-class MzQcFile(jsonobject):
+class MzQcFile(JsonObject):
     """
     MzQcFile Object representation for mzQC schema type MzQcFile
 
