@@ -1,4 +1,4 @@
-name: release-builds
+name: release-test-and-build
 on:
   release:
     types: [ 'published','created','edited' ]
@@ -11,6 +11,7 @@ jobs:
         python-version: [ 3.6, 3.7, 3.8, 3.9, 3.10 ]
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
 
+    name: Unit tests during build ${{ matrix.platform }} - Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
 
     steps:
@@ -49,6 +50,7 @@ jobs:
         platform: [ ubuntu-latest, windows-latest, macos-latest ]
 
     needs: unit-tests
+    name: Build wheel - ${{ matrix.platform }} - Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.platform }}
 
     steps:

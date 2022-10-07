@@ -1,4 +1,4 @@
-name: unit-tests
+name: unit-test
 
 on: [ push ]
 
@@ -9,6 +9,8 @@ jobs:
       max-parallel: 4
       matrix:
         python-version: [ 3.6, 3.7, 3.8, 3.9, 3.10 ]
+
+    name: Unit Tests - Python ${{ matrix.python-version }}
 
     steps:
       - uses: actions/checkout@v1
