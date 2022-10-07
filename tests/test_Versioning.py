@@ -1,9 +1,11 @@
 __author__ = 'walzer'
-import pytest  # Eeeeeeverything needs to be prefixed with test ito be picked up by pytest, i.e. TestClass() and test_function()
-from collections import defaultdict
-from mzqc import MZQCFile as qc
+
+# Everything needs to be prefixed with test ito be picked up by pytest
+# i.e. TestClass() and test_function()
+import pytest
 import pkg_resources
 import re
+
 
 """
 Code content tests for mzQC versioning:
@@ -14,14 +16,16 @@ Code content tests for mzQC versioning:
 Runs only if explicitly required (pytest -v --checkversioning)
 """
 
-version = pkg_resources.require("pymzqc")[0].version  # main branch setup.py is _the_ reference for the version number
+# main branch setup.py is _the_ reference for the version number
+version = pkg_resources.require("pymzqc")[0].version
 
-def extract_version_and_check(line, ref_ver, no_v = False):
+
+def extract_version_and_check(line, ref_ver, no_v=False):
     """
     extract_version_and_check
 
-    Assumes the given line is supposed to contain a version, will extract the versions (r'v\d+\.\d+\.\d+') 
-    and check against the given version.
+    Assumes the given line is supposed to contain a version, will extract the versions
+    (r'vd+.d+.d+') and check against the given version.
 
     Parameters
     ----------
@@ -29,10 +33,10 @@ def extract_version_and_check(line, ref_ver, no_v = False):
         The string supposed to contain a version sub-string
     ref_ver : str
         Given version to check against
-    """    
-    matches = re.finditer('v\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
+    """
+    matches = re.finditer(r'v\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
     if no_v:
-        matches = re.finditer('\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
+        matches = re.finditer(r'\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
 
     if matches:
         for k in matches:
@@ -42,7 +46,8 @@ def extract_version_and_check(line, ref_ver, no_v = False):
                 assert k.group(0)[1:] == ref_ver
 
     else:
-        assert False 
+        assert False
+
 
 @pytest.mark.check_versioning
 class TestVersions:
@@ -51,24 +56,24 @@ class TestVersions:
             rmd = fh.readlines()
         for line in rmd:
             if "(https://mybinder.org/badge_logo.svg)" in line:
-                extract_version_and_check(line,version)
+                extract_version_and_check(line, version)
             if "[interactive python notebook]" in line:
-                extract_version_and_check(line,version)
-       
+                extract_version_and_check(line, version)
+
     """
     This is a final test to check if the versions used in the local tests match the version in main branch
     """
+
     def test_docs(self):
         with open("doc/source/conf.py", 'r') as fh:
             scpy = fh.readlines()
         for line in scpy:
             if "release =" in line:
-                extract_version_and_check(line.strip(),version)
-        
+                extract_version_and_check(line.strip(), version)
+
     def test_setup(self):
         with open("setup.py", 'r') as fh:
             scpy = fh.readlines()
         for line in scpy:
             if "version=" in line:
-                extract_version_and_check(line.strip(),version, no_v=True)
-        
+                extract_version_and_check(line.strip(), version, no_v=True)
