@@ -4,6 +4,7 @@ import operator
 from datetime import datetime
 from typing import List,Dict,Union,Any,Tuple
 import numpy as np
+import pandas as pd
 
 #int
 #str
@@ -32,7 +33,10 @@ class JsonSerialisable(object):
         """
         time_helper Helper method for ISO8601 string of various length consumption 
 
-        Used on JSON datetime object string representation will handle length and return python datetime objects.
+        Used on JSON datetime object string representation will handle length and return
+        python datetime objects. JSON-schema actually follows 
+        https://www.rfc-editor.org/rfc/rfc3339.html#section-5.6 which is a little more 
+        stringent subset of ISO8601. 
 
         Parameters
         ----------
@@ -44,10 +48,11 @@ class JsonSerialisable(object):
         datetime
             Python datetime object including the same amount detail provided 
         """
-        if len(da) > 19:
-            return datetime.strptime(da, '%Y-%m-%dT%H:%M:%S.%f')
-        #elif len(da) <= 19:
-        return datetime.strptime(da, '%Y-%m-%dT%H:%M:%S')
+        try:
+            dt = pd.to_datetime(da)
+        except:
+            raise ValueError("Unknown string format: {}".format(da))
+        return dt
 
     @classmethod
     def class_mapper(classself, d):
