@@ -101,7 +101,6 @@ class Validator(Resource):
             return jsonify(proto_response)
         return default_unknown
 
-
 api.add_resource(Status, '/','/status/')
 api.add_resource(Documentation, '/documentation/')
 api.add_resource(Validator, '/validator/')

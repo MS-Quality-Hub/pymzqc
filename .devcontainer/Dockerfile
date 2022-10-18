@@ -1,4 +1,5 @@
-FROM python:3.6.9-slim-buster
+FROM python:3.8-slim-buster
+#FROM python:3.6.9-slim-buster
 #FROM python:3.6.5-slim-jessie
 #FROM python:2.7-slim-jessie
  
@@ -24,7 +25,8 @@ RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list
 
 # # only packages related to dev, project dependencies will get resolved via pip and setup.py
 RUN python3 -m pip install --upgrade pip 
-RUN pip install matplotlib pytest mypy types-setuptools sphinx build wheel twine
+RUN pip install matplotlib pytest mypy types-setuptools sphinx build wheel twine click flask flask_restful flask_cors
+
 #RUN pip install -e .  # devcontainer.json: "postCreateCommand": "pip install -e .",
 
 ARG USERNAME=vscode
