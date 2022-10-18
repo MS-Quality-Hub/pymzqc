@@ -14,7 +14,7 @@ For local validation and validator development tests, you can start a local vali
 python3 -m venv /tmp/vval
 source /tmp/vval/bin/activate
 pip install -r accessories/heroku/requirements.txt
-python accessories/heroku/mzqc_heroku_validator.py
+python accessories/heroku/mzqc_online_validator.py
 ```
 e.g. with `accessories/heroku/local_validator.html`
 You can find both files necessary within the repository under [accessories/heroku](https://github.com/MS-Quality-hub/pymzqc/tree/main/accessories/heroku).
