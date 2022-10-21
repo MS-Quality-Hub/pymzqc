@@ -31,3 +31,10 @@ rsync -aP --delete /home/walzer/psi/pymzqc/acessories/heroku  /tmp/mzqc-validato
 git push heroku master
 ```
 
+### Creating a custom, standalone Docker container
+
+```
+docker build . --file Dockerfile.flask -t mzqc-validator
+docker run --rm -p5000:5000 mzqc-validator
+```
+
