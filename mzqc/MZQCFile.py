@@ -3,6 +3,7 @@ __author__ = "walzer"
 import json
 from datetime import datetime
 from io import IOBase
+from mimetypes import init
 from typing import Any, Dict, List, Union
 
 import numpy as np
@@ -25,10 +26,16 @@ class JsonSerialisable(object):
     JsonSerialisable Main structure template for mzQC objects
 
     Sets the foundation for a mzQC object to be readily (de-)serialisable with standard
-    Python json handling code. Facilitates reading and writing of complex objects.
+    Python json handling code. Facilitates reading and writing of complex objects if a class is 
+    registered via the register class method.
+    
+    Attributes names and init arguments of all registered classe need match and also conform to 
+    the mzQC JSON schema, in order to work with automatic type mapping for (de-)serialisation 
+    during JSONEncoding.
+    The schema uses lower-case starting camel-case for all subordinate elements and attributes.
 
     """
-
+    
     mappings: Dict[str, Any] = dict()
 
     @staticmethod
@@ -156,7 +163,7 @@ class JsonSerialisable(object):
 
         Parameters
         ----------
-        other_cls : self
+        cls : self
             the objects class self
         other_cls : object
             the class type
@@ -166,7 +173,7 @@ class JsonSerialisable(object):
         cls
             the class type
         """
-        other_cls.mappings[
+        cls.mappings[
             frozenset(tuple([attr for attr, val in other_cls().__dict__.items()]))
         ] = other_cls
         return other_cls
@@ -385,6 +392,8 @@ class ControlledVocabulary(JsonObject):
     """
     ControlledVocabulary Object representation for mzQC schema type ControlledVocabulary
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     def __init__(self, name: str = "", uri: str = "", version: str = ""):
@@ -398,6 +407,8 @@ class CvParameter(JsonObject):
     """
     CvParameter Object representation for mzQC schema type CvParameter
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     def __init__(
@@ -434,6 +445,8 @@ class AnalysisSoftware(CvParameter):
     """
     AnalysisSoftware Object representation for mzQC schema type AnalysisSoftware
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     def __init__(
@@ -457,23 +470,25 @@ class AnalysisSoftware(CvParameter):
 class InputFile(JsonObject):
     """
     InputFile Object representation for mzQC schema type InputFile
-
+    
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     def __init__(
         self,
         location: str = "",
         name: str = "",
-        file_format: CvParameter = None,
-        file_properties: List[CvParameter] = None,
+        fileFormat: CvParameter = None,
+        fileProperties: List[CvParameter] = None,
     ):
         self.location = location  # required , uri
         self.name = (
             name  # required , string (doubles as internal and external ref anchor?)
         )
-        self.fileFormat = file_format  # required , cvParam
+        self.fileFormat = fileFormat  # required , cvParam
         self.fileProperties = (
-            [] if file_properties is None else file_properties
+            [] if fileProperties is None else fileProperties
         )  # optional, cvParam, at least one item
 
 
@@ -482,6 +497,8 @@ class MetaDataParameters(JsonObject):
     """
     MetaDataParameters Object representation for mzQC schema type MetaDataParameters
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     def __init__(
@@ -489,19 +506,16 @@ class MetaDataParameters(JsonObject):
         # fileProvenance: str="",
         # cv_params: List[CvParameter] = None ,
         label: str = "",
-        input_files: List[InputFile] = None,
-        analysis_software: List[AnalysisSoftware] = None,
+        inputFiles: List[InputFile] = None,
+        analysisSoftware: List[AnalysisSoftware] = None,
     ):
         # self.fileProvenance = fileProvenance  # not in schema
         # self.cv_params = [] if cv_params is None else cv_params  # not in schema, IMO should be in there
         self.label = label  # optional
-        self.inputFiles = [] if input_files is None else input_files  # required
+        self.inputFiles = [] if inputFiles is None else inputFiles  # required
         self.analysisSoftware = (
-            [] if analysis_software is None else analysis_software
+            [] if analysisSoftware is None else analysisSoftware
         )  # required
-
-    # schema: at least one input_file in input_files
-    # schema: at least one analysis_software in analysis_software
 
 
 @JsonSerialisable.register
@@ -509,6 +523,8 @@ class QualityMetric(CvParameter):
     """
     QualityMetric Object representation is passed for its more concrete derivatives
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     pass
@@ -529,19 +545,19 @@ class BaseQuality(JsonObject):
     """
     BaseQuality Object representation for mzQC schema type BaseQuality
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     def __init__(
         self,
         metadata: MetaDataParameters = None,
-        quality_metrics: List[QualityMetric] = None,
+        qualityMetrics: List[QualityMetric] = None,
     ):
         self.metadata = metadata  # required
         self.qualityMetrics = (
-            [] if quality_metrics is None else quality_metrics
+            [] if qualityMetrics is None else qualityMetrics
         )  # required,
-
-    # schema: at least one item in quality_metrics
 
 
 @JsonSerialisable.register
@@ -549,6 +565,8 @@ class RunQuality(BaseQuality):
     """
     QualityMetric Object representation is passed for its more general basis
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     pass
@@ -559,6 +577,8 @@ class SetQuality(BaseQuality):
     """
     SetQuality Object representation is passed for its more general basis
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     pass
@@ -569,38 +589,37 @@ class MzQcFile(JsonObject):
     """
     MzQcFile Object representation for mzQC schema type MzQcFile
 
+    Class is registered for type mapping and automatic (de-)serialisation via the 
+    JsonSerialisable.register decorator (see more there).
     """
 
     def __init__(
         self,
-        creation_date: Union[datetime, str] = datetime.now().replace(microsecond=0),
+        creationDate: Union[datetime, str] = datetime.now().replace(microsecond=0),
         version: str = "1.0.0",
-        contact_name: str = "",
-        contact_address: str = "",
+        contactName: str = "",
+        contactAddress: str = "",
         description: str = "",
-        run_qualities: List[RunQuality] = None,
-        set_qualities: List[SetQuality] = None,
-        controlled_vocabularies: List[ControlledVocabulary] = None,
+        runQualities: List[RunQuality] = None,
+        setQualities: List[SetQuality] = None,
+        controlledVocabularies: List[ControlledVocabulary] = None,
     ):
         self.creationDate = (
-            JsonSerialisable.time_helper(creation_date)
-            if isinstance(creation_date, str)
-            else creation_date
+            JsonSerialisable.time_helper(creationDate)
+            if isinstance(creationDate, str)
+            else creationDate
         )  # required
         self.version = version  # required
-        self.contactName = contact_name  # optional
-        self.contactAddress = contact_address  # optional
+        self.contactName = contactName  # optional
+        self.contactAddress = contactAddress  # optional
         self.description = description  # optional
         self.runQualities = (
-            [] if run_qualities is None else run_qualities
+            [] if runQualities is None else runQualities
         )  # either or set required
         self.setQualities = (
-            [] if set_qualities is None else set_qualities
+            [] if setQualities is None else setQualities
         )  # either or run required
         self.controlledVocabularies = (
-            [] if controlled_vocabularies is None else controlled_vocabularies
+            [] if controlledVocabularies is None else controlledVocabularies
         )  # required
 
-    # schema: at least one cv in controlled_vocabularies
-    # schema: at least one of run_qualities or set_qualities
-    # schema: at least one item in run_qualities or set_qualities

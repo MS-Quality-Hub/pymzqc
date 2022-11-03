@@ -23,8 +23,8 @@ cvt = qc.CvParameter(accession="TEST:123", name="testname", value=99)
 infi = qc.InputFile(
     name="file.raw",
     location="file:///dev/null",
-    file_format=qc.CvParameter("MS:1000584", "mzML format"),
-    file_properties=[
+    fileFormat=qc.CvParameter("MS:1000584", "mzML format"),
+    fileProperties=[
         qc.CvParameter(
             accession="MS:1000747", name="completion time", value="2017-12-08-T15:38:57Z"
         )
@@ -34,18 +34,18 @@ anso = qc.AnalysisSoftware(
     accession="QC:9999999", name="bigwhopqc", version="1.2.3", uri="file:///dev/null"
 )  # isn't requiring a uri a bit too much?
 meta = qc.MetaDataParameters(
-    input_files=[infi], analysis_software=[anso], label="test_metadata"
+    inputFiles=[infi], analysisSoftware=[anso], label="test_metadata"
 )
 qm = qc.QualityMetric(accession="QC:4000053", name="RT duration", value=99)
-rq = qc.RunQuality(metadata=meta, quality_metrics=[qm])
-sq = qc.SetQuality(metadata=meta, quality_metrics=[qm])
+rq = qc.RunQuality(metadata=meta, qualityMetrics=[qm])
+sq = qc.SetQuality(metadata=meta, qualityMetrics=[qm])
 cv = qc.ControlledVocabulary(name="TEST", uri="www.eff.off")
 mzqc = qc.MzQcFile(
     version="1.0.0",
     description="pytest-test file",
-    run_qualities=[rq],
-    set_qualities=[sq],
-    controlled_vocabularies=[cv],
+    runQualities=[rq],
+    setQualities=[sq],
+    controlledVocabularies=[cv],
 )
 
 
@@ -96,10 +96,10 @@ class TestSerialisation:
         try:
             zqc = qc.MzQcFile(
                 version="0.1.0",
-                creation_date=datetime.now().isoformat(),
-                run_qualities=[],
-                set_qualities=[],
-                controlled_vocabularies=[],
+                creationDate=datetime.now().isoformat(),
+                runQualities=[],
+                setQualities=[],
+                controlledVocabularies=[],
             )
         except Exception as error:
             raise AssertionError(f"An unexpected exception {error} raised.")

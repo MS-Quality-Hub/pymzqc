@@ -12,8 +12,8 @@ def test_SyntaxCheck_synth():
     infi = mzqc_lib.InputFile(
         name="file.raw",
         location="file:///dev/null",
-        file_format=mzqc_lib.CvParameter("MS:1000584", "mzML format"),
-        file_properties=[
+        fileFormat=mzqc_lib.CvParameter("MS:1000584", "mzML format"),
+        fileProperties=[
             mzqc_lib.CvParameter(
                 accession="MS:1000747",
                 name="completion time",
@@ -25,7 +25,7 @@ def test_SyntaxCheck_synth():
         accession="QC:9999999", name="bigwhopqc", version="1.2.3", uri="file:///dev/null"
     )  # isn't requiring a uri a bit too much?
     meta = mzqc_lib.MetaDataParameters(
-        input_files=[infi], analysis_software=[anso], label="test_label"
+        inputFiles=[infi], analysisSoftware=[anso], label="test_label"
     )
     qm = mzqc_lib.QualityMetric(accession="QC:4000053", name="RT duration", value=99)
     qm2 = mzqc_lib.QualityMetric(
@@ -34,15 +34,15 @@ def test_SyntaxCheck_synth():
     qm3 = mzqc_lib.QualityMetric(
         accession="QC:4000055", name="MS1 quantiles RT fraction", value=9
     )
-    rq = mzqc_lib.RunQuality(metadata=meta, quality_metrics=[qm, qm2])
-    sq = mzqc_lib.SetQuality(metadata=meta, quality_metrics=[qm3])
+    rq = mzqc_lib.RunQuality(metadata=meta, qualityMetrics=[qm, qm2])
+    sq = mzqc_lib.SetQuality(metadata=meta, qualityMetrics=[qm3])
     cv = mzqc_lib.ControlledVocabulary(name="QCvocab", uri="www.qc.ml")
     cv2 = mzqc_lib.ControlledVocabulary(name="TEST", uri="www.eff.off")
     mzqc = mzqc_lib.MzQcFile(
         version="1.0.0",
-        run_qualities=[rq],
-        set_qualities=[sq],
-        controlled_vocabularies=[cv, cv2],
+        runQualities=[rq],
+        setQualities=[sq],
+        controlledVocabularies=[cv, cv2],
     )
     # with open('tests/mzqc_lib_out.mzqc', 'w') as f:
     #     f.write("{ \"mzQC\": " + mzqc_lib.JsonSerialisable.ToJson(mzqc) + " }")

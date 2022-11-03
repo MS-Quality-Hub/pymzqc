@@ -37,9 +37,10 @@ def test_SemanticCheck_nonMetricTerm():
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+        sem_val = SemanticCheck(mzqcobject, load_local=True).validate()
 
-    assert "metric usage errors" in sem_val.keys()
+    # assert "metric usage errors" in sem_val.keys()
+    print(sem_val.keys())
     assert (
         "Non-metric CV term used in metric context: accession = MS:1002040"
         in sem_val.get("metric usage errors", list())
@@ -67,7 +68,7 @@ def test_SemanticCheck_tableExtraColumn():
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+        sem_val = SemanticCheck(mzqcobject, load_local=True).validate()
 
     assert "value type errors" in sem_val.keys()
     assert (
@@ -97,7 +98,7 @@ def test_SemanticCheck_wrongTermName():
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+        sem_val = SemanticCheck(mzqcobject, load_local=True).validate()
 
     assert "value type errors" in sem_val.keys()
     assert (
@@ -127,7 +128,7 @@ def test_SemanticCheck_tableIncomplete():
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+        sem_val = SemanticCheck(mzqcobject, load_local=True).validate()
 
     assert "value type errors" in sem_val.keys()
     assert (
@@ -157,7 +158,7 @@ def test_SemanticCheck_unequalTableCols():
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+        sem_val = SemanticCheck(mzqcobject, load_local=True).validate()
 
     assert "value type errors" in sem_val.keys()
     assert (
@@ -187,7 +188,7 @@ def test_SemanticCheck_duplicateMetric():
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+        sem_val = SemanticCheck(mzqcobject, load_local=True).validate()
 
     assert "metric uniqueness" in sem_val.keys()
     assert "Duplicate quality metric in a run/set: accession = MS:4000059" in sem_val.get(
@@ -216,7 +217,7 @@ def test_SemanticCheck_success():
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
+        sem_val = SemanticCheck(mzqcobject, load_local=True).validate()
 
     assert len(sem_val.get("label uniqueness", list())) == 0
     assert len(sem_val.get("metric uniqueness", list())) == 0
