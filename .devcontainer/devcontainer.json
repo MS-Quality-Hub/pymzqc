@@ -3,7 +3,7 @@
 	"dockerFile": "Dockerfile",
 	"context": "..",
 	"extensions": [
-		"ms-python.python", "ms-python.vscode-pylance", "littlefoxteam.vscode-python-test-adapter", "ms-vscode.test-adapter-converter", 
+		"ms-python.python", "ms-python.vscode-pylance",
 		"njpwerner.autodocstring", "ms-toolsai.jupyter"
 	],
 	"settings": {
