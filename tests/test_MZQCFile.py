@@ -34,6 +34,7 @@ rq = qc.RunQuality(metadata=meta, qualityMetrics=[qm])
 sq = qc.SetQuality(metadata=meta, qualityMetrics=[qm])
 cv = qc.ControlledVocabulary(name="TEST", uri="www.eff.off")
 mzqc = qc.MzQcFile(version="1.0.0", 
+            creationDate="1999-12-11-T10:09:08Z",
             description="pytest-test file", 
             runQualities=[rq], setQualities=[sq], 
             controlledVocabularies=[cv]) 

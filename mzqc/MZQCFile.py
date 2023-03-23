@@ -144,7 +144,7 @@ class JsonSerialisable(object):
 
         # needs to be last
         if hasattr(obj, '__dict__'):
-            return {k:v for k,v in obj.__dict__.items() if v is not None and v is not ""}
+            return {k:v for k,v in obj.__dict__.items() if v != None and v != ""}
 
         raise TypeError('Object of type {ty} with value {val} is not JSON (de)serializable'.format(ty=type(obj), val=repr(obj)))
 
