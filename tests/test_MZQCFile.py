@@ -2,6 +2,7 @@ __author__ = 'walzer'
 import pytest  # Eeeeeeverything needs to be prefixed with test ito be picked up by pytest, i.e. TestClass() and test_function()
 from mzqc import MZQCFile as qc
 import numpy as np
+import pandas as pd
 from datetime import datetime
 
 """
@@ -82,11 +83,16 @@ class TestSerialisation:
         nup.value= {"np":npnd}
         assert qc.JsonSerialisable.ToJson(nup, complete=False) == NPQM
 
-    def test_DateTime(self):
-        try:
-            zqc = qc.MzQcFile(version="0.1.0", creationDate=datetime.now().isoformat(), runQualities=[], setQualities=[], controlledVocabularies=[])       
-        except Exception as error:
-            raise AssertionError(f"An unexpected exception {error} raised.") 
+    def test_DateTimeConsumption(self):
+        tobjs = [datetime.now().isoformat(),  # includes nanoseconds
+            datetime.fromisoformat("2022-03-07T15:01:48"), 
+            datetime.fromisoformat("2022-03-07T15:01:48+01:00"), 
+            pd.to_datetime('2022-03-07T15:01:48Z')]
+        for tobj in tobjs:
+            try:
+                zqc = qc.MzQcFile(version="0.1.0", creationDate=tobj, runQualities=[], setQualities=[], controlledVocabularies=[])       
+            except Exception as error:
+                raise AssertionError(f"An unexpected exception {error} raised (with timeformat{tobj}).") 
 
 #First, serialisation should be tested separately!
 class TestDeserialisation:

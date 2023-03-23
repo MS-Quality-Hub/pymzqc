@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import List,Dict,Union,Any,Tuple
 import numpy as np
 import pandas as pd
+import logging
 
 #int
 #str
@@ -105,7 +106,11 @@ class JsonSerialisable(object):
         """
         complex_handler Handles the in-depth serialisations necessary
 
-        Facilitates the correct serialisation for each type of object (within the registered mzQC JsonSerialisable context).
+        Facilitates the correct serialisation for each type of object (within 
+        the registered mzQC JsonSerialisable context) through possible 
+        serialisation specialisation by way of object type. If objects behave 
+        like dictionaries, but are complex classes (like all pymzqc obj),
+        the dict needs to be returned as classical dict in order to serialise.
 
         Parameters
         ----------
@@ -123,20 +128,25 @@ class JsonSerialisable(object):
         ------
         TypeError
             In case a given object cannot be serialised with the given set of functionalities.
-        """    
-        if hasattr(obj, '__dict__'):
-            return {k:v for k,v in obj.__dict__.items() if v is not None and v is not ""}
+        """
+        if isinstance(obj, datetime):
+            logging.debug("serialisation specialisation dates: "+str(obj))
+            if obj.tzinfo:
+                return obj.isoformat().replace('+00:00','Z')
+            else:  #assume local time is UTC, the standard requires RFC3339 after all (see specification)
+                return obj.isoformat()+('Z')
 
-        elif 'numpy' in str(type(obj)):
+        if 'numpy' in str(type(obj)):
+            logging.debug("serialisation specialisation np.dtypes: "+str(obj))
             if isinstance(obj,np.ndarray):
                 return obj.tolist() 
             return obj.item()
 
-        elif isinstance(obj, datetime):
-            return obj.replace(microsecond=0).isoformat()
-            
-        else:
-            raise TypeError('Object of type {ty} with value {val} is not JSON (de)serializable'.format(ty=type(obj), val=repr(obj)))
+        # needs to be last
+        if hasattr(obj, '__dict__'):
+            return {k:v for k,v in obj.__dict__.items() if v is not None and v is not ""}
+
+        raise TypeError('Object of type {ty} with value {val} is not JSON (de)serializable'.format(ty=type(obj), val=repr(obj)))
 
     @classmethod
     def register(classself, cls):
@@ -191,9 +201,8 @@ class JsonSerialisable(object):
             ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=2, cls=MzqcJSONEncoder)
         else:
             ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=4)
-        
-        #TODO remove empty run/setQualities, return with mzqc root, 
-        ret = ret.replace('"setQualities": [],', '').replace('"runQualities": [],', '')
+        #remove empty run/setQualities and other optinal and empty elements, return with mzqc root, 
+        ret = ret.replace('"setQualities": [],', '').replace('"runQualities": [],', '').replace('"fileProperties": [],', '')
         ret = ret.replace('"contactName": "",\n', '').replace('"contactAddress": "",\n', '').replace('"description": "",\n', '')
         ret = "{{\"mzQC\": \n{dump} \n}}".format(dump=ret) if complete else ret
         return ret
