@@ -1,1 +1,0 @@
-web: gunicorn  mzqc_heroku_validator:app

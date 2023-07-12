@@ -7,15 +7,18 @@ Welcome to mzQC's python library documentation!
 ======================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
    :glob:
    
    intro
    codestructure
-   mzqc
-   modules
+   package
    examples
+   builds
+   containers
+   notebooks
+   accessories
 
 Indices and tables
 ==================

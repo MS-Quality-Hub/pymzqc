@@ -29,7 +29,9 @@ release = 'v1.0.0rc1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.napoleon', 'sphinx.ext.graphviz', 'sphinx.ext.inheritance_diagram']
+extensions = ['sphinx.ext.napoleon', 'sphinx.ext.graphviz', 
+    'sphinx.ext.inheritance_diagram', 'sphinx.ext.autosectionlabel',
+    'myst_parser']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -39,15 +41,26 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
-
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
 html_theme = 'alabaster'
+html_theme_options = {
+    "description": "A python library to use mzQC files",
+    'github_repo': 'pymzqc',
+    'github_user': 'MS-Quality-hub',
+    'page_width': '1200px',
+    'sidebar_width': '280px;',
+}
+html_sidebars = {
+        '**': [# located at _templates/
+                'about.html',
+                'navigation.html',
+                'relations.html',
+                'searchbox.html',
+                'sidebarbadges.html',
+            ]
+        } # [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.com/project/pymzqc)
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']

@@ -14,14 +14,21 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=[
-        "jsonschema",
+        "jsonschema>=3.2.0",
         "numpy",
-        "pandas",
+        "pandas>=1.1.5",
         "pronto<2.2.1",
-        "requests"
+        "requests>=2.27.1"
     ],
     setup_requires=['wheel'],
     python_requires='>=3.6',
     include_package_data=True,
+    scripts=['accessories/heroku/mzqc_online_validator.py', 'accessories/offline/mzqc_offline_validator.py']
+    # entry_points = {
+    #     'console_scripts': [
+    #         'mzQC-online-validator=accessories.heroku.mzqc_online_validator:start',
+    #         'mzQC-offline-validator=accessories.offline.mzqc_offline_validator:start'
+    #     ],
+    # }
     # package_dir = {'': 'dist/'}
 )
