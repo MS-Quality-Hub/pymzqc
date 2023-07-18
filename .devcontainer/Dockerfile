@@ -1,9 +1,10 @@
 FROM python:3.8-slim-buster
 #FROM python:3.6.9-slim-buster
-#FROM python:3.6.5-slim-jessie
-#FROM python:2.7-slim-jessie
  
 ENV DEBIAN_FRONTEND noninteractive 
+# Replace sources with HTTPS sources and add unstable 
+RUN printf "deb https://deb.debian.org/debian buster main\ndeb https://security.debian.org/debian-security buster/updates main\ndeb https://ftp.debian.org/debian buster-updates main\n" > /etc/apt/sources.list
+#RUN printf "deb https://deb.debian.org/debian unstable main\n" >> /etc/apt/sources.list
  
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \ 
   git \
@@ -20,8 +21,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
 
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
-
-RUN echo "deb http://http.debian.net/debian buster main" > /etc/apt/sources.list.d/debian-unstable.list
 
 # # only packages related to dev, project dependencies will get resolved via pip and setup.py
 RUN python3 -m pip install --upgrade pip 
