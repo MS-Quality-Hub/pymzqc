@@ -44,8 +44,7 @@ def test_SemanticCheck_tableExtraColumn():
         sem_val = SemanticCheck().validate(mzqcobject, load_local=True)
 
     assert("value type errors" in sem_val.keys())
-    assert("WARNING: Table metric CV term used with extra (undefined) columns: accession(s) = wron col" in 
-            sem_val.get("value type errors",list()))
+    assert("WARNING: Table metric CV term used with extra (undefined) columns: accession(s) = wrong col" in sem_val.get("value type errors",list()))
 
 def test_SemanticCheck_wrongTermName():
     infi = "tests/examples/individual-runs_wrongTermName.mzQC"  # test good detectin

@@ -56,10 +56,10 @@ class SemanticCheck(object):
                     if loc.startswith('file://'):
                         loc = loc[len('file://'):]
                     with suppress_verbose_modules():
-                        vocs[cve.name] = Ontology(loc)
+                        vocs[cve.name] = Ontology(loc, import_depth=0)
                 else:
                     with suppress_verbose_modules():
-                        vocs[cve.name] = Ontology(cve.uri)
+                        vocs[cve.name] = Ontology(cve.uri, import_depth=0)
             except Exception as e:
                 errs.append(SemanticError(f'Error loading the following ontology referenced in file: {e}'))
         return vocs, errs

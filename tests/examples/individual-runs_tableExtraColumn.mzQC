@@ -11,7 +11,7 @@
           "inputFiles": [
             {
               "name": "CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3.mzML",
-              "location": "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/09/PXD000966/CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.raw",
+              "location": "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/09/PXD000966/",
               "fileFormat": {
                 "accession": "MS:1000584",
                 "name": "mzML format"
@@ -79,7 +79,7 @@
           {
             "accession": "MS:4000063",
             "name": "MS2 known precursor charges fractions",
-            "value": {"wron col":[ 1 ], "UO:0000191":[2], "MS:1000041":[3]}
+            "value": {"wrong col":[1], "UO:0000191":[2], "MS:1000041":[3]}
           }
         ]
       }
@@ -87,8 +87,8 @@
     "controlledVocabularies": [
       {
         "name": "Proteomics Standards Initiative Mass Spectrometry Ontology",
-        "uri": "file://tests/examples/psi-ms_hardfix_unit_and_ncit.obo",
-        "version": "4.1.79"
+        "uri": "https://github.com/HUPO-PSI/psi-ms-CV/releases/download/v4.1.130/psi-ms.obo",
+        "version": "4.1.130"
       }
     ]
   }
