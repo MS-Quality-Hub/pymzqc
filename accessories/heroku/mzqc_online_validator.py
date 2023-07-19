@@ -1,10 +1,3 @@
-#sudo apt update
-#sudo apt install python3 python3-pip python3-flask 
-#pip install Flask
-#pip install git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0
-#pip install flask-restful
-#pip install gunicorn
-
 import json
 from flask import Flask
 from flask import Flask, jsonify, request
