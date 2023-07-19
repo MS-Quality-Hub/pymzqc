@@ -1,3 +1,4 @@
+import os
 import json
 from flask import Flask
 from flask import Flask, jsonify, request
@@ -75,9 +76,13 @@ class Validator(Resource):
         else:
             removed_items = list(filter(lambda x: not x.uri.startswith('http'), target.controlledVocabularies))
             target.controlledVocabularies = list(filter(lambda x: x.uri.startswith('http'), target.controlledVocabularies))
-            sem_val_res = SemanticCheck().validate(target)
-            #print(sem_val_res)
-            
+            me = os.getenv('MAX_ERR', None)
+            if isinstance(me, str) and me.isnumeric():
+                me = int(me)
+                sem_val_res = SemanticCheck().validate(target, max_errors=me)
+            else:
+                sem_val_res = SemanticCheck().validate(target)
+
             proto_response = {k: [str(i) for i in v] for k,v in sem_val_res.items()}
             proto_response.update({"unrecognised CVs": [str(it) for it in removed_items]})
             #print(proto_response)

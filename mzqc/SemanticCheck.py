@@ -142,7 +142,7 @@ class SemanticCheck(object):
         # error/warning/other messages) to collect all the stuff while going through the validation
         return term_errs
 
-    def validate(self, mzqc_obj: MzQcFile, load_local=False):
+    def validate(self, mzqc_obj: MzQcFile, max_errors:int=0, load_local:bool=False):
         # TODO incorporate version when SemanticValidation may differ between versions
         #! Semantic validation of the JSON file.
         #? Check that label (metadata) must be unique in the file
@@ -153,6 +153,7 @@ class SemanticCheck(object):
         #? Check that cv value has all attributes referred in cv
         #?? Check that multi-file metrics refer to existing filenames.
         #?? Check that filenames are unique within a run/setQuality. #50
+        # max_errors is max count for errors to accumulate before aborting the validation. Default is -1 implying unlimited because the test condition is max_error=count-=1==0
 
         # create validation error list object
         validation_errs = dict()  # need to keep it flexible
@@ -176,10 +177,20 @@ class SemanticCheck(object):
         # check if ontologies are listed multiple times (different versions etc)
         validation_errs['ontology load errors'] = voc_errs
 
+        #check max_error
+        if max_errors > 0:
+            if sum([len(x) for x in validation_errs.values()]) > max_errors:
+                validation_errs['general'] = validation_errs.get('general', list())
+                validation_errs['general'].append(
+                    ValidationError("Maximum number of errors incurred ({me} < {ie}), aborting!".format(
+                    ie=sum([len(x) for x in validation_errs.values()]), me = max_errors))
+                )
+                self.errors = validation_errs
+                return {k: [str(i) for i in v] for k,v in validation_errs.items()}
+
         # For all cv terms involved:
         term_errs = list()
         for cv_parameter in self._get_cv_parameters(mzqc_obj):
-
             #? Verify that the term exists in the CV.
             if not any(cv_parameter.accession in cvoc for cvoc in file_vocabularies.values()):
                 # cv not found error
@@ -202,6 +213,17 @@ class SemanticCheck(object):
                     if cv_err:
                         term_errs.extend(cv_err)
         validation_errs['ontology term errors'] = term_errs
+
+        #check max_error
+        if max_errors > 0:
+            if sum([len(x) for x in validation_errs.values()]) > max_errors:
+                validation_errs['general'] = validation_errs.get('general', list())
+                validation_errs['general'].append(
+                    ValidationError("Maximum number of errors incurred ({me} < {ie}), aborting!".format(
+                    ie=sum([len(x) for x in validation_errs.values()]), me = max_errors))
+                )
+                self.errors = validation_errs
+                return {k: [str(i) for i in v] for k,v in validation_errs.items()}
 
         #? Check that qualityParameters are unique within a run/setQuality.
         metrics_uniq_warns = list()
@@ -251,6 +273,17 @@ class SemanticCheck(object):
             actual_metric_warns.append(SemanticError(f'No dedicated metric CV terms found in file ontologies!'))
         validation_errs['metric usage errors'] = actual_metric_warns
         validation_errs['value type errors'] = metric_type_errs
+
+        #check max_error
+        if max_errors > 0:
+            if sum([len(x) for x in validation_errs.values()]) > max_errors:
+                validation_errs['general'] = validation_errs.get('general', list())
+                validation_errs['general'].append(
+                    ValidationError("Maximum number of errors incurred ({me} < {ie}), aborting!".format(
+                    ie=sum([len(x) for x in validation_errs.values()]), me = max_errors))
+                )
+                self.errors = validation_errs
+                return {k: [str(i) for i in v] for k,v in validation_errs.items()}
 
         # Regarding metadata, verify that input files are consistent and unique.
         validation_errs['input files'] = self._inputFileConsistency(mzqc_obj)
