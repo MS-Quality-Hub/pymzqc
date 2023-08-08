@@ -17,7 +17,7 @@ setup(
         "jsonschema>=3.2.0",
         "numpy",
         "pandas>=1.1.5",
-        "pronto<2.2.1",
+        "pronto",
         "requests>=2.27.1"
     ],
     setup_requires=['wheel'],
