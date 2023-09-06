@@ -38,11 +38,29 @@ def mzqcfileinfo(input):
 
     rs = len(infofile.runQualities)
     ss = len(infofile.setQualities)
-    mets = { metr.name for qm in chain(infofile.runQualities, infofile.setQualities) for metr in qm.qualityMetrics }
+    mets = len({ metr.name for qm in chain(infofile.runQualities, infofile.setQualities) for metr in qm.qualityMetrics })
+    print(INFO.format(n=mets, m=rs, k=ss) )
 
-    print(INFO.format(n=len(mets), m=rs, k=ss) )
-    print("Metrics:")
-    print(*enumerate(list(mets)), sep='\n')
+    for n, run in enumerate(infofile.runQualities, start=1):
+        mets = { (metr.name, metr.accession) for metr in run.qualityMetrics }
+
+        files = [cd for cd in run.metadata.inputFiles]  # "location", "name", "fileFormat.name
+        print("mzQC \"run\" #{n} was created for the input of the files:".format(n=n))
+        for file in files:
+            print("\t* {n} \n\t\t@ {l} \n\t\tof type".format(n=file.name, l=file.location), 
+                  getattr(file.fileFormat, "name", "UNSPECIFIED"))
+
+        ct_str = next(iter([cd.value for infi in run.metadata.inputFiles for cd in infi.fileProperties if cd.accession=="MS:1000747"]))
+        if ct_str.endswith("Z"):
+            ct_str = ct_str[:-1]
+        try: 
+            ct_datetime_object = dt.datetime.fromisoformat(ct_str)
+            print(u"\t🕑 The MS run object was completed at", ct_datetime_object.isoformat())
+        except Exception as e:
+            print("\tCould not extract the run's completion time! Wrong format? Use the validator to find out.") 
+    
+        print("\tMetrics:")
+        print(*["\t -" + str(m) for m in mets], sep='\n',)
 
 if __name__ == '__main__':
     mzqcfileinfo()
