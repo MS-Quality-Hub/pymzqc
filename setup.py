@@ -23,7 +23,9 @@ setup(
     setup_requires=['wheel'],
     python_requires='>=3.6',
     include_package_data=True,
-    scripts=['accessories/heroku/mzqc_online_validator.py', 'accessories/offline/mzqc_offline_validator.py']
+    scripts=['accessories/mzqc-fileinfo/mzqc-fileinfo.py', 
+             'accessories/heroku/mzqc_online_validator.py', 
+             'accessories/offline/mzqc_offline_validator.py']
     # entry_points = {
     #     'console_scripts': [
     #         'mzQC-online-validator=accessories.heroku.mzqc_online_validator:start',
