@@ -37,6 +37,14 @@ def test_SyntaxCheck_brokenAnalysisSoftware():
     syn_val = SyntaxCheck().validate(inpu)
     assert(syn_val.get('schema validation',"") == "'version' is a required property @ [mzQC][runQualities][0][metadata][analysisSoftware][1]")
 
+def test_SyntaxCheck_creationDateNoTimezoneinfo():
+    infi = "tests/examples/individual-runs_creationDateNoTimezoneinfo.mzQC"  # test good detectin schema invalid
+    with open(infi, 'r') as f:
+        inpu = f.read()
+        # json.loads(inpu)
+    syn_val = SyntaxCheck().validate(inpu)
+    assert(syn_val.get('schema validation',"") == "'2020-12-01T11:56:34' is not a 'date-time' @ [mzQC][creationDate]")
+
 def test_SyntaxCheck_extraContent():
     infi = "tests/examples/individual-runs_extraJSONcontent.mzQC"  # test good detectin schema invalid, also QC:000 terms unknown
     with open(infi, 'r') as f:
