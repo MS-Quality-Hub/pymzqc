@@ -20,7 +20,7 @@ def extract_version_and_check(line, ref_ver, no_v = False):
     """
     extract_version_and_check
 
-    Assumes the given line is supposed to contain a version, will extract the versions (r'v\d+\.\d+\.\d+') 
+    Assumes the given line is supposed to contain a version, will extract the versions (`r'v\d+\.\d+\.\d+'`) 
     and check against the given version.
 
     Parameters
@@ -30,9 +30,9 @@ def extract_version_and_check(line, ref_ver, no_v = False):
     ref_ver : str
         Given version to check against
     """    
-    matches = re.finditer('v\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
+    matches = re.finditer(r'v\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
     if no_v:
-        matches = re.finditer('\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
+        matches = re.finditer(r'\d+\.\d+\.\d+[rR][[cC]\d+]*', line)
 
     if matches:
         for k in matches:

@@ -203,7 +203,7 @@ class JsonSerialisable(object):
         else:
             ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=4)
         #remove empty run/setQualities and other optinal and empty elements, return with mzqc root, 
-        ret = re.sub("(\"setQualities\"\:\s+\[\s*\][,]*)|(\"runQualities\"\:\s+\[\s*\][,]*)|([,]*\s+\"fileProperties\"\:\s+\[\s*\][,]*)", "", ret)
+        ret = re.sub(r'(\"setQualities\"\:\s+\[\s*\][,]*)|(\"runQualities\"\:\s+\[\s*\][,]*)|([,]*\s+\"fileProperties\"\:\s+\[\s*\][,]*)', "", ret)
         ret = ret.replace('"contactName": "",\n', '').replace('"contactAddress": "",\n', '').replace('"description": "",\n', '')
         ret = "{{\"mzQC\": \n{dump} \n}}".format(dump=ret) if complete else ret
         return ret
