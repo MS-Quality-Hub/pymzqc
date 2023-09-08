@@ -4,9 +4,13 @@ FROM python:3.8-slim-buster
 
 # ********************************************************
 # * setup for debian based
+#   (also see container/DevDockerfile)
 # ********************************************************
 
 ENV DEBIAN_FRONTEND noninteractive 
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
 # Replace sources with HTTPS sources and add unstable 
 RUN printf "deb https://deb.debian.org/debian buster main\ndeb https://security.debian.org/debian-security buster/updates main\ndeb https://ftp.debian.org/debian buster-updates main\n" > /etc/apt/sources.list
 #RUN printf "deb https://deb.debian.org/debian unstable main\n" >> /etc/apt/sources.list
@@ -24,14 +28,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
   ssh-client\
   graphviz
 
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-
 # # only packages related to dev, project dependencies will get resolved via pip and setup.py
 RUN python3 -m pip install --upgrade pip 
-RUN pip install pytest mypy types-setuptools sphinx build wheel twine click \
-    flask flask_restful flask_cors numpy pandas scipy matplotlib lxml \
-    pyteomics click matplotlib hvplot panel jupyter
+RUN pip install pytest mypy types-setuptools sphinx build wheel twine \
+    jsonschema requests numpy pandas scipy click \
+    flask flask_restful flask_cors \ 
+    matplotlib hvplot panel jupyter plotly kaleido \
+    lxml pyteomics
 
 # ********************************************************
 # * extrawurst fuer vscode

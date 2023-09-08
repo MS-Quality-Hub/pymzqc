@@ -1,11 +1,17 @@
 # Container
 This folder contains various container build instruction files.
-The `DevDockerfile` builds a container from github sources and installs some helpful modules before that.
-The `Dockerfile` builds a container from a wheel build.
-More container for development have their instructions in the /.devcontainer folder
+* The `DevDockerfile` builds a container from github sources and installs some helpful modules and libraries before that.
+* The `Dockerfile` builds a container from a wheel build. This is used for the official container built.
+
+**Note**: there are other Dockerfiles for specific purposes. For an onlinevalidator container at `accessories/onlinevalidator/Dockerfile` 
+and a vscode remote container at `.devcontainer/Dockerfile`.
+
 
 ## Repository
-Our main container repository is at [quay.io](https://quay.io/repository/mwalzer/pymzqc?tab=tags)
+Our main container registry is at [quay.io](https://quay.io/repository/mwalzer/pymzqc?tab=tags). 
+Its builds are made by github actions (for releases) and pushed to quay.io [mwalzer/pymzqc](https://quay.io/repository/mwalzer/pymzqc?tab=tags&tag=latest) reporitory.
+Another container repository for the mzqc-validator is at [mwalzer/mzqc-validator](https://quay.io/repository/mwalzer/mzqc-validator?tab=tags&tag=latest); see more the accessories documentation for the onlinevalidator.
+
 
 ## Container Engine Flavours
 Thanks to the intercompatibility of many container systems, we can use different container engines to run pymzqc. This section is meant as a cheat-sheet for quick switching.
