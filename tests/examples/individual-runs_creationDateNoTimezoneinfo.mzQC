@@ -45,6 +45,8 @@
             {
                 "accession": "MS:1000799",
                 "name": "custom unreleased software tool",
+                "version": "0",
+                "uri": "https://infini.loop",
                 "value": "mzqc-pylib"
             }
           ]
