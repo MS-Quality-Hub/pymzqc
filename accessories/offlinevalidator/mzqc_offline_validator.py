@@ -37,9 +37,9 @@ def validate(inpu):
 
 @click.command()  # no command necessary if it's the only one 
 @click.option('-j','--write-to-file', required=False, type=click.Path(), default=None, help="File destination for the output of the validation result.")
-@click.argument('inpu', type=click.File('r'))
-def start(inpu, write_to_file):
-    proto_response = validate(inpu)
+@click.argument('input', type=click.File('r'))
+def start(input, write_to_file):
+    proto_response = validate(input)
     if write_to_file:
         with open(write_to_file, 'w') as f:
             json.dump(proto_response, f)

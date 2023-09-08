@@ -18,19 +18,19 @@ setup(
         "numpy",
         "pandas>=1.1.5",
         "pronto",
-        "requests>=2.27.1"
+        "requests>=2.27.1",
+        "click",
     ],
-    setup_requires=['wheel'],
+    setup_requires=['wheel', 'Click'],
     python_requires='>=3.6',
     include_package_data=True,
-    scripts=['accessories/mzqc-fileinfo/mzqc-fileinfo.py', 
-             'accessories/heroku/mzqc_online_validator.py', 
-             'accessories/offline/mzqc_offline_validator.py']
-    # entry_points = {
-    #     'console_scripts': [
-    #         'mzQC-online-validator=accessories.heroku.mzqc_online_validator:start',
-    #         'mzQC-offline-validator=accessories.offline.mzqc_offline_validator:start'
-    #     ],
-    # }
-    # package_dir = {'': 'dist/'}
+    entry_points = {
+        'console_scripts': [
+            'mzQC-fileinfo=accessories.fileinfo.mzqc_fileinfo:mzqcfileinfo',
+            'mzQC-online-validator=accessories.onlinevalidator.mzqc_online_validator:app.run',
+            # Note: onlinevalidator has extra dependencies not covered by this setup! 
+            #       See accessories/onlinevalidator/requirements.txt!
+            'mzQC-offline-validator=accessories.offlinevalidator.mzqc_offline_validator:start'
+        ],
+    }
 )

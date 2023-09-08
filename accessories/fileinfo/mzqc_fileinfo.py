@@ -47,7 +47,7 @@ def mzqcfileinfo(input):
         files = [cd for cd in run.metadata.inputFiles]  # "location", "name", "fileFormat.name
         print("mzQC \"run\" #{n} was created for the input of the files:".format(n=n))
         for file in files:
-            print("\t* {n} \n\t\t@ {l} \n\t\tof type".format(n=file.name, l=file.location), 
+            print(u"\t💾 {n} \n\t\t@ {l} \n\t\tof type".format(n=file.name, l=file.location), 
                   getattr(file.fileFormat, "name", "UNSPECIFIED"))
 
         ct_str = next(iter([cd.value for infi in run.metadata.inputFiles for cd in infi.fileProperties if cd.accession=="MS:1000747"]))
@@ -60,7 +60,7 @@ def mzqcfileinfo(input):
             print("\tCould not extract the run's completion time! Wrong format? Use the validator to find out.") 
     
         print("\tMetrics:")
-        print(*["\t -" + str(m) for m in mets], sep='\n',)
+        print(*[u"\t 📈" + str(m) for m in mets], sep='\n',)
 
 if __name__ == '__main__':
     mzqcfileinfo()

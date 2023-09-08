@@ -3,7 +3,7 @@ Accessories
 
 The accessories currently include the following subprojects:
 
-Validator API (heroku)
+Validator API (formerly heroku)
 ----------
-.. include:: ../../accessories/heroku/README.md
+.. include:: ../../accessories/onlinevalidator/README.md
    :parser: myst_parser.sphinx_
