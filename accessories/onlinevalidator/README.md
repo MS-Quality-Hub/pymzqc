@@ -16,6 +16,7 @@ podman build -t mzqc-validator -f accessories/onlinevalidator/Dockerfile .
 (If you are testing a release without pypi package uncomment the respective lines in the Dockerfile to override the pymzqc version used.)
 
 Pre-built container images for selected (pre-)release versions can be found at the [mzqc-validator container registry](https://quay.io/repository/mwalzer/mzqc-validator?tab=tags&tag=latest).
+If you want to deploy the **online**validator with your local pymzqc installation, please be aware of extra dependencies to the [online-validator](accessories/onlinevalidator/requirements.txt). 
 
 ### Deployment
 To test a deployment, run the mzqc-validator flask app in gunicorn from the container (as described in `wsgi.py`). 
@@ -27,7 +28,7 @@ note that the ports might differ, depending on the flask and system defaults.
 Calling the mzqc_online_validator directly in gunicorn is fine too (`podman run -p 8123:8123 -ti localhost/mzqc-validator python3 -m gunicorn mzqc_online_validator:app -b 0.0.0.0:8123 --chdir mzqc-validator/`), the `wsgi.py` indirection is a legacy effect from heroku's Procfile use and their example app.
 
 
-The `validate` function of SemanticCheck is considerate of the environment variable `MAX_ERR` which set to an integer limits the amount of validation errors that can occur before validation is aborted. This can be for example adjusted in the call like so: `podman run -p 5000:5000 -ti localhost/mzqc-validator env MAX_ERR=3 python3 -m gunicorn mzqc_online_validator:app -b 0.0.0.0:5000 --chdir mzqc-validator/`  
+The `validate` function of SemanticCheck is considerate of the environment variable `MAX_ERR` which set to an integer limits the amount of validation errors that can occur before validation is aborted. This can be for example adjusted in the call like so: `podman run -p 5000:5000 -ti localhost/mzqc-validator env MAX_ERR=3 python3 -m gunicorn mzqc_online_validator:app -b 0.0.0.0:5000 --chdir mzqc-validator/`
 
 A Docker compose deploment example can be found at `accessories/onlinevalidator/compose.yaml`.
 

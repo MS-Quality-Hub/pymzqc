@@ -5,6 +5,7 @@ from mzqc.SemanticCheck import SemanticCheck
 from mzqc.MZQCFile import MzQcFile as mzqc_file
 from mzqc.MZQCFile import JsonSerialisable as mzqc_io
 import warnings
+from itertools import chain
 
 """
     Semantic tests with pymzqc
@@ -114,6 +115,33 @@ def test_SemanticCheck_duplicateMetric():
     assert("Duplicate quality metric in a run/set: accession = MS:4000059" in 
             sem_val.get("metric uniqueness",list()))
 
+def test_SemanticCheck_trip():
+    infi = "tests/examples/individual-runs_tripallsemanticchecks.mzQC"
+    with open(infi, 'r') as f:
+        mzqcobject = mzqc_io.FromJson(f)
+
+    assert(type(mzqcobject) == mzqc_file)
+    removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
+    mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sm = SemanticCheck()
+        sem_val = sm.validate(mzqcobject, load_local=True)
+        
+    assert(len(sem_val.get("label uniqueness",list()))>0)
+    assert(len(sem_val.get("metric uniqueness",list()))>0)
+    assert(len(sem_val.get("metric usage errors",list()))>0)
+    assert(len(sem_val.get("ontology load errors",list()))>0)
+    assert(len(sem_val.get("value type errors",list()))>0)
+    
+    assert(set(chain.from_iterable(sm.values())).issubset(sm._document_collected_issues()))
+
+    assert(len(chain.from_iterable(sem_val.values()))==len(chain.from_iterable(sm.values())))
+
+    print(json.dumps(sem_val, sort_keys=True, indent=4))
+    assert(1)
+
 def test_SemanticCheck_success():
     infi = "tests/examples/individual-runs.mzQC"  # success test
     with open(infi, 'r') as f:
@@ -133,4 +161,3 @@ def test_SemanticCheck_success():
     assert(len(sem_val.get("ontology load errors",list()))==0)
     assert(len(sem_val.get("value type errors",list()))==0)
     assert(all([x.startswith("WARNING") for x in sem_val.get("ontology term errors",list())]))
-    
