@@ -1,0 +1,127 @@
+format-version: 1.2
+data-version: 4.1.138
+date: 07:12:2023 16:37
+saved-by: Matt Chambers
+auto-generated-by: OBO-Edit 2.3.1
+import: http://purl.obolibrary.org/obo/pato.obo
+import: http://purl.obolibrary.org/obo/stato.owl
+default-namespace: MS
+namespace-id-rule: * MS:$sequence(7,0,9999999)$
+namespace-id-rule: * PEFF:$sequence(7,0,9999999)$
+remark: coverage of namespace-id: MS:$sequence(7,4000000,4999999)$: Mass spectrometry quality control metrics
+remark: namespace: MS
+remark: namespace: PEFF
+remark: coverage: Mass spectrometer output files and spectra interpretation
+remark: creator: Yasset Perez-Riverol <yperez <-at-> ebi.ac.uk>
+remark: creator: Matt Chambers <matt.chambers <-at-> vanderbilt.edu>
+remark: creator: Andreas Bertsch <bertsch <-at-> informatik.uni-tuebingen.de>
+remark: creator: Marius Kallhardt <Marius.Kallhardt <-at-> bdal.de>
+remark: creator: Eric Deutsch <edeutsch <-at-> systemsbiology.org>
+remark: creator: Fredrik Levander <fredrik.levander <-at-> immun.lth.se>
+remark: creator: Pierre-Alain Binz <pierre-alain.binz <-at-> chuv.ch>
+remark: creator: Gerhard Mayer <mayerg97 <-at-> rub.de>
+remark: creator: Joshua Klein <jaklein <-at-> bu.edu>
+remark: creator: Chris Bielow <chris.bielow <-at-> fu-berlin.de>
+remark: creator: Wout Bittremieux <wbittremieux <-at-> health.ucsd.edu>
+remark: creator: Nils Hoffmann < nils.hoffmann <-at-> cebitec.uni-bielefeld.de>
+remark: creator: Julian Uszkoreit <julian.uszkoreit <-at-> ruhr-uni-bochum.de>
+remark: creator: Mathias Walzer <walzer <-at-> ebi.ac.uk>
+remark: publisher: HUPO Proteomics Standards Initiative Mass Spectrometry Standards Working Group and HUPO Proteomics Standards Initiative Proteomics Informatics Working Group
+remark: When appropriate the definition and synonyms of a term are reported exactly as in the chapter 12 of IUPAC orange book. See http://www.iupac.org/projects/2003/2003-056-2-500.html and http://mass-spec.lsu.edu/msterms/index.php/Main_Page
+remark: For any queries contact psidev-ms-vocab@lists.sourceforge.net
+remark: URL: http://purl.obolibrary.org/obo/ms/psi-ms.obo
+remark: This work is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) license.
+remark: To view a copy of this license, visit https://creativecommons.org/licenses/by/4.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+ontology: ms
+
+[Typedef]
+id: has_regexp
+name: has regexp
+
+[Typedef]
+id: has_units
+name: has_units
+
+[Typedef]
+id: part_of
+name: part_of
+is_transitive: true
+
+[Typedef]
+id: has_order
+name: has_order
+
+[Typedef]
+id: has_domain
+name: has_domain
+
+[Typedef]
+id: has_value_type
+name: has value type
+def: "'Entity A' has value type 'Entity B', such as xsd:float." []
+
+[Typedef]
+id: has_structured_representation_in_format
+name: has structured representation in format
+def: "The term is encoded in the structure of the named file format rather than as an explicit parameter, and should not be used as one in that format." []
+
+[Typedef]
+id: has_metric_category
+name: has_metric_category
+
+[Typedef]
+id: has_value_concept
+name: has_value_concept
+
+[Typedef]
+id: has_column
+name: has_column
+
+[Typedef]
+id: has_optional_column
+name: has_optional_column
+
+[Term]
+id: MS:4000000
+name: PSI-MS CV Quality Control Vocabulary
+def: "PSI Quality Control controlled vocabulary term." [PSI:MS]
+relationship: part_of MS:0000000 ! Proteomics Standards Initiative Mass Spectrometry Vocabularies
+
+[Term]
+id: MS:4000001
+name: QC metric
+def: "Parent term for QC metrics, each metric MUST have this as an ancestor in its is_a relations." [PSI:MS]
+relationship: part_of MS:4000000 ! PSI-MS CV Quality Control Vocabulary
+
+[Term]
+id: MS:4000002
+name: QC metric value type
+def: "The QC metric type describes what type the corresponding metric is. Possible types are single value, n-tuple, table, or matrix." [PSI:MS]
+relationship: part_of MS:4000000 ! PSI-MS CV Quality Control Vocabulary
+
+[Term]
+id: MS:4000003
+name: single value
+def: "Metrics consisting of a single value. The value must have a unit (e.g. UO:0000221 ! dalton or UO:0000187 ! percent), and optionally a type (e.g. STATO:0000574 ! median or MS:1002354 ! PSM-level q-value)." [PSI:MS]
+is_a: MS:4000002 ! QC metric value type
+
+[Term]
+id: MS:4000019
+name: MS metric
+def: "QC metric related to the mass spectrometry acquisition." [PSI:MS]
+is_a: MS:4000001 ! QC metric
+
+[Term]
+id: MS:4000021
+name: MS1 metric
+def: "QC metric based on MS1 events." [PSI:MS]
+is_a: MS:4000019 ! MS metric
+
+[Term]
+id: MS:4000095
+name: slowest frequency for MS level 1 collection
+def: "Ambiguity test." [pymzqc:test]
+is_a: MS:4000003 ! single value
+relationship: has_units UO:0000106 ! hertz
+relationship: has_value_type xsd:float ! The allowed value-type for this CV term
+relationship: has_metric_category MS:4000021 ! MS1 metric
