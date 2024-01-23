@@ -40,12 +40,14 @@ testfiles = ["tests/examples/individual-runs.mzQC",
 
 
 import json
+from jsonschema import ValidationError
 from mzqc.MZQCFile import MzQcFile as mzqc_file
 from mzqc.MZQCFile import JsonSerialisable as mzqc_io
 from mzqc.SemanticCheck import SemanticCheck
+from mzqc.SemanticCheck import SemanticIssue
 from mzqc.SyntaxCheck import SyntaxCheck
 
-# infi = "tests/examples/individual-runs.mzQC"  # success test
+infi = "tests/examples/individual-runs.mzQC"  # success test
 # infi = "tests/examples/individual-runs-no-outer.json"  # No mzQC content found! no mzQC object no detectin
 # infi = "tests/examples/individual-runs_extraJSONcontent.mzQC"  # test good detectin schema invalid, also QC:000 terms unknown
 # infi = "tests/examples/individual-runs_tableExtraColumn.mzQC"  # test good detectin
@@ -54,7 +56,7 @@ from mzqc.SyntaxCheck import SyntaxCheck
 # infi = "tests/examples/individual-runs_brokenAnalysisSoftware.mzQC"  # test good detectin schema invalid
 # infi = "tests/examples/individual-runs_unequalTableCols.mzQC"  # test good detection
 # infi = "tests/examples/individual-runs_duplicateMetric.mzQC"  # test good detection
-infi = "tests/examples/individual-runs_non-metric-term.mzQC"  # test good detection
+infi = "tests/examples/individual-runs_tripallsemanticchecks.mzQC"  # test good detection
 
 with open(infi, 'r') as f:
     inpu = f.read()
@@ -76,20 +78,28 @@ except Exception as e:
         ret = {'schema': 'abort due to unknown content', 'semantics': {'validation': 'abort due to unknown content'}}
         #return jsonify(ret)
 
-ret = SyntaxCheck().validate(inpu)
 if type(mzqcobject) == mzqc_file:
+    sc = SemanticCheck(mzqc_obj=mzqcobject, file_path='.')
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
-    sem_val = {'semantic validation': SemanticCheck().validate(mzqcobject, load_local=True)}
-    sem_val.update({'invalid ontology URIs': ' , '.join([str(x) for x in removed_items])})
+    me = 5
+    try:
+        sc.validate(load_local=True, max_errors=me)
+    except ValidationError as e:
+        print(e)
+    proto_response = sc._export()
+    if removed_items:
+        proto_response.update({"ontology validation": 
+                            ["invalid ontology URI"+ str(it.name) for it in removed_items]})
 else:
-    sem_val = {'semantic validation': {'validation': 'abort due to mzQC-incompatible JSON'}}
-ret.update(sem_val)
-#return jsonify(ret)
-print(json.dumps(ret, indent=2, sort_keys=True))
+    proto_response = {'validation': 'abort due to mzQC-incompatible JSON'}
 
 
+valt = mzqc_io.ToJson(mzqcobject)
+syn_val_res = SyntaxCheck().validate(valt)
+if type(syn_val_res.get('schema validation', None)) == list:
+            syn_val_res = {'schema validation': syn_val_res.get('schema validation', None)[0] if syn_val_res.get('schema validation', None) else ''}
+proto_response.update(syn_val_res)
 
-
-# SyntaxCheck().validate(json.dumps(purejson))['schema'][0].partition('\n')[0]  # old version of SyntaxChecker
-
+#return jsonify(proto_response)
+print(json.dumps(proto_response, indent=2, sort_keys=True))

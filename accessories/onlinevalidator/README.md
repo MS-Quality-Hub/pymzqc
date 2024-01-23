@@ -28,7 +28,7 @@ note that the ports might differ, depending on the flask and system defaults.
 Calling the mzqc_online_validator directly in gunicorn is fine too (`podman run -p 8123:8123 -ti localhost/mzqc-validator python3 -m gunicorn mzqc_online_validator:app -b 0.0.0.0:8123 --chdir mzqc-validator/`), the `wsgi.py` indirection is a legacy effect from heroku's Procfile use and their example app.
 
 
-The `validate` function of SemanticCheck is considerate of the environment variable `MAX_ERR` which set to an integer limits the amount of validation errors that can occur before validation is aborted. This can be for example adjusted in the call like so: `podman run -p 5000:5000 -ti localhost/mzqc-validator env MAX_ERR=3 python3 -m gunicorn mzqc_online_validator:app -b 0.0.0.0:5000 --chdir mzqc-validator/`
+The `validate` function of SemanticCheck is considerate of the environment variable `MAX_ERR` which set to an integer limits the amount of validation errors that can occur before validation is aborted. This can be for example adjusted in the call like so: `podman run --env 'MAX_ERR=5' -p 5000:5000 -ti localhost/mzqc-validator python3 -m gunicorn wsgi:app -b 0.0.0.0:5000 --chdir mzqc-validator/`
 
 A Docker compose deploment example can be found at `accessories/onlinevalidator/compose.yaml`.
 

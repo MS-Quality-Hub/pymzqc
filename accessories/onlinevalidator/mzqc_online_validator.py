@@ -1,5 +1,6 @@
 import os
 import json
+from jsonschema import ValidationError
 from flask import Flask
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
@@ -76,16 +77,20 @@ class Validator(Resource):
         else:
             removed_items = list(filter(lambda x: not x.uri.startswith('http'), target.controlledVocabularies))
             target.controlledVocabularies = list(filter(lambda x: x.uri.startswith('http'), target.controlledVocabularies))
-            me = os.getenv('MAX_ERR', None)
+            me = os.getenv('MAX_ERR', 0)
             if isinstance(me, str) and me.isnumeric():
                 me = int(me)
-                sem_val_res = SemanticCheck().validate(target, max_errors=me)
-            else:
-                sem_val_res = SemanticCheck().validate(target)
+            
+            sem_val = SemanticCheck(mzqc_obj=target, file_path='.')
+            try:
+                sem_val.validate(load_local=False, max_errors=me)
+            except ValidationError as e:
+                print(e)
+            proto_response = sem_val._export()
+            if removed_items:
+                proto_response.update({"ontology validation": 
+                                       ["invalid ontology URI for "+ str(it.name) for it in removed_items]})
 
-            proto_response = {k: [str(i) for i in v] for k,v in sem_val_res.items()}
-            proto_response.update({"unrecognised CVs": [str(it) for it in removed_items]})
-            #print(proto_response)
             valt = mzqc_io.ToJson(target)
             syn_val_res = SyntaxCheck().validate(valt)
             # older versions of the validator report a generic response in an array - return first only
@@ -93,9 +98,7 @@ class Validator(Resource):
                 syn_val_res = {'schema validation': syn_val_res.get('schema validation', None)[0] if syn_val_res.get('schema validation', None) else ''}
             proto_response.update(syn_val_res)
 
-            print(json.dumps(proto_response, indent=4, sort_keys=True))            
-            # convert val_res ErrorTypes to strings
-            # add note on removed CVs
+            # print(json.dumps(proto_response, indent=2, sort_keys=True))            
             return jsonify(proto_response)
         return default_unknown
 

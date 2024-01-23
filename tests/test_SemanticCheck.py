@@ -54,7 +54,7 @@ def test_SemanticCheck_dictfunction():
 
     with pytest.raises(ValidationError) as dictacc:  
         sc.raising("test",3)
-    assert(str(dictacc.value) == "Maximum number of errors incurred (2 < 3), aborting!") 
+    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!") 
 
     assert(sc._exceeded_errors)
 
@@ -70,10 +70,27 @@ def test_SemanticCheck_clearfunction():
     assert(str(dictacc.value) == "'test'") 
     assert(not sc._exceeded_errors) 
 
+def test_SemanticCheck_maxerrorsfunction():
+    infi = "tests/examples/individual-runs_tripallsemanticchecks.mzQC"
+    with open(infi, 'r') as f:
+        mzqcobject = mzqc_io.FromJson(f)
+
+    assert(type(mzqcobject) == mzqc_file)
+    removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
+    mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
+
+    with pytest.raises(ValidationError) as dictacc:  
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            sc2 = SemanticCheck(mzqc_obj=mzqcobject, file_path=infi)
+            sc2.validate(load_local=True, max_errors=2)
+    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!")        
+    # print(json.dumps(sc2._export(), sort_keys=True, indent=4))
+
 def test_SemanticCheck_exportfunction():
     sc1 = SemanticCheck(None)
     sc1._invalid_mzqc_obj=True
-    assert(sc1._export()=={"semantic validation": {"general": "incompatible object given to validation"} })
+    assert(sc1._export()=={"general": "incompatible object given to validation"})
 
     infi = "tests/examples/individual-runs.mzQC"  # success test
     with open(infi, 'r') as f:

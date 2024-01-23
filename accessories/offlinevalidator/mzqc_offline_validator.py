@@ -17,12 +17,16 @@ def validate(inpu):
         else:
             removed_items = list(filter(lambda x: not x.uri.startswith('http'), target.controlledVocabularies))
             target.controlledVocabularies = list(filter(lambda x: x.uri.startswith('http'), target.controlledVocabularies))
-            sem_val_res = SemanticCheck().validate(target)
-            #print(sem_val_res)
+
+            sem_val = SemanticCheck(mzqc_obj=target, file_path='.')
+            sem_val.validate(load_local=True)
             
-            proto_response = {k: [str(i) for i in v] for k,v in sem_val_res.items()}
-            proto_response.update({"unrecognised CVs": [str(it) for it in removed_items]})
-            #print(proto_response)
+            proto_response = sem_val._export()
+            
+            if removed_items:
+                proto_response.update({"ontology validation": 
+                                       ["invalid ontology URI for "+ str(it.name) for it in removed_items]})
+
             valt = mzqc_io.ToJson(target)
             syn_val_res = SyntaxCheck().validate(valt)
             # older versions of the validator report a generic response in an array - return first only
