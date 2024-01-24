@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
     
 setup(
     name='pymzqc',
-    version='1.0.0rc1',
+    version='1.0.0rc2',
     packages=find_packages(exclude=("tests",)),
     author='Mathias Walzer',
     author_email='walzer@ebi.ack.uk',    
@@ -15,6 +15,9 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=[
         "jsonschema>=3.2.0",
+        # Note: in order to validate JSON date-time type expressions the rfc3339 libs need to be present (otherwise the Formatchecker for date-time won't be initialised)
+        "strict-rfc3339",
+        "rfc3339-validator",
         "numpy",
         "pandas>=1.1.5",
         "pronto",
@@ -22,7 +25,7 @@ setup(
         "click",
     ],
     setup_requires=['wheel', 'Click'],
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     include_package_data=True,
     entry_points = {
         'console_scripts': [

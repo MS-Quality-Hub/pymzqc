@@ -31,10 +31,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
 # # only packages related to dev, project dependencies will get resolved via pip and setup.py
 RUN python3 -m pip install --upgrade pip 
 RUN pip install pytest mypy types-setuptools sphinx build wheel twine \
-    jsonschema requests numpy pandas scipy click \
-    flask flask_restful flask_cors \ 
-    matplotlib hvplot panel jupyter plotly kaleido \
-    lxml pyteomics
+    jsonschema strict-rfc3339 rfc3339-validator \
+    requests flask flask_restful flask_cors \ 
+    matplotlib hvplot panel jupyter plotly kaleido numpy pandas scipy \
+    lxml pyteomics click
 
 # ********************************************************
 # * extrawurst fuer vscode
