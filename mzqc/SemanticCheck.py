@@ -26,12 +26,10 @@ def suppress_verbose_modules():
         finally:
             sys.stderr = sys_stderr_bak
 
-# TODO The whole SemanticIssue class probably needs a proper validation object (with place_s_ for 
-# error/warning/other) to collect all the information accumulating while going through the validation
 @dataclass
 class SemanticIssue:
     """Class for keeping track of an instance of all the different issues during the 
-    semantic validation for a particular dataset, collecting a few data members:
+        semantic validation for a particular dataset, collecting a few data members:
         name: name of the issue
         severity: value from 1-9, increasing severity, no checks performed, no guaranties.
         message: issue message
@@ -42,18 +40,27 @@ class SemanticIssue:
     severity: int
     message: str
     def _to_string(self):
-        return self.name + " of severity "+ str(self.severity) + " and message:" + self.message
+        return self.name + " of severity "+ str(self.severity) + " and message: " + self.message
 
 class SemanticCheck(UserDict):
     """Class for keeping track of all instances of SemanticIssues arising during semantic validation.
     
-    Due to the design and nature of checks performed, it is recommended to use one object per loaded mzQC file.
-    Thus, if you provide the file_path of a loaded mzQC object to the SemanticCheck class, you can directly 
-    document to which file (and not only which object) the validation belongs to.
-    The validate function updates internal data attributes as max_error, the dict of SemanticIssues, and the mzqc_obj.
-    The class uses a number of internal functions to capsulate the validation process and access to the mzqc_object.
-    Usage: 
-
+    Due to the design and nature of checks performed, it is recommended to use one object per 
+    loaded mzQC file. Thus, if you provide the file_path of a loaded mzQC object to the 
+    SemanticCheck class, you can directly document to which file (and not only which object) the 
+    validation belongs to. The validation results are directly accessible through the UserDict 
+    super class. Additional parameters on the validation call are kept, too. 
+    The validate function updates internal data attributes as max_error, the dict of 
+    SemanticIssues, and the mzqc_obj (see __init__). A wrapping function to add new-found 
+    validation issues with raising() helps keeping track of the number of issues during validation,
+    which can be cut short in resource restrictive environments.
+    Like so, the class objects can perform different modes of validation on the same mzqc. However,
+    this makes the SemanticCheck object memory heavy. The class uses a number of internal functions
+    to capsulate the validation process and access to the mzqc_object: `clear`, `raising`, and 
+    `string_export` which are present as convenience functions to the validator applications in the
+    accessories of the project's repository. See the `validate` function documentation for further 
+    details. 
+    
     Parameters
     ----------
     UserDict : Dict[str,List[SemanticIssue]]
@@ -71,7 +78,22 @@ class SemanticCheck(UserDict):
         self._exceeded_errors:bool=False
 
     def __setitem__(self, key, value):
-        # check max_error
+        """Overrides the UserDict item to keep watch on the maximum allowed number of 
+        registered issues before validation is interrupted (through an error raised from
+        this function)
+
+        Parameters
+        ----------
+        key : str
+            issue type or category
+        value : list[SemanticIssues]
+            the list of SemanticIssues found for given category
+
+        Raises
+        ------
+        ValidationError
+            if self._max_errors is exceeded by the sum of items contained in category lists of issues
+        """
         if self._max_errors > 0:
             if sum([len(x) for x in self.values()])+1 > self._max_errors:
                 self._exceeded_errors = True
@@ -83,17 +105,41 @@ class SemanticCheck(UserDict):
         super().__setitem__(key, value)
     
     def raising(self, category:str, issue:SemanticIssue):
+        """Helper function to append new issues without circumventing the max_error 
+        mechanism or initialising new issue types or categories
+
+        Parameters
+        ----------
+        category : str
+            issue type or category, key to __setitem__
+        issue : SemanticIssue
+            A 
+        """
         if category not in self.keys():
             self[category]=[issue]
         else:
             self[category]=self[category]+[issue]
 
     def clear(self) -> None:
+        """Substitute to the UserDict clear which clears the dict and resets _exceeded_errors
+        """
         super().clear() 
         self._exceeded_errors = False
         return
 
     def _get_cv_parameters(self, val: object):
+        """Recursively retrieves all elements of type cvParameter from the object
+
+        Parameters
+        ----------  
+        val : object
+            a nested object (list or mzQC)
+
+        Yields
+        ------
+        cvParameter
+            any object that has an 'accession' member
+        """
         if hasattr(val, 'accession'):
             yield val
         elif isinstance(val, List):
@@ -107,6 +153,15 @@ class SemanticCheck(UserDict):
             pass
 
     def _check_label_uniqueness(self, issue_type_category: str, _document_collected_issues: bool = False):
+        """Checks a mzQC object's metadata labels for uniqueness
+
+        Parameters
+        ----------
+        issue_type_category : str
+            the issue type or category under which detected issues are filed
+        _document_collected_issues : bool, optional
+            for auto documentation this is set True, by default False
+        """
         if _document_collected_issues:
             self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
                     "Run/SetQuality label {} is not unique in file!".format("auto_doc")))
@@ -123,6 +178,22 @@ class SemanticCheck(UserDict):
         return
     
     def _load_and_check_Vocabularies(self, issue_type_category: str, load_local: bool = False, _document_collected_issues: bool = False) -> Dict[str,Ontology]:
+        """Loads remote or local vocabularies and registers any issues during load
+
+        Parameters
+        ----------
+        issue_type_category : str
+            the issue type or category under which detected issues are filed 
+        load_local : bool, optional
+            if True file URIs referencing a local fs are attempted to load, by default False
+        _document_collected_issues : bool, optional
+            for auto documentation this is set True, by default False
+
+        Returns
+        -------
+        Dict[str,Ontology]
+            the loaded vocabularies as pronto Ontlogies, key is the name of the Ontology
+        """
         if _document_collected_issues:
             self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5, 
                     f'Loading the following local ontology referenced in mzQC file: {"auto_doc"}'))
@@ -130,7 +201,6 @@ class SemanticCheck(UserDict):
                     f'Error loading the following online ontology referenced in mzQC file: {"auto_doc"}'))         
             return
         
-        #vocs = {cve.name: Ontology(cve.uri) for cve in mzqc_obj.controlledVocabularies}
         vocs = dict()
 
         # check if ontologies are listed multiple times (different versions etc)
@@ -164,9 +234,9 @@ class SemanticCheck(UserDict):
         Parameters
         ----------
         issue_type_category : str
-            The issue type category to which found issues shall be appended to.
+            the issue type or category under which detected issues are filed 
         _document_collected_issues : bool
-            Boolean flag to indicate if all potential issues are to be autogenerated.
+            for auto documentation this is set True, by default False
         """
         if _document_collected_issues:
             self.raising(issue_type_category, 
@@ -217,6 +287,18 @@ class SemanticCheck(UserDict):
         return
 
     def _getVocabularyMetrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+        """Retrieves all metric type accessions from given vocabularies
+
+        Parameters
+        ----------
+        filevocabularies : Dict[str,Ontology]
+            the vocabularies given as a dict of names and pronto Ontology objects
+
+        Returns
+        -------
+        Set[str]
+            a set of accessions of metric type terms in the given vocabularies
+        """
         metricsubclass_sets_list = list()
         for k,v in filevocabularies.items():
             try:
@@ -226,6 +308,18 @@ class SemanticCheck(UserDict):
         return set().union(chain.from_iterable(metricsubclass_sets_list))
 
     def _getVocabularyIDMetrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+        """Retrieves all ID based type accessions from given vocabularies
+
+        Parameters
+        ----------
+        filevocabularies : Dict[str,Ontology]
+            the vocabularies given as a dict of names and pronto Ontology objects
+
+        Returns
+        -------
+        Set[str]
+            a set of accessions of ID based type terms in the given vocabularies
+        """
         metricsubclass_sets_list = list()
         for k,v in filevocabularies.items():
             try:
@@ -238,6 +332,18 @@ class SemanticCheck(UserDict):
         return set().union(chain.from_iterable(metricsubclass_sets_list))
 
     def _getVocabularyTables(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+        """Retrieves all table type accessions from given vocabularies
+
+        Parameters
+        ----------
+        filevocabularies : Dict[str,Ontology]
+            the vocabularies given as a dict of names and pronto Ontology objects
+
+        Returns
+        -------
+        Set[str]
+            a set of accessions of table type terms in the given vocabularies
+        """
         tablesubclass_sets_list = list()
         for k,v in filevocabularies.items():
             try:
@@ -247,6 +353,22 @@ class SemanticCheck(UserDict):
         return set().union(chain.from_iterable(tablesubclass_sets_list))
 
     def _getRequiredCols(self, accession: str, filevocabularies: Dict[str,Ontology]) -> Tuple[Set[Term],Set[Term]]:
+        """Retrieves the names of required columns from the given accession
+
+        The accession is looked up in the given vocabularies
+
+        Parameters
+        ----------
+        accession : str
+            accession of a table type metric within the given vocabularies
+        filevocabularies : Dict[str,Ontology]
+            the vocabularies given as a dict of names and pronto Ontology objects
+
+        Returns
+        -------
+        Tuple[Set[Term],Set[Term]]
+            a tuple of sets, the first for required columns' names,  the second for the optional columns' names 
+        """
         tab_def = None
         for k,v in filevocabularies.items():
             try:
@@ -259,7 +381,23 @@ class SemanticCheck(UserDict):
         else:
             return set(next(filter(lambda x: x[0].name=='has_column', tab_def.relationships.items()), (None,frozenset()))[1]), set(next(filter(lambda x: x[0].name=='has_optional_column', tab_def.relationships.items()), (None,frozenset()))[1])
     
-    def _hasIDInputFile(self, run_or_set_quality) -> bool:
+    def _hasIDInputFile(self, run_or_set_quality: BaseQuality) -> bool:
+        """Confirms if a run or set_quality has ID type file in their inputFile
+
+        For now, the ID types are recognised by ther filename extensions, including:
+        '.mzid', '.pepxml', '.idxml', '.mztab'
+        in various forms of spelling.
+
+        Parameters
+        ----------
+        run_or_set_quality : BaseQuality
+            the run or set quality collection to be confirmed
+
+        Returns
+        -------
+        bool
+            returns True if any of the notorious ID type files is present
+        """
         idfext = ('.mzid', '.pepxml', '.idxml', '.mztab')  # NB case is all _lower_ and to be used after .lower() on target
         for input_file in run_or_set_quality.metadata.inputFiles:
             infilo = os.path.splitext(
@@ -272,6 +410,20 @@ class SemanticCheck(UserDict):
         return False
 
     def _check_CVTerm_match(self, issue_type_category: str, cv_par: CvParameter, voc_par: Term, _document_collected_issues: bool = False):
+        """Checks any cvParameter for correct definition and reference
+
+        Parameters
+        ----------
+        issue_type_category : str
+            the issue type or category under which detected issues are filed 
+        cv_par : CvParameter
+            the parameter to be checked
+        voc_par : Term
+            the ontology term it is referencing
+        _document_collected_issues : bool, optional
+            for auto documentation this is set True, by default False
+
+        """
         if _document_collected_issues:
             self.raising(issue_type_category, 
                          SemanticIssue("Used CVTerm without definition", 4,
@@ -309,6 +461,17 @@ class SemanticCheck(UserDict):
         return 
     
     def _check_CVTerm_use(self, issue_type_category: str, file_vocabularies: Dict[str,Ontology], _document_collected_issues: bool = False):
+        """Checks any cvParameter for correct use according to definition and schema
+
+        Parameters
+        ----------
+        issue_type_category : str
+            the issue type or category under which detected issues are filed 
+        file_vocabularies : Dict[str,Ontology]
+            the mzQC referenced vocabularies
+        _document_collected_issues : bool, optional
+            for auto documentation this is set True, by default False
+        """
         if _document_collected_issues:
             self.raising(issue_type_category, 
                          SemanticIssue("Ambiguous CVTerms", 6,
@@ -339,6 +502,17 @@ class SemanticCheck(UserDict):
         return
 
     def _check_metric_use(self, issue_type_category: str, file_vocabularies: Dict[str,Ontology], _document_collected_issues: bool = False):
+        """Checks any QC metric for correct use according to definition and schema
+
+        Parameters
+        ----------
+        issue_type_category : str
+            the issue type or category under which detected issues are filed 
+        file_vocabularies : Dict[str,Ontology]
+            the mzQC referenced vocabularies
+        _document_collected_issues : bool, optional
+            for auto documentation this is set True, by default False
+        """
         if _document_collected_issues:
             self.raising(issue_type_category, 
                          SemanticIssue("ID based metric but no ID input file", 6,
@@ -432,19 +606,59 @@ class SemanticCheck(UserDict):
                                                 f'accession(s) = {quality_metric.accession}'))
         return
 
-    def _export(self):
+    def string_export(self) -> Dict[str,List[str]]:
+        """Helper function to properly export the validation results
+
+        For easy compatibility with the validation apps from the repositories accessories.
+
+        Returns
+        -------
+        Dict[str,List[str]]
+            dict of list of issues formatted as str
+        """
         if self._invalid_mzqc_obj:
             return {"general": "incompatible object given to validation"}
         else:
             return {k: [i._to_string() for i in v] for k,v in self.items()}
 
     def _document_collected_issues(self):
+        """Collects all issues theoretically generated by a validate call
+
+        The issues are collected as usual, but are artificially generated. See the 
+        validate function documentation for more details and check its use in the 
+        SemanticCheck tests.
+        """
         return self.validate(max_errors=0, load_local=True, keep_issues=False, _document_collected_issues=True)
 
     def validate(self, max_errors: int = 0, load_local: bool = False, keep_issues: bool = False, _document_collected_issues: bool = False):
-        # TODO document need to return dict of list of stringyfied errors separately! like so:
-        # self._export()
-        # TODO document necessity to keep issue_types documentation updated, too
+        """Validates the object given during class initialisation, considers a number of parameters
+
+        Note before adding new checks: create functions to check specific types of issues, 
+        name the group or select an existing group and add new SemanticIssues to self under 
+        that group's name as key with the `raising` function. Also add a method for synthetic
+        generation of these new issues given the  _document_collected_issues flag. Like that,
+        the name, severity level, and error message gets automatically documented, also in the
+        validator apps of the accessories to the pymzqc repository. Should a new group name be 
+        introduced, it is also necessary to add this name to the `issue_types_genreated` to 
+        ensure proper auto_doc functionality.
+
+        The validation result is kept in the object itself, accessible through the UserDict 
+        and additional member attributes (see class doc). A convenience function to 
+        export the list of stringified dict of SemanticIssue lists, e.g. with the apps 
+        from the pymzqc's repository accessories, is provided with `string_export`.
+
+        Parameters
+        ----------
+        max_errors : int, optional
+            the maximum number of SemanticIssues detected before the validation will raise a ValidationIssue, by default 0 for no limit
+        load_local : bool, optional
+            flag to indicate if referenced local files should be attempted to load, by default False does not make sense for online validation
+        keep_issues : bool, optional
+            flag to indicate if any SemanticIssues from previous should _NOT_ be cleared, by default False
+        _document_collected_issues : bool, optional
+            flag to indicate that every possible SemanticIssue is to be auto_doc generated, by default False
+        """
+        # needs to be kept up-to-date to document the implemented issue type or categories
         issue_types_genreated = ['input files', 'metric use', 'ontology load errors',
                                  'ontology term errors', 'label uniqueness']
         

@@ -85,12 +85,12 @@ def test_SemanticCheck_maxerrorsfunction():
             sc2 = SemanticCheck(mzqc_obj=mzqcobject, file_path=infi)
             sc2.validate(load_local=True, max_errors=2)
     assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!")        
-    # print(json.dumps(sc2._export(), sort_keys=True, indent=4))
+    # print(json.dumps(sc2.string_export(), sort_keys=True, indent=4))
 
 def test_SemanticCheck_exportfunction():
     sc1 = SemanticCheck(None)
     sc1._invalid_mzqc_obj=True
-    assert(sc1._export()=={"general": "incompatible object given to validation"})
+    assert(sc1.string_export()=={"general": "incompatible object given to validation"})
 
     infi = "tests/examples/individual-runs.mzQC"  # success test
     with open(infi, 'r') as f:
@@ -104,8 +104,8 @@ def test_SemanticCheck_exportfunction():
         warnings.simplefilter("ignore")
         sc2 = SemanticCheck(mzqc_obj=mzqcobject, file_path=infi)
         sc2.validate(load_local=True)
-    # print(json.dumps(sc2._export(), sort_keys=True, indent=4))
-    assert(sc2._export() == {k: [i._to_string() for i in v] for k,v in sc2.items()})
+    # print(json.dumps(sc2.string_export(), sort_keys=True, indent=4))
+    assert(sc2.string_export() == {k: [i._to_string() for i in v] for k,v in sc2.items()})
 
 def test_SemanticCheck_class_validation_None():
     sc = SemanticCheck(None)
@@ -129,7 +129,7 @@ def test_SemanticCheck_validation_trip_all():
         warnings.simplefilter("ignore")
         sm = SemanticCheck(mzqcobject, file_path=infi)
         sm.validate(load_local=True)
-        sem_val = sm._export()
+        sem_val = sm.string_export()
         
     # Test export creates as many issues as the object holds
     assert(len(list(chain.from_iterable(sem_val.values())))==len(list(chain.from_iterable(sm.values()))))
@@ -141,6 +141,7 @@ def test_SemanticCheck_validation_trip_all():
     # Test invalid files are caught
     doc = SemanticCheck(None, file_path="")
     doc._document_collected_issues()
+    assert(all([len(x)==0 for x in doc.values()]))
     
     # Register all issues available
     doc = SemanticCheck(mzqc_file(), file_path="")
@@ -148,7 +149,7 @@ def test_SemanticCheck_validation_trip_all():
 
     # Test no documented issues have the same name
     assert(len({s.name for s in chain.from_iterable(doc.values())}) ==
-            len([s.name for s in chain.from_iterable(doc.values())])    )
+            len([s.name for s in chain.from_iterable(doc.values())]))
 
     # Test no undocumented issue types were generated
     assert(set(sm.keys()).issubset(set(doc.keys())))
@@ -175,7 +176,7 @@ def test_SemanticCheck_validation_success():
         sem_val = SemanticCheck(mzqc_obj=mzqcobject, file_path=infi)
         sem_val.validate(load_local=True)
 
-    # print(json.dumps(sem_val._export(), sort_keys=True, indent=4))
+    # print(json.dumps(sem_val.string_export(), sort_keys=True, indent=4))
     for issue_type_category in sem_val.keys():
         assert(len(sem_val.get(issue_type_category,list()))==0)
     

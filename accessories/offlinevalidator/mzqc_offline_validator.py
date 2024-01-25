@@ -21,7 +21,7 @@ def validate(inpu):
             sem_val = SemanticCheck(mzqc_obj=target, file_path='.')
             sem_val.validate(load_local=True)
             
-            proto_response = sem_val._export()
+            proto_response = sem_val.string_export()
             
             if removed_items:
                 proto_response.update({"ontology validation": 

@@ -87,7 +87,7 @@ if type(mzqcobject) == mzqc_file:
         sc.validate(load_local=True, max_errors=me)
     except ValidationError as e:
         print(e)
-    proto_response = sc._export()
+    proto_response = sc.string_export()
     if removed_items:
         proto_response.update({"ontology validation": 
                             ["invalid ontology URI"+ str(it.name) for it in removed_items]})

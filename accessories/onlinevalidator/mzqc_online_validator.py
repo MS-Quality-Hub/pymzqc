@@ -25,7 +25,10 @@ class Status(Resource):
 class Documentation(Resource):
     def get(self):
         api_doc_string = """
-        The API call for `Validator` responds with a JSON object, nested for each validation mode: 
+        This is the response to the API call for `documentation`. The API call for `status` will 
+        be responded with a JSON object summarising the API `status` and list of `endpoints`. The 
+        API call for `validator` with a POST of a mzqc JSON object responds with a JSON object, 
+        nested for each validation mode: 
         `semantic validation` and `schema validation`. For each mode, the value will be a list of 
         validation items found to not (completely) correspond to the standard format.
         """
@@ -34,34 +37,21 @@ class Documentation(Resource):
         The value to the 'semantic validation' key is an array of checks performed 
         on the deserialised mzQC object according to the latest specification. 
         The checks are the following:
-        * 'general': 
-            Check object given to validation is compatible
-        * 'ontology term errors': 
-            Verify that each CV term used exists in the CV
-            Check that all CVs referenced are linked to a valid ontology
-        * 'metric uniqueness': 
-            Check that metrics (qualityMetrics are unique within a run/setQuality
-        * 'input files':
-            Verify that input files (metadata) are consistent and unique
-        * 'label uniqueness':
-            Verify that label (metadata) must be unique in the file
-        * Verify that all columns in tables have same length
-        * 'ontology load errors'
-            Check if ontologies are listed multiple times (different versions etc)
-        * 'value type errors':
-            Check that cv term values are of type as defined in ontology
-            Verify that each cv term in file and obo must match in all id,name,type
-        * 'metric usage errors':
-            Check that all qulaityMetrics are actually of metric type/relationship
-            Check that cv terms have all attributes referred to in the CV
         """
+        doc = SemanticCheck(mzqc_file(), file_path="")
+        doc._document_collected_issues()
+        semantic_doc_string = '\n'.join([semantic_doc_string]+[f"        * '{k}':\n"+
+                                         '\n'.join([f"            {i._to_string()}" for i in v]) for 
+                                         k,v in doc.items()])
 
         syntactic_doc_string = """
         The value to the 'schema validation' key is the parsed result to the JSONschema 
         validation of given file, using the current schema (unless stated otherwise).
         """
         
-        return {'documentation': { 'schema validation': syntactic_doc_string, 'semantic validation': semantic_doc_string}}
+        return {'documentation': {'schema validation': syntactic_doc_string, 
+                                  'semantic validation': semantic_doc_string, 
+                                  'API doc': api_doc_string}}
 
 class Validator(Resource):
     def post(self):
@@ -86,7 +76,7 @@ class Validator(Resource):
                 sem_val.validate(load_local=False, max_errors=me)
             except ValidationError as e:
                 print(e)
-            proto_response = sem_val._export()
+            proto_response = sem_val.string_export()
             if removed_items:
                 proto_response.update({"ontology validation": 
                                        ["invalid ontology URI for "+ str(it.name) for it in removed_items]})
