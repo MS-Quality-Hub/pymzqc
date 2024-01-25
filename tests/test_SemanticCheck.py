@@ -24,7 +24,7 @@ def test_SemanticIssue_class_basics():
 
 def test_SemanticIssue_class_fns():
     si = SemanticIssue(name="name",severity=123,message="message")
-    assert(si._to_string()=="name" + " of severity "+ str(123) + " and message:" + "message")
+    assert(si._to_string()=="name" + " of severity "+ str(123) + " and message: " + "message")
 
 def test_SemanticCheck_class_basics():
     sc = SemanticCheck(None)
