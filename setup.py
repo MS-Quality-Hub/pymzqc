@@ -29,12 +29,12 @@ setup(
     include_package_data=True,
     entry_points = {
         'console_scripts': [
-            'mzQC-fileinfo=accessories.filehandling.mzqc_fileinfo:mzqcfileinfo',
-            'mzQC-filemerger=accessories.filehandling.mzqc_filemerger:mzqcfilemerger',
-            'mzQC-online-validator=accessories.onlinevalidator.mzqc_online_validator:app.run',
+            'mzqc-fileinfo=mzqcaccessories.filehandling.mzqc_fileinfo:mzqcfileinfo',
+            'mzqc-filemerger=mzqcaccessories.filehandling.mzqc_filemerger:mzqcfilemerger',
+            # 'mzQC-online-validator=mzqconlinevalidator.mzqc_online_validator:app.run',
             # Note: onlinevalidator has extra dependencies not covered by this setup!
             #       See accessories/onlinevalidator/requirements.txt!
-            'mzQC-offline-validator=accessories.offlinevalidator.mzqc_offline_validator:start'
+            'mzqc-validator=mzqcaccessories.offlinevalidator.mzqc_offline_validator:start'
         ],
     }
 )
