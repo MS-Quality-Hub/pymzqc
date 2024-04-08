@@ -2,13 +2,13 @@ from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
-    
+
 setup(
     name='pymzqc',
     version='1.0.0rc2',
     packages=find_packages(exclude=("tests",)),
     author='Mathias Walzer',
-    author_email='walzer@ebi.ack.uk',    
+    author_email='walzer@ebi.ack.uk',
     url='https://github.com/MS-Quality-hub/pymzqc',
     description='Python library for the PSI-mzQC quality control file format.',
     long_description=long_description,
@@ -29,9 +29,10 @@ setup(
     include_package_data=True,
     entry_points = {
         'console_scripts': [
-            'mzQC-fileinfo=accessories.fileinfo.mzqc_fileinfo:mzqcfileinfo',
+            'mzQC-fileinfo=accessories.filehandling.mzqc_fileinfo:mzqcfileinfo',
+            'mzQC-filemerger=accessories.filehandling.mzqc_filemerger:mzqcfilemerger',
             'mzQC-online-validator=accessories.onlinevalidator.mzqc_online_validator:app.run',
-            # Note: onlinevalidator has extra dependencies not covered by this setup! 
+            # Note: onlinevalidator has extra dependencies not covered by this setup!
             #       See accessories/onlinevalidator/requirements.txt!
             'mzQC-offline-validator=accessories.offlinevalidator.mzqc_offline_validator:start'
         ],
