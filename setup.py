@@ -32,6 +32,7 @@ setup(
         'console_scripts': [
             'mzqc-fileinfo=mzqcaccessories.filehandling.mzqc_fileinfo:mzqcfileinfo',
             'mzqc-filemerger=mzqcaccessories.filehandling.mzqc_filemerger:mzqcfilemerger',
+            'mzqc-fixdescriptions=mzqcaccessories.filehandling.mzqc_fixdescriptions:mzqcfixdescriptions',
             # 'mzQC-online-validator=mzqconlinevalidator.mzqc_online_validator:app.run',
             # Note: onlinevalidator has extra dependencies not covered by this setup!
             #       See accessories/onlinevalidator/requirements.txt!
