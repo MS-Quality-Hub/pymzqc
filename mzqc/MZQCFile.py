@@ -96,8 +96,8 @@ class JsonSerialisable(object):
             if {'creationDate': None}.keys() == d.keys():
                 try:
                     return JsonSerialisable.time_helper(d['creationDate'])
-                except ValueError:
-                    raise ValueError("It appears the creationDate of your file is not of ISO 8601 format including time to the second: {}".format(d['creationDate']))
+                except ValueError as exc:
+                    raise ValueError("It appears the creationDate of your file is not of ISO 8601 format including time to the second: {}".format(d['creationDate'])) from exc
             else:
                 # raise ValueError('Unable to find a matching class for object: {d} (keys: {k})' .format(d=d,k=d.keys()))
                 return d
@@ -140,7 +140,7 @@ class JsonSerialisable(object):
         if 'numpy' in str(type(obj)):
             logging.debug("serialisation specialisation np.dtypes: "+str(obj))
             if isinstance(obj,np.ndarray):
-                return obj.tolist() 
+                return obj.tolist()
             return obj.item()
 
         # needs to be last
@@ -167,7 +167,7 @@ class JsonSerialisable(object):
         -------
         cls
             the class type
-        """        
+        """
         classself.mappings[frozenset(tuple([attr for attr, val in cls().__dict__.items()]))] = cls
         return cls
 
@@ -195,14 +195,14 @@ class JsonSerialisable(object):
         -------
         str
             The serialisation result
-        """        
+        """
         if readability==0:
             ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler)
         elif readability == 1:
             ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=2, cls=MzqcJSONEncoder)
         else:
             ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=4)
-        #remove empty run/setQualities and other optinal and empty elements, return with mzqc root, 
+        #remove empty run/setQualities and other optinal and empty elements, return with mzqc root,
         ret = re.sub(r'(\"setQualities\"\:\s+\[\s*\][,]*)|(\"runQualities\"\:\s+\[\s*\][,]*)|([,]*\s+\"fileProperties\"\:\s+\[\s*\][,]*)', "", ret)
         ret = ret.replace('"contactName": "",\n', '').replace('"contactAddress": "",\n', '').replace('"description": "",\n', '')
         ret = "{{\"mzQC\": \n{dump} \n}}".format(dump=ret) if complete else ret
@@ -231,8 +231,8 @@ class JsonSerialisable(object):
         -------
         MzQcFile object
             The deserialised JSON string
-        """ 
-        if isinstance(json_str, str):   
+        """
+        if isinstance(json_str, str):
             j = json.loads(json_str, object_hook=classself.class_mapper)
         else:  # assume it is a IO wrapper
             j = json.load(json_str, object_hook=classself.class_mapper)
@@ -257,7 +257,7 @@ def rectify(obj):
     -------
     object
         The rectified object
-    """    
+    """
     static_list_typemap = {'runQualities': RunQuality, 'setQualities': SetQuality, 'controlledVocabularies': ControlledVocabulary, 
             'qualityMetrics': QualityMetric, 'inputFiles': InputFile, 'analysisSoftware': AnalysisSoftware, 'fileProperties': CvParameter}
     static_singlet_typemap = {'fileFormat': CvParameter, 'metadata': MetaDataParameters}
@@ -308,7 +308,7 @@ class jsonobject(object):
 
     Useful for testing and validity checks as __eq__ is overridden to compare all attributes as well.
 
-    """    
+    """
     def __eq__(self, other):
         """
         __eq__ Overrides the default implementation
@@ -326,8 +326,8 @@ class jsonobject(object):
         """        
         if isinstance(other, __class__):
             # TODO find difference in keys and check whether they are None or "" in the other or vice versa
-            snn = [k for k,v in self.__dict__.items() if (not v == None and not v == "")]
-            onn = [k for k,v in other.__dict__.items() if (not v == None and not v == "")]
+            snn = [k for k,v in self.__dict__.items() if (not v is None and not v == "")]
+            onn = [k for k,v in other.__dict__.items() if (not v is None and not v == "")]
             if set(snn) == set(onn):
                 return all([self.__getattribute__(attr) == other.__getattribute__(attr) for attr in self.__dict__.keys()])
         return False
@@ -337,7 +337,7 @@ class ControlledVocabulary(jsonobject):
     """
     ControlledVocabulary Object representation for mzQC schema type ControlledVocabulary
 
-    """    
+    """
     def __init__(self, name: str="", uri: str="", version: str=""):
         self.name = name  # required
         self.uri = uri  # required
@@ -348,10 +348,10 @@ class CvParameter(jsonobject):
     """
     CvParameter Object representation for mzQC schema type CvParameter
 
-    """    
-    def __init__(self, accession: str="", 
-                       name: str="", 
-                       description: str="", 
+    """
+    def __init__(self, accession: str="",
+                       name: str="",
+                       description: str="",
                        value: Union[int,str,float,IntVector,StringVector,FloatVector,IntMatrix,StringMatrix,FloatMatrix,Table, None]=None,
                        unit: str=""):
         self.accession = accession  # required "pattern": "^[A-Z]+:[0-9]{7}$"
@@ -365,13 +365,13 @@ class AnalysisSoftware(CvParameter):
     """
     AnalysisSoftware Object representation for mzQC schema type AnalysisSoftware
 
-    """    
-    def __init__(self, accession: str="", 
-                       name: str="", 
-                       description: str="", 
-                       value: str="", 
-                       unit: str="", 
-                       version: str = "", 
+    """
+    def __init__(self, accession: str="",
+                       name: str="",
+                       description: str="",
+                       value: str="",
+                       unit: str="",
+                       version: str = "",
                        uri: str = ""):
         super().__init__(accession, name, description, value, unit)  # optional, this will set None to optional omitted arguments
         self.version = version  # required
@@ -382,10 +382,10 @@ class InputFile(jsonobject):
     """
     InputFile Object representation for mzQC schema type InputFile
 
-    """    
-    def __init__(self, location: str = "", 
-                    name: str = "", 
-                    fileFormat: CvParameter = None, 
+    """
+    def __init__(self, location: str = "",
+                    name: str = "",
+                    fileFormat: CvParameter = None,
                     fileProperties: List[CvParameter] = None):
         self.location = location  # required , uri
         self.name = name  # required , string (doubles as internal and external ref anchor?)
@@ -397,38 +397,38 @@ class MetaDataParameters(jsonobject):
     """
     MetaDataParameters Object representation for mzQC schema type MetaDataParameters
 
-    """    
-    def __init__(self, 
-                    # fileProvenance: str="", 
+    """
+    def __init__(self,
+                    # fileProvenance: str="",
                     # cv_params: List[CvParameter] = None ,
                     label: str = "",
                     inputFiles: List[InputFile] = None, 
-                    analysisSoftware: List[AnalysisSoftware]=None 
+                    analysisSoftware: List[AnalysisSoftware]=None
                 ):
         # self.fileProvenance = fileProvenance  # not in schema
         # self.cv_params = [] if cv_params is None else cv_params  # not in schema, IMO should be in there
         self.label = label  # optional
         self.inputFiles =  [] if inputFiles is None else inputFiles  # required
         self.analysisSoftware = [] if analysisSoftware is None else analysisSoftware  # required
-        
+
     # schema: at least one input_file in input_files
-    # schema: at least one analysis_software in analysis_software 
+    # schema: at least one analysis_software in analysis_software
 
 @JsonSerialisable.register
 class QualityMetric(CvParameter):
     """
     QualityMetric Object representation is passed for its more concrete derivatives
 
-    """    
+    """
     pass
-    # def __init__(self, cvRef: str="", 
-    #                 accession: str="", 
-    #                 name: str="", 
-    #                 description: str="", 
+    # def __init__(self, cvRef: str="",
+    #                 accession: str="",
+    #                 name: str="",
+    #                 description: str="",
     #                 value: Union[int,str,float,IntVector,StringVector,FloatVector,IntMatrix,StringMatrix,FloatMatrix,Table, None]=None,  # here we could clamp down on allowed value types
     #                 unit: str=""):
     #     super().__init__(cvRef, accession, name, description, value, unit)  # optional, this will set None to optional omitted arguments
-    # schema: is cvParam object 
+    # schema: is cvParam object
     # schema: do we allow no-value metrics? cvParam value attribute is optional
     # implementation: this is a different object class because we want to make semantical distinctions between pure metrics and generic CvParams
 
@@ -437,8 +437,8 @@ class BaseQuality(jsonobject):
     """
     BaseQuality Object representation for mzQC schema type BaseQuality
 
-    """    
-    def __init__(self, metadata: MetaDataParameters=None, 
+    """
+    def __init__(self, metadata: MetaDataParameters=None,
                     qualityMetrics: List[QualityMetric]=None):
         self.metadata = metadata  # required
         self.qualityMetrics = [] if qualityMetrics is None else qualityMetrics  # required,
@@ -449,7 +449,7 @@ class RunQuality(BaseQuality):
     """
     QualityMetric Object representation is passed for its more general basis
 
-    """    
+    """
     pass
 
 @JsonSerialisable.register
@@ -457,20 +457,20 @@ class SetQuality(BaseQuality):
     """
     SetQuality Object representation is passed for its more general basis
 
-    """    
+    """
     pass
-    
+
 @JsonSerialisable.register
 class MzQcFile(jsonobject):
     """
     MzQcFile Object representation for mzQC schema type MzQcFile
 
-    """    
-    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), version: str = "1.0.0", 
-                        contactName: str = "", contactAddress: str = "", description: str = "",  
-                    runQualities: List[RunQuality]=None, 
-                    setQualities: List[SetQuality]=None, 
-                    controlledVocabularies: List[ControlledVocabulary]=None 
+    """
+    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), version: str = "1.0.0",
+                        contactName: str = "", contactAddress: str = "", description: str = "",
+                    runQualities: List[RunQuality]=None,
+                    setQualities: List[SetQuality]=None,
+                    controlledVocabularies: List[ControlledVocabulary]=None
                     ):
         self.creationDate = JsonSerialisable.time_helper(creationDate) if isinstance(creationDate, str) else creationDate  # required
         self.version = version  # required

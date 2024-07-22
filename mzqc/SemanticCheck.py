@@ -33,7 +33,6 @@ class SemanticIssue:
         name: name of the issue
         severity: value from 1-9, increasing severity, no checks performed, no guaranties.
         message: issue message
-        
     Added is a _to_string function to simplify serialisation.
     Note: ValidationError was too inflexible for development, hence the dataclass.
     """
@@ -173,11 +172,11 @@ class SemanticCheck(UserDict):
             if qle.metadata.label in uniq_labels:
                 self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
                     "Run/SetQuality label {} is not unique in file!".format(qle.metadata.label)))
-            else: 
+            else:
                 uniq_labels.add(qle.metadata.label)
 
         return
-    
+
     def _load_and_check_Vocabularies(self, issue_type_category: str, load_local: bool = False, _document_collected_issues: bool = False) -> Dict[str,Ontology]:
         """Loads remote or local vocabularies and registers any issues during load
 
@@ -196,12 +195,12 @@ class SemanticCheck(UserDict):
             the loaded vocabularies as pronto Ontlogies, key is the name of the Ontology
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5, 
+            self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5,
                     f'Loading the following local ontology referenced in mzQC file: {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5, 
+            self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5,
                     f'Error loading the following online ontology referenced in mzQC file: {"auto_doc"}'))         
             return
-        
+    
         vocs = dict()
 
         # check if ontologies are listed multiple times (different versions etc)
@@ -212,7 +211,7 @@ class SemanticCheck(UserDict):
                     loc = cve.uri
                     if loc.startswith('file://'):
                         loc = loc[len('file://'):]
-                        self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5, 
+                        self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5,
                                                   f'Loading the following local ontology referenced in mzQC file: {loc}'))
                     with suppress_verbose_modules():
                         vocs[cve.name] = Ontology(loc, import_depth=0)
@@ -220,7 +219,7 @@ class SemanticCheck(UserDict):
                     with suppress_verbose_modules():
                         vocs[cve.name] = Ontology(cve.uri, import_depth=0)
             except Exception as e:
-                self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5, 
+                self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5,
                                           f'Error loading the following online ontology referenced in mzQC file: {e}'))
         return vocs
 
@@ -240,30 +239,33 @@ class SemanticCheck(UserDict):
             for auto documentation this is set True, by default False
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Inconsistent input file", 4,
                                         f'Inconsistent file name and location: '
                                         f'{"auto_doc"}'))
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Reused file location", 6,
                                         f'Duplicate inputFile locations within '
                                         f'a metadata object: '
                                         f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Duplicate input files", 5,
                                         f'Duplicate input files in a run/set: '
                                         f'accession = {"auto_doc"}'))
             return
-        
+
         input_file_sets = list()
         for quality in chain(self.mzqc_obj.runQualities, self.mzqc_obj.setQualities):
             one_input_file_set = set()
             for input_file in quality.metadata.inputFiles:
-                # filename and location
-                infilo = os.path.splitext(
-                    os.path.basename(input_file.location))[0]
-                if input_file.name != infilo:
-                    self.raising(issue_type_category, 
+                # strip gz first
+                infilo = os.path.basename(input_file.location)
+                if infilo.lower().endswith('.gz'):
+                    infilo = os.path.splitext(infilo)[0]
+                infilo_noex = os.path.splitext(infilo)[0]
+                # filename must match location with or without extension (allowing for additional .gz)
+                if (input_file.name != infilo) and (input_file.name != infilo_noex) :
+                    self.raising(issue_type_category,
                                  SemanticIssue("Inconsistent input file", 4,
                                                 f'Inconsistent file name and location:'
                                                 f'{input_file.name}/{infilo}'))
@@ -271,15 +273,15 @@ class SemanticCheck(UserDict):
 
             # if more than 2 inputs but just one location
             if len(quality.metadata.inputFiles) != len(one_input_file_set):
-                self.raising(issue_type_category, 
+                self.raising(issue_type_category,
                              SemanticIssue("Reused file location", 6,
                                             f'Duplicate inputFile locations within '
                                             f'a metadata object: '
                                             f'accession = {one_input_file_set}'))
 
-            # check duplicates 
+            # check duplicates
             if one_input_file_set in input_file_sets:
-                    self.raising(issue_type_category, 
+                self.raising(issue_type_category,
                                  SemanticIssue("Duplicate input files", 5,
                                                 f'Duplicate input files in a run/set: '
                                                 f'accession = {one_input_file_set}'))
@@ -400,13 +402,10 @@ class SemanticCheck(UserDict):
             returns True if any of the notorious ID type files is present
         """
         idfext = ('.mzid', '.pepxml', '.idxml', '.mztab')  # NB case is all _lower_ and to be used after .lower() on target
+        idfext = idfext + tuple(f+'.gz' for f in idfext)
         for input_file in run_or_set_quality.metadata.inputFiles:
-            infilo = os.path.splitext(
-                    os.path.basename(input_file.location))[0]
-            infina = os.path.splitext(
-                os.path.basename(input_file.name))[0]
-            if infilo.lower().endswith(idfext) or \
-                infina.lower().endswith(idfext):
+            if input_file.location.lower().endswith(idfext) or \
+                input_file.name.lower().endswith(idfext):
                 return True
         return False
 
@@ -483,7 +482,7 @@ class SemanticCheck(UserDict):
                                         f'accession = {"auto_doc"}'))
             self._check_CVTerm_match(issue_type_category, None, None, _document_collected_issues)
             return
-        
+
         # For all cv terms involved:
         for cv_parameter in self._get_cv_parameters(self.mzqc_obj):
             # Verify that the term exists in the CV.
@@ -491,7 +490,7 @@ class SemanticCheck(UserDict):
             if len(voc_par) > 1:
                 # multiple choices for accession error
                 occs = [str(o) for o in voc_par]
-                self.raising(issue_type_category, 
+                self.raising(issue_type_category,
                              SemanticIssue("Ambiguous CVTerms", 6,
                                         f'term found in multiple vocabularies = {",".join(occs)}'))
             elif len(voc_par) < 1:
