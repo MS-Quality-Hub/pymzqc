@@ -16,6 +16,10 @@
             },
             "fileProperties": [
               {
+                "accession": "NCIT:C71579",
+                "name": "Debug"
+              },
+              {
                 "accession": "MS:1000747",
                 "name": "completion time",
                 "value": "2015-10-03-T10:18:27Z"
@@ -38,8 +42,7 @@
             "fileFormat": {
               "accession": "MS:1000914",
               "name": "tab delimited text format"
-            },
-            "fileProperties": []
+            }
           }
         ],
         "analysisSoftware": [

@@ -1,0 +1,223 @@
+{ "mzQC": 
+  {
+    "version": "1.0.0",
+    "creationDate": "2023-12-18T14:03:31Z",
+    "contactName": "Mathias Walzer",
+    "contactAddress": "walzer@ebi.ac.uk",
+    "description": "A not-so-simple mzQC file purpose-built for testing semantic validation checks.",
+    "runQualities": [
+        {
+          "metadata": {
+            "label": "duplicate label",
+            "inputFiles": [
+              {
+                "name": "file.mzML",
+                "location": "ftp://ftp.dont.use.ftp.co/renamed_same_location.raw",
+                "fileFormat": {
+                  "accession": "MS:1000584",
+                  "name": "mzML format"
+                },
+                "fileProperties": [
+                  {
+                    "accession": "MS:1000747",
+                    "name": "completion time",
+                    "value": "2012-02-03 11:00:41"
+                  },
+                  {
+                    "accession": "MS:1003151",
+                    "name": "SHA-256",
+                    "value": "82ff4545ab8ab85252a4c5bc2c62abbfd04021ef5fefce145386bf27ae663a0f"
+                  },
+                  {
+                    "accession": "MS:1000031",
+                    "name": "instrument model",
+                    "value": "LTQ Orbitrap Velos"
+                  }
+                ]
+              },
+              {
+                "name": "renamed_and_different_type.raw",
+                "location": "ftp://ftp.dont.use.ftp.co/renamed_same_location.raw",
+                "fileFormat": {
+                  "accession": "MS:1000584",
+                  "name": "mzML format"
+                },
+                "fileProperties": [
+                  {
+                    "accession": "MS:1000747",
+                    "name": "completion time",
+                    "value": "2013-03-04 00:00:00"
+                  }
+                ]
+              }
+            ],
+            "analysisSoftware": [
+              {
+                "accession": "MS:1001058",
+                "name": "quality estimation by manual validation",
+                "version": "0",
+                "uri": "https://dx.doi.org/10.1021/pr201071t"
+              },
+              {
+                  "accession": "MS:1000799",
+                  "name": "custom unreleased software tool",
+                  "version": "0",
+                  "uri": "https://infini.loop",
+                  "value": "mzqc-pylib"
+              }
+            ]
+          },
+          "qualityMetrics": [
+          ]
+        },
+        {
+          "metadata": {
+            "label": "duplicate label",
+            "inputFiles": [
+              {
+                "name": "file.mzML",
+                "location": "ftp://ftp.dont.use.ftp.co/renamed_same_location.raw",
+                "fileFormat": {
+                  "accession": "MS:1000584",
+                  "name": "mzML format"
+                },
+                "fileProperties": [
+                  {
+                    "accession": "MS:1000747",
+                    "name": "completion time",
+                    "value": "2012-02-03 11:00:41"
+                  },
+                  {
+                    "accession": "MS:1003151",
+                    "name": "SHA-256",
+                    "value": "82ff4545ab8ab85252a4c5bc2c62abbfd04021ef5fefce145386bf27ae663a0f"
+                  },
+                  {
+                    "accession": "MS:1000031",
+                    "name": "instrument model",
+                    "value": "LTQ Orbitrap Velos"
+                  }
+                ]
+              },
+              {
+                "name": "renamed_and_different_type.raw",
+                "location": "ftp://ftp.dont.use.ftp.co/renamed_same_location.raw",
+                "fileFormat": {
+                  "accession": "MS:1000584",
+                  "name": "mzML format"
+                },
+                "fileProperties": [
+                  {
+                    "accession": "MS:1000747",
+                    "name": "completion time",
+                    "value": "2013-03-04 00:00:00"
+                  }
+                ]
+              }
+            ],
+            "analysisSoftware": [
+              {
+                "accession": "MS:1001058",
+                "name": "quality estimation by manual validation",
+                "version": "0",
+                "uri": "https://dx.doi.org/10.1021/pr201071t"
+              },
+              {
+                  "accession": "MS:1000799",
+                  "name": "custom unreleased software tool",
+                  "version": "0",
+                  "uri": "https://infini.loop",
+                  "value": "mzqc-pylib"
+              }
+            ]
+          },
+          "qualityMetrics": [
+            {
+              "accession": "CS:01",
+              "name": "duplicate",
+              "value": 5074
+            },
+            {
+              "accession": "CS:01",
+              "name": "duplicate",
+              "value": 14812
+            },  
+            {
+              "accession": "MS:1234567",
+              "name": "term not found accession for #MS1",
+              "value": 5074
+            },
+            {
+              "accession": "MS:4000060",
+              "name": "different term name for #MS2",
+              "value": 14812
+            },
+            {
+              "accession": "CS:03",
+              "name": "term used not found",
+              "value": 14812
+            },
+            {
+              "accession": "MS:1002404",
+              "name": "count of identified proteins",
+              "description": "The number of proteins that have been identified, which must match the number of groups that pass the threshold in the file.",
+              "value": 123
+            },
+            {
+              "accession": "MS:1000514",
+               "name": "m/z array",
+               "description": "A data array.",
+               "value": "[100.2,300.4,500.6]"
+            },
+            {
+              "accession": "MS:4000078",
+              "name": "QC2 sample mass accuracies",
+              "value": "[100.2,300.4,500.6]"
+            },
+            {
+                "accession": "MS:4000079",
+                "name": "QC2 sample intensities",
+                "value": {"UO:0000001":[2,2], "MS:1001858":[3,1]}
+            },
+            {
+              "accession": "MS:4000063",
+              "name": "MS2 known precursor charges fractions",
+              "value": {"wrong col":[ 1,3 ], "UO:0000191":[2], "MS:1000041":[3]}
+            },
+            {
+              "accession": "MS:4000104",
+              "name": "total ion currents",
+              "value": {"MS:1000767":[ 1,3 ], "MS:1000285":[1,3], "doesntbelong":[0,0]}
+            },
+            {
+              "accession": "MS:4000105",
+              "name": "ion injection parameters",
+              "value": {"MS:1000767":[ 1,3 ], "MS:1000927":[1,3]}
+            },
+            {
+              "accession": "MS:4000095",
+              "name": "slowest frequency for MS level 1 collection",
+              "value": 123
+            }
+          ]
+        }
+            ],
+    "controlledVocabularies": [
+        {
+            "name": "Proteomics Standards Initiative Mass Spectrometry Ontology",
+            "uri": "https://github.com/HUPO-PSI/psi-ms-CV/releases/download/v4.1.130/psi-ms.obo",
+            "version": "4.1.130"
+        },
+        {
+            "name": "local-fail-test",
+            "uri": "file://local/custom.obo",
+            "version": "0"
+        },
+        {
+            "name": "local-ambiguous-test",
+            "uri": "file://tests/examples/local-ambiguous-test.obo",
+            "version": "0"
+        }
+    ]
+  }
+}

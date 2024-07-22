@@ -1,7 +1,7 @@
 { "mzQC": 
   {
     "version": "1.0.0",
-    "creationDate": "2020-12-01T11:56:34",
+    "creationDate": "2020-12-01T11:56:34Z",
     "contactName": "Mathias Walzer",
     "contactAddress": "walzer@ebi.ac.uk",
     "description": "A simple mzQC file containing information for a single run.",
@@ -10,8 +10,8 @@
         "metadata": {
           "inputFiles": [
             {
-              "name": "CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3.mzML",
-              "location": "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/09/PXD000966/CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.raw",
+              "name": "CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3",
+              "location": "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/09/PXD000966/CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.raw/CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3.mzML",
               "fileFormat": {
                 "accession": "MS:1000584",
                 "name": "mzML format"
@@ -40,14 +40,16 @@
               "accession": "MS:1001058",
               "name": "quality estimation by manual validation",
               "version": "0",
-              "uri": "https://dx.doi.org/10.1021/pr201071t"
+              "uri": "https://dx.doi.org/10.1021/pr201071t",
+              "description": "The quality estimation was done manually."
             },
             {
                 "accession": "MS:1000799",
                 "name": "custom unreleased software tool",
                 "version": "0",
                 "uri": "https://infini.loop",
-                "value": "mzqc-pylib"
+                "value": "mzqc-pylib",
+                "description": "A software tool that has not yet been released. The value should describe the software. Please do not use this term for publicly available software - contact the PSI-MS working group in order to have another CV term added."
             }
           ]
         },
@@ -55,27 +57,39 @@
           {
             "accession": "MS:4000059",
             "name": "number of MS1 spectra",
-            "value": 5074
+            "value": 5074,
+            "unit": "UO:0000189",
+            "description": "The number of MS1 events in the run."
+
           },
           {
             "accession": "MS:4000060",
             "name": "number of MS2 spectra",
-            "value": 14812
+            "value": 14812,
+            "unit": "UO:0000189",
+            "description": "The number of MS2 events in the run."
           },
           {
             "accession": "MS:4000071",
             "name": "number of chromatograms",
-            "value": 1
+            "value": 1,
+            "unit": "UO:0000189",
+            "description": "The number of chromatograms recorded for the run."
           },
           {
             "accession": "MS:4000069",
             "name": "m/z acquisition range",
-            "value": [ 300.157287597656, 1778.8639 ]
+            "value": [ 300.157287597656, 1778.8639 ],
+            "unit": "MS:1000040",
+            "description": "Upper and lower limit of m/z precursor values at which MSn spectra are recorded."
+
           },
           {
             "accession": "MS:4000070",
             "name": "retention time acquisition range",
-            "value": [ 0.2959, 5969.8172 ]
+            "value": [ 0.2959, 5969.8172 ],
+            "unit": "UO:0000010",
+            "description": "Upper and lower limit of retention time at which spectra are recorded."
           }
         ]
       }
@@ -83,8 +97,8 @@
     "controlledVocabularies": [
       {
         "name": "Proteomics Standards Initiative Mass Spectrometry Ontology",
-        "uri": "file://tests/examples/psi-ms_hardfix_unit_and_ncit.obo",
-        "version": "4.1.79"
+        "uri": "https://github.com/HUPO-PSI/psi-ms-CV/releases/download/v4.1.130/psi-ms.obo",
+        "version": "4.1.130"
       }
     ]
   }

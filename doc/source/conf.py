@@ -17,11 +17,11 @@ sys.path.insert(0, os.path.abspath('../../mzqc/'))
 # -- Project information -----------------------------------------------------
 
 project = 'pymzqc'
-copyright = '2019-2022, Mathias Walzer'
+copyright = '2019-2024, Mathias Walzer'
 author = 'Mathias Walzer'
 
 # The full version, including alpha/beta/rc tags
-release = 'v1.0.0rc1'
+release = 'v1.0.0rc2'
 
 
 # -- General configuration ---------------------------------------------------

@@ -74,14 +74,9 @@
     ],
     "controlledVocabularies": [
       {
-        "name": "Proteomics Standards Initiative Quality Control Ontology",
-        "uri": "https://github.com/HUPO-PSI/qcML-development/blob/master/cv/v0_1_0/qc-cv.obo",
-        "version": "0.1.0"
-      },
-      {
         "name": "Proteomics Standards Initiative Mass Spectrometry Ontology",
-        "uri": "https://github.com/HUPO-PSI/psi-ms-CV/blob/master/psi-ms.obo",
-        "version": "4.1.7"
+        "uri": "https://github.com/HUPO-PSI/psi-ms-CV/releases/download/v4.1.130/psi-ms.obo",
+        "version": "4.1.130"
       }
     ]
 }

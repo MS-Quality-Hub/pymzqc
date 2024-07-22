@@ -12,6 +12,8 @@ functionality to:
 * deserialise
 * check syntax
 * check semantics
+* file-info
+* experimental file-merging
 
 **The library follows the formats versioning** (which is 'v(Major).(Minor).(Patch)').
 
@@ -27,22 +29,23 @@ pip install pymzqc
 ```
 
 ### From Git
-If you want the latest development version, use: 
+If you want a development version, use: 
 ```
-pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#egg=pymzqc
+pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#v1.0.0rc2
 ```
+You can select a development branch of your choice by changing the command after the `.git#`
+
 ### Containers
 However, we recommend using the ready-built [**containers**](https://quay.io/repository/mwalzer/pymzqc?tab=tags) to check out the latest updates.
 
-## Documentation
+## Online docs
 To get a nice and simple overview of how pymzqc works, visit [here](https://pymzqc.readthedocs.io/en/latest/examples.html). 
-successfully installed the library and want to **jump right in and use the library**, we suggest the a peek at the [codestructure](https://pymzqc.readthedocs.io/en/latest/codestructure.html).
+If you've successfully installed the library and want to **jump right in and work on the library**, we suggest a peek at the [codestructure](https://pymzqc.readthedocs.io/en/latest/codestructure.html).
 
-If you however just want to get your toes wet, have a look at the interactive guides.
+If you however just want to get your toes wet, or use it as-is, have a look at the interactive guides (below).
 
 ### Interactive pymzqc
 Have a go with our [interactive python notebooks](jupyter/README.md) to explore what is possible.
-
 
 ## Development 
 Contributions are welcome! (Just fork, develop, and open PR.)

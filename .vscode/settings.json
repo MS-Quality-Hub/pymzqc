@@ -1,20 +1,15 @@
 {
-    "python.linting.pylintEnabled": false,
-    "python.linting.mypyEnabled": true,
-    "python.linting.enabled": true,
+    "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
         "tests"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "jupyter.jupyterServerType": "local",
-    "python.pythonPath": "/usr/local/bin/python",
     "python.testing.unittestArgs": [
         "-v",
         "-s",
         "./tests",
         "-p",
         "*test*.py"
-    ]
+    ],
+    "python.REPL.enableREPLSmartSend": false
 }

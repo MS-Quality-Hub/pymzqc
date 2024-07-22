@@ -9,6 +9,7 @@
 	"settings": {
 		"python.pythonPath": "/usr/local/bin/python"
 	},
-	"postCreateCommand": "sudo pip install -e .",
-	"runArgs": ["-u", "vscode"]
+	// "postCreateCommand": "pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0rc2",
+	"postCreateCommand": "pip install -e .",
+	"runArgs": ["-u", "vscode", "--userns=keep-id"]
 }

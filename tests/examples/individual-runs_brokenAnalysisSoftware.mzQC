@@ -1,7 +1,7 @@
 { "mzQC": 
   {
     "version": "1.0.0",
-    "creationDate": "2020-12-01T11:56:34",
+    "creationDate": "2020-12-01T11:56:34Z",
     "contactName": "Mathias Walzer",
     "contactAddress": "walzer@ebi.ac.uk",
     "description": "A simple mzQC file containing information for a single run.",
@@ -81,8 +81,8 @@
     "controlledVocabularies": [
       {
         "name": "Proteomics Standards Initiative Mass Spectrometry Ontology",
-        "uri": "file:///workspaces/pymzqc/tests/examples/psi-ms.obo",
-        "version": "4.1.78"
+        "uri": "https://github.com/HUPO-PSI/psi-ms-CV/releases/download/v4.1.130/psi-ms.obo",
+        "version": "4.1.130"
       }
     ]
   }

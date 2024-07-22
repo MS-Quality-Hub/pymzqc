@@ -1,0 +1,41 @@
+version: '3.2' 
+services: 
+   mzqcvalidator: 
+     image: quay.io/mwalzer/mzqc-validator:v1.0.0rc2 
+     container_name: mzqcvalidator 
+     restart: always 
+     entrypoint: ["python3", "-m", "gunicorn", "wsgi:app", "-b", "0.0.0.0:5000", "--chdir", "mzqc-validator/"] 
+     networks: 
+      - proxy 
+     logging: 
+       driver: "json-file" 
+       options: 
+         max-size: 10m 
+         max-file: "3" 
+     deploy: 
+       replicas: 2 
+       restart_policy: 
+         condition: any 
+         delay: 30s 
+         window: 120s 
+       labels: 
+         - "traefik.enable=true" 
+           # traefik 2 
+           #        - "traefik.http.routers.mzqcvalidator.rule=Host(`apps.lifs-tools.org`) && PathPrefix(`/mzqcvalidator`)" 
+           #        - "traefik.http.routers.mzqcvalidator.entrypoints=websecure" 
+           #        - "traefik.http.services.mzqcvalidator-service.loadbalancer.server.port=8083" 
+           #        - "traefik.http.services.mzqcvalidator-service.loadbalancer.sticky.cookie.name=lifs-mzqcvalidator-session" 
+           #        - "traefik.http.services.mzqcvalidator-service.loadbalancer.sticky.cookie.secure=true" 
+           #        - "traefik.http.services.mzqcvalidator-service.loadbalancer.sticky.cookie.httpOnly=true" 
+           #        - "traefik.http.services.mzqcvalidator-service.loadbalancer.sticky.cookie.sameSite=Strict" 
+#legacy traefik 1 
+         - "traefik.port=5000" 
+         - "traefik.frontend.rule=Host:apps.lifs-tools.org;PathPrefixStrip:/mzqcvalidator" 
+         - "traefik.frontend.entryPoints=https" 
+         - "traefik.frontend.passHostHeader=true" 
+         - "traefik.frontend.priority=200" 
+         - "traefik.docker.network=proxy" 
+ 
+networks: 
+   proxy: 
+     external: true 
