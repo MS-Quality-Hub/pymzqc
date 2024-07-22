@@ -21,7 +21,7 @@ Re-activate your venv to let pytest reset to current venv and test installation:
 ```
 
 Then, provide container-based builds an existing dist folder setup like so, and build:
-```bashcd 
+```bash 
     cd /tmp/pymzqc
     mkdir -p dist/mzqc
     python3 -m build --sdist
@@ -58,7 +58,8 @@ If all tests were successful, upload to test.pypi.org with twine:
 ```
 
 And finally test pypi installation:
-```    cd /tmp/pymzqc
+```bash    
+    cd /tmp/pymzqc
     deactivate
     python3 -m venv pippypi && source pippypi/bin/activate
     pip install pip --upgrade

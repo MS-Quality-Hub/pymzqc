@@ -33,6 +33,7 @@ class SemanticIssue:
         name: name of the issue
         severity: value from 1-9, increasing severity, no checks performed, no guaranties.
         message: issue message
+        
     Added is a _to_string function to simplify serialisation.
     Note: ValidationError was too inflexible for development, hence the dataclass.
     """

@@ -1,37 +1,32 @@
-mzqc package
-============
+mzqc main module
+================
 
-Submodules
-----------
 
-mzqc.MZQCFile module
---------------------
+mzqc.MZQCFile submodule
+-----------------------
 
 .. automodule:: mzqc.MZQCFile
    :members:
    :undoc-members:
    :show-inheritance:
 
-mzqc.SemanticCheck module
--------------------------
+mzqc.SemanticCheck submodule
+----------------------------
 
 .. automodule:: mzqc.SemanticCheck
    :members:
    :undoc-members:
    :show-inheritance:
 
-mzqc.SyntaxCheck module
------------------------
+mzqc.SyntaxCheck submodule
+--------------------------
 
 .. automodule:: mzqc.SyntaxCheck
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+mzqcaccessories module
+======================
 
-.. automodule:: mzqc
-   :members:
-   :undoc-members:
-   :show-inheritance:
+Setup will create an additional module for the `entry_points` scripts created.
