@@ -41,7 +41,7 @@ def validate(inpu):
 @click.version_option('v1BETA')
 @click.command()  # no command necessary if it's the only one
 @click.option('-j','--write-to-file', required=False, type=click.Path(), default=None, help="File destination for the output of the validation result.")
-@click.argument('input', type=click.File('r'))
+@click.argument('infile', type=click.File('r'))
 def start(infile, write_to_file):
     proto_response = validate(infile)
     if write_to_file:

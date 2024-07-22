@@ -27,6 +27,7 @@ setup(
     setup_requires=['wheel', 'Click'],
     python_requires='>=3.8',
     include_package_data=True,
+    # this will install additional to the mzqc module the mzqcaccessories module with the scripts from the accessories folder
     entry_points = {
         'console_scripts': [
             'mzqc-fileinfo=mzqcaccessories.filehandling.mzqc_fileinfo:mzqcfileinfo',
