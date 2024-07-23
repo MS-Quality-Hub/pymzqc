@@ -165,15 +165,16 @@ class SemanticCheck(UserDict):
         if _document_collected_issues:
             self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
                     "Run/SetQuality label {} is not unique in file!".format("auto_doc")))
-            return        
-        
+            return
+
         uniq_labels = set()
         for qle in chain(self.mzqc_obj.runQualities,self.mzqc_obj.setQualities):
-            if qle.metadata.label in uniq_labels:
-                self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
-                    "Run/SetQuality label {} is not unique in file!".format(qle.metadata.label)))
-            else:
-                uniq_labels.add(qle.metadata.label)
+            if qle.metadata.label != "":
+                if qle.metadata.label in uniq_labels:
+                    self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
+                        "Run/SetQuality label {} is not unique in file!".format(qle.metadata.label)))
+                else:
+                    uniq_labels.add(qle.metadata.label)
 
         return
 
@@ -553,9 +554,13 @@ class SemanticCheck(UserDict):
             # Check for ID metrics and if present if ID file is present in input
             if any([quality_metric.accession in idmetric_cvs for quality_metric in run_or_set_quality.qualityMetrics]):
                 if not self._hasIDInputFile(run_or_set_quality):
+                    if run_or_set_quality.metadata.label != "":
+                        lab = run_or_set_quality.metadata.label
+                    else:
+                        lab = '+'.join([i.name for i in run_or_set_quality.metadata.inputFiles])
                     self.raising(issue_type_category, SemanticIssue("ID based metric but no ID input file", 6,
                                                 f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
-                                                f'run/set label = {run_or_set_quality.metadata.label}'))
+                                                f'run/set label = {lab}'))
             
             # Verify that quality metrics are unique within a run/setQuality.
             uniq_accessions: Set[str] = set()
