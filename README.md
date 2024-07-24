@@ -17,7 +17,8 @@ functionality to:
 
 **The library follows the formats versioning** (which is 'v(Major).(Minor).(Patch)').
 
-This library implements python modules for (de-)serialisation and validity checks of the [PSI fileformat](http://www.psidev.info/groups/quality-control) [**mzQC**](https://hupo-psi.github.io/mzQC/). Find the specification document, examples, and and further documentation there.
+This library implements python modules for (de-)serialisation and validity checks of the [PSI fileformat](http://www.psidev.info/groups/quality-control) [**mzQC**](https://hupo-psi.github.io/mzQC/). 
+Find the specification document, examples, and and further documentation there.
 
 
 ## Install
@@ -29,11 +30,11 @@ pip install pymzqc
 ```
 
 ### From Git
-If you want a development version, use: 
+If you want a development version, use for example : 
 ```
-pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#v1.0.0rc2
+pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#v1.0.0rc3
 ```
-You can select a development branch of your choice by changing the command after the `.git#`
+You can select **a development branch of your choice** by changing the command after the `.git#`
 
 ### Containers
 However, we recommend using the ready-built [**containers**](https://quay.io/repository/mwalzer/pymzqc?tab=tags) to check out the latest updates.
@@ -51,7 +52,9 @@ Have a go with our [interactive python notebooks](jupyter/README.md) to explore 
 Contributions are welcome! (Just fork, develop, and open PR.)
 
 ### Repository structure
-The python package's code is located in the `mzqc` folder, continuous testing code in `tests`, the documentation in `doc`. The libray-**use** container descriptions are in `containers`, if you want a container for library-**development**, you can use the container description within `.devcontainer`, more development presets can be found in `.vscode`. The `jupyter` and `accessories` folders are subprojects making use of the library. See their README in the respective sub-folders.
+The python package's code is located in the `mzqc` folder, continuous testing code in `tests`, the documentation in `doc`. The libray-**use** container descriptions are in `containers`, if you want a container for library-**development**, you can use the container description within `.devcontainer`, more development presets can be found in `.vscode`. 
+The `jupyter` and `accessories` folders are subprojects making use of the library. 
+See their README in the respective sub-folders.
 
 ### Documentation
 The code documentation style convention is of the type `Sphinx/numpy`.
