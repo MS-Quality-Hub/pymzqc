@@ -13,3 +13,12 @@ The validator will segment the validation report into lists of the following cat
 - "ontology term errors": checks for ambiguous terms found in multiple of the used controlled vocabularies, terms used not found in any given controlled vocabulary, and correct name, definition, and reference usage,
 - "schema validation": report all elements not corresponding to the mzQC schema",
 - "ontology validation": in case any non-online controlled vocabularies were used.
+
+The tools first reads the `INFILE` and will produce a first error if the file can't be read. 
+This can be because the *JSON* is illformatted or the structure contains elements that cannot be parsed by pythons Json library.
+In case you encounter such an error, we suggest you use the JSON syntax checker.
+The validator then goes on to retrieve all `controlledVocabularies` (CV) listed in `INFILE`. 
+For successful validation the used CV therefore needs to be accesible via a stable URL and all terms used in the `INFILE` must be included in the CVs.
+The validator will produce an error for each unknown term it encounters. 
+Method of lookup is accession.
+The validator also checks if the name of the term used corresponds to the CV entry.
