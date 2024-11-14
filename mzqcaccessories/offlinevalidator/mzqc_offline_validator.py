@@ -44,7 +44,7 @@ def validate(inpu):
     valt = mzqc_io.ToJson(target)
     syn_val_res = SyntaxCheck().validate(valt)
     # older versions of the validator report a generic response in an array - return first only
-    if isinstance(syn_val_res.get('schema validation', None)) == list:
+    if isinstance(syn_val_res.get('schema validation', None), list):
         syn_val_res = {'schema validation':
                             syn_val_res.get('schema validation', None)[0] if
                             syn_val_res.get('schema validation', None) else ''}

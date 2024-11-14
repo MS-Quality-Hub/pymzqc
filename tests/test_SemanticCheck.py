@@ -45,16 +45,16 @@ def test_SemanticCheck_dictfunction():
     sc["test"] = [1]
     assert(sc["test"]==[1])
 
-    with pytest.raises(KeyError) as dictacc:  
+    with pytest.raises(KeyError) as dictacc:
         sc["fail"]
-    assert(str(dictacc.value) == "'fail'") 
+    assert(str(dictacc.value) == "'fail'")
 
     sc.raising("test",2)
     assert(sc["test"]==[1,2])
 
-    with pytest.raises(ValidationError) as dictacc:  
+    with pytest.raises(ValidationError) as dictacc:
         sc.raising("test",3)
-    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!") 
+    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!")
 
     assert(sc._exceeded_errors)
 
@@ -65,10 +65,10 @@ def test_SemanticCheck_clearfunction():
     assert(sc["test"]==[1,2])
     sc._exceeded_errors=True
     sc.clear()
-    with pytest.raises(KeyError) as dictacc:  
+    with pytest.raises(KeyError) as dictacc:
         sc["test"]
-    assert(str(dictacc.value) == "'test'") 
-    assert(not sc._exceeded_errors) 
+    assert(str(dictacc.value) == "'test'")
+    assert(not sc._exceeded_errors)
 
 def test_SemanticCheck_maxerrorsfunction():
     infi = "tests/examples/individual-runs_tripallsemanticchecks.mzQC"
@@ -79,12 +79,12 @@ def test_SemanticCheck_maxerrorsfunction():
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
 
-    with pytest.raises(ValidationError) as dictacc:  
+    with pytest.raises(ValidationError) as dictacc:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             sc2 = SemanticCheck(mzqc_obj=mzqcobject, file_path=infi)
             sc2.validate(load_local=True, max_errors=2)
-    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!")        
+    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!")
     # print(json.dumps(sc2.string_export(), sort_keys=True, indent=4))
 
 def test_SemanticCheck_exportfunction():

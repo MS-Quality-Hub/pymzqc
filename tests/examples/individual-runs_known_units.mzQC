@@ -68,8 +68,18 @@
             "accession": "MS:4000060",
             "name": "number of MS2 spectra",
             "value": 14812,
-            "unit": "UO:0000189",
+            "unit": {
+              "accession": "UO:000",
+              "name": "unknown unit"
+            },
             "description": "The number of MS2 events in the run."
+          },
+          {
+            "accession": "MS:4000069",
+            "name": "m/z acquisition range",
+            "value": [ 300.157287597656, 1778.8639 ],
+            "unit": "sillystring",
+            "description": "Upper and lower limit of m/z precursor values at which MSn spectra are recorded."
           },
           {
             "accession": "MS:4000071",
@@ -77,21 +87,6 @@
             "value": 1,
             "unit": "UO:0000189",
             "description": "The number of chromatograms recorded for the run."
-          },
-          {
-            "accession": "MS:4000069",
-            "name": "m/z acquisition range",
-            "value": [ 300.157287597656, 1778.8639 ],
-            "unit": "MS:1000040",
-            "description": "Upper and lower limit of m/z precursor values at which MSn spectra are recorded."
-
-          },
-          {
-            "accession": "MS:4000070",
-            "name": "retention time acquisition range",
-            "value": [ 0.2959, 5969.8172 ],
-            "unit": "UO:0000010",
-            "description": "Upper and lower limit of retention time at which spectra are recorded."
           }
         ]
       }

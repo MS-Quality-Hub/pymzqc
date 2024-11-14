@@ -8,7 +8,7 @@ from typing import Dict, List, Set, Tuple
 from contextlib import contextmanager
 from pronto import Ontology, Term
 from jsonschema.exceptions import ValidationError
-from mzqc.MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, MetaDataParameters, CvParameter
+from mzqc.MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, MetaDataParameters, QualityMetric, CvParameter
 
 @contextmanager
 def suppress_verbose_modules():
@@ -118,7 +118,7 @@ class SemanticCheck(UserDict):
     def clear(self) -> None:
         """Substitute to the UserDict clear which clears the dict and resets _exceeded_errors
         """
-        super().clear() 
+        super().clear()
         self._exceeded_errors = False
         return
 
@@ -135,17 +135,19 @@ class SemanticCheck(UserDict):
         cvParameter
             any object that has an 'accession' member
         """
-        if hasattr(val, 'accession'):
-            yield val
-        elif isinstance(val, List):
+        if isinstance(val, List):
             for v in val:
                 yield from self._get_cv_parameters(v)
         elif isinstance(val, (MzQcFile,SetQuality,RunQuality,MetaDataParameters)):
             for attr, value in vars(val).items():
                 yield from self._get_cv_parameters(value)
-        else:
-            # recursion dead-end
-            pass
+        elif isinstance(val, QualityMetric):
+            if hasattr(val, 'accession'):
+                yield from self._get_cv_parameters(val.unit)
+                yield val
+        elif hasattr(val, 'accession'):
+            yield val
+
 
     def _check_label_uniqueness(self, issue_type_category: str, _document_collected_issues: bool = False):
         """Checks a mzQC object's metadata labels for uniqueness
