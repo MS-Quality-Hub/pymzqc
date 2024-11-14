@@ -1,12 +1,11 @@
 __author__ = 'walzer'
 import json
 import re
-import operator
+import logging
 from datetime import datetime
-from typing import List,Dict,Union,Any,Tuple
+from typing import List,Dict,Union,Any
 import numpy as np
 import pandas as pd
-import logging
 
 #int
 #str
@@ -24,8 +23,8 @@ class JsonSerialisable(object):
     """
     JsonSerialisable Main structure template for mzQC objects
 
-    Sets the foundation for a mzQC object to be readily (de-)serialisable with standard python json handling code.
-    Facilitates reading and writing of complex objects.
+    Sets the foundation for a mzQC object to be readily (de-)serialisable with standard 
+    python json handling code. Facilitates reading and writing of complex objects.
 
     """
     mappings: Dict[str, Any] = dict()
@@ -52,8 +51,8 @@ class JsonSerialisable(object):
         """
         try:
             dt = pd.to_datetime(da)
-        except:
-            raise ValueError("Unknown string format: {}".format(da))
+        except Exception as exc:
+            raise ValueError(f"Unknown string format: {da}") from exc
         return dt
 
     @classmethod
@@ -61,8 +60,8 @@ class JsonSerialisable(object):
         """
         class_mapper Maps incoming objects to their respective definition
 
-        Allows every registered object to 'know' its type map incuding recursing into its attributes. 
-        Can be used as object_hook in the json load process.
+        Allows every registered object to 'know' its type map incuding recursing into 
+        its attributes. Can be used as object_hook in the json load process.
         
         Parameters
         ----------
@@ -82,22 +81,22 @@ class JsonSerialisable(object):
             If expected date strings are invalid.
         """
         maxcls: Any = None
-        exmax: int = 0 
+        exmax: int = 0
         for keys, cls in classself.mappings.items():
             if keys.issuperset(d.keys()):
                 nx = len(set(d.keys()).intersection(set(keys)))
                 if nx > exmax:
                     maxcls = cls
                     exmax = nx
-        
-        if maxcls != None:
+
+        if maxcls is not None:
             return maxcls(**d)
         else:
             if {'creationDate': None}.keys() == d.keys():
                 try:
                     return JsonSerialisable.time_helper(d['creationDate'])
                 except ValueError as exc:
-                    raise ValueError("It appears the creationDate of your file is not of ISO 8601 format including time to the second: {}".format(d['creationDate'])) from exc
+                    raise ValueError(f"It appears the creationDate of your file is not of ISO 8601 format including time to the second: {d['creationDate']}") from exc
             else:
                 # raise ValueError('Unable to find a matching class for object: {d} (keys: {k})' .format(d=d,k=d.keys()))
                 return d
@@ -145,9 +144,9 @@ class JsonSerialisable(object):
 
         # needs to be last
         if hasattr(obj, '__dict__'):
-            return {k:v for k,v in obj.__dict__.items() if v != None and v != ""}
+            return {k:v for k,v in obj.__dict__.items() if v is not None and v != ""}
 
-        raise TypeError('Object of type {ty} with value {val} is not JSON (de)serializable'.format(ty=type(obj), val=repr(obj)))
+        raise TypeError(f"Object of type {type(obj)} with value {repr(obj)} is not JSON (de)serializable.")
 
     @classmethod
     def register(classself, cls):
@@ -197,14 +196,18 @@ class JsonSerialisable(object):
             The serialisation result
         """
         if readability==0:
-            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler)
+            ret = json.dumps(obj.__dict__ if isinstance(obj, MzQcFile) else
+                             obj, default=classself.complex_handler)
         elif readability == 1:
-            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=2, cls=MzqcJSONEncoder)
+            ret = json.dumps(obj.__dict__ if isinstance(obj, MzQcFile) else
+                             obj, default=classself.complex_handler,
+                             indent=2, cls=MzqcJSONEncoder)
         else:
-            ret = json.dumps(obj.__dict__ if type(obj) == MzQcFile else obj, default=classself.complex_handler, indent=4)
+            ret = json.dumps(obj.__dict__ if isinstance(obj, MzQcFile) else
+                             obj, default=classself.complex_handler, indent=4)
         #remove empty run/setQualities and other optinal and empty elements, return with mzqc root,
         ret = re.sub(r'(\"setQualities\"\:\s+\[\s*\][,]*)|(\"runQualities\"\:\s+\[\s*\][,]*)|([,]*\s+\"fileProperties\"\:\s+\[\s*\][,]*)', "", ret)
-        ret = ret.replace('"contactName": "",\n', '').replace('"contactAddress": "",\n', '').replace('"description": "",\n', '')
+        ret = re.sub(r'(\s*\"contactName\"\:\s+"",)|(\s*\"contactAddress\"\:\s+"",)|(\s*\"description\"\:\s+"",)', "", ret)
         ret = "{{\"mzQC\": \n{dump} \n}}".format(dump=ret) if complete else ret
         return ret
 
@@ -280,7 +283,6 @@ class MzqcJSONEncoder(json.JSONEncoder):
     MzqcJSONEncoder The encoder used to facilitate indented encoding 
 
     Handles the string encoding and formatting of the serialised objects.
-
     """
     def iterencode(self, o, _one_shot=False):
         indent_level = 0
@@ -306,7 +308,8 @@ class jsonobject(object):
     """
     jsonobject Proxy object for better integration of mzQC objects
 
-    Useful for testing and validity checks as __eq__ is overridden to compare all attributes as well.
+    Useful for testing and validity checks as __eq__ is overridden to compare all 
+    attributes as well.
 
     """
     def __eq__(self, other):
@@ -323,7 +326,7 @@ class jsonobject(object):
         -------
         bool
             False if the two objects are not of the same class or any of the attributes differ
-        """        
+        """      
         if isinstance(other, __class__):
             # TODO find difference in keys and check whether they are None or "" in the other or vice versa
             snn = [k for k,v in self.__dict__.items() if (not v is None and not v == "")]
