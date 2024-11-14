@@ -1,27 +1,22 @@
 __author__ = 'bittremieux, walzer'
-import json
-import mzqc
-import os
-import urllib.request
-from typing import Dict, List, Set, Union, Tuple, Any
-from mzqc.MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, QualityMetric, MetaDataParameters, CvParameter
-from itertools import chain
-from dataclasses import dataclass, field
-from collections import UserDict
-
-import jsonschema
-from pronto import Ontology, Term
-from contextlib import contextmanager
 import os
 import sys
+from itertools import chain
+from dataclasses import dataclass
+from collections import UserDict
+from typing import Dict, List, Set, Tuple
+from contextlib import contextmanager
+from pronto import Ontology, Term
 from jsonschema.exceptions import ValidationError
+from mzqc.MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, MetaDataParameters, CvParameter
 
 @contextmanager
 def suppress_verbose_modules():
+    """prevent verbosity spill from other modules' messaging on stderr"""
     with open(os.devnull, "w") as devnull:
         sys_stderr_bak = sys.stderr
         sys.stderr = devnull
-        try:  
+        try:
             yield
         finally:
             sys.stderr = sys_stderr_bak
@@ -201,7 +196,7 @@ class SemanticCheck(UserDict):
             self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5,
                     f'Error loading the following online ontology referenced in mzQC file: {"auto_doc"}'))         
             return
-    
+
         vocs = dict()
 
         # check if ontologies are listed multiple times (different versions etc)
@@ -264,7 +259,8 @@ class SemanticCheck(UserDict):
                 if infilo.lower().endswith('.gz'):
                     infilo = os.path.splitext(infilo)[0]
                 infilo_noex = os.path.splitext(infilo)[0]
-                # filename must match location with or without extension (allowing for additional .gz)
+                # filename must match location with or without extension 
+                # (allowing for additional .gz)
                 if (input_file.name != infilo) and (input_file.name != infilo_noex) :
                     self.raising(issue_type_category,
                                  SemanticIssue("Inconsistent input file", 4,
@@ -426,7 +422,7 @@ class SemanticCheck(UserDict):
 
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerm without definition", 4,
                                         f'Term instance used in file missing definition: '
                                         f'accession = {"auto_doc"}'))
@@ -434,34 +430,34 @@ class SemanticCheck(UserDict):
                          SemanticIssue("Used CVTerms definition conflict", 5,
                                         f'Term instance used in file with definition different from ontology: '
                                         f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms name conflict", 6,
                                         f'Term instance used in file with name different from ontology: '
                                         f'accession = {"auto_doc"}'))
             return
-        
-        cv_par.accession == voc_par.id
-        cv_par.name == voc_par.name
-        
+
         #warn if definition is empty or mismatch
         if not cv_par.description:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerm without definition", 4,
                                         f'Term instance used in file missing definition: '
                                         f'accession = {cv_par.accession}'))
-        elif cv_par.description != voc_par.definition:  # elif as the following error would be nonsensical for omitted definition
-            self.raising(issue_type_category, 
+        elif cv_par.description != voc_par.definition:
+        # elif as the following error would be nonsensical for omitted definition
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms definition conflict", 5,
                                         f'Term instance used in file with definition different from ontology: '
                                         f'accession = {cv_par.accession}'))
         if cv_par.name != voc_par.name:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms name conflict", 6,
                                         f'Term instance used in file with name different from ontology: '
                                         f'accession = {cv_par.accession}'))
-        return 
-    
-    def _check_CVTerm_use(self, issue_type_category: str, file_vocabularies: Dict[str,Ontology], _document_collected_issues: bool = False):
+        return
+
+    def _check_CVTerm_use(self, issue_type_category: str,
+                          file_vocabularies: Dict[str,Ontology],
+                          _document_collected_issues: bool = False):
         """Checks any cvParameter for correct use according to definition and schema
 
         Parameters
@@ -474,10 +470,10 @@ class SemanticCheck(UserDict):
             for auto documentation this is set True, by default False
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Ambiguous CVTerms", 6,
                                         f'term found in multiple vocabularies = {"auto_doc"}'))
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Unknown CVTerm", 7,
                                         f'CV term used without matching ontology entry: '
                                         f'accession = {"auto_doc"}'))
@@ -499,10 +495,13 @@ class SemanticCheck(UserDict):
                                         f'CV term used without matching ontology entry: '
                                         f'accession = {cv_parameter.accession}'))
             else:
-                self._check_CVTerm_match(issue_type_category, cv_parameter, voc_par[0], _document_collected_issues)
+                self._check_CVTerm_match(issue_type_category, cv_parameter, 
+                                         voc_par[0], _document_collected_issues)
         return
 
-    def _check_metric_use(self, issue_type_category: str, file_vocabularies: Dict[str,Ontology], _document_collected_issues: bool = False):
+    def _check_metric_use(self, issue_type_category: str,
+                          file_vocabularies: Dict[str,Ontology],
+                          _document_collected_issues: bool = False):
         """Checks any QC metric for correct use according to definition and schema
 
         Parameters
@@ -515,12 +514,12 @@ class SemanticCheck(UserDict):
             for auto documentation this is set True, by default False
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("ID based metric but no ID input file", 6,
                                         f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
                                         f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, 
-                         SemanticIssue("Metric uniqueness", 6, 
+            self.raising(issue_type_category,
+                         SemanticIssue("Metric uniqueness", 6,
                                         f'Duplicate quality metric in a run/set: '
                                         f'accession = {"auto_doc"}'))
             self.raising(issue_type_category, SemanticIssue("Metric use", 5,
@@ -633,9 +632,11 @@ class SemanticCheck(UserDict):
         validate function documentation for more details and check its use in the 
         SemanticCheck tests.
         """
-        return self.validate(max_errors=0, load_local=True, keep_issues=False, _document_collected_issues=True)
+        return self.validate(max_errors=0, load_local=True,
+                             keep_issues=False, _document_collected_issues=True)
 
-    def validate(self, max_errors: int = 0, load_local: bool = False, keep_issues: bool = False, _document_collected_issues: bool = False):
+    def validate(self, max_errors: int = 0, load_local: bool = False,
+                 keep_issues: bool = False, _document_collected_issues: bool = False):
         """Validates the object given during class initialisation, considers a number of parameters
 
         Note before adding new checks: create functions to check specific types of issues, 
@@ -672,8 +673,8 @@ class SemanticCheck(UserDict):
             for i in issue_types_genreated:
                 self[i] = list()
         else:
-           for i in set(issue_types_genreated) - set(self.keys()):
-               self[i] = list()
+            for i in set(issue_types_genreated) - set(self.keys()):
+                self[i] = list()
 
         self._max_errors = max_errors
         self._load_local = load_local
@@ -681,11 +682,11 @@ class SemanticCheck(UserDict):
         self._invalid_mzqc_obj = False
         self._exceeded_errors = False
 
-        # Stop early if we can't recognise the data object and return a simplified validation_errs dict
-        if type(self.mzqc_obj) != MzQcFile:
+        # Stop early if we can't recognise the data object and return a stub validation_errs dict
+        if not isinstance(self.mzqc_obj, MzQcFile):
             self._invalid_mzqc_obj = True
             return
-        
+
         # Check that label (metadata) must be unique in the file
         # at some point with max_error > 0 this will raise an ValidationError for max_error exceeded
         # so either try_catch or more fancy with contextmanger to manage max_error execution
@@ -697,12 +698,14 @@ class SemanticCheck(UserDict):
                                                              _document_collected_issues)
 
         # Check that terms used are defined and used in the right place
-        self._check_CVTerm_use('ontology term errors', file_vocabularies, _document_collected_issues)
+        self._check_CVTerm_use('ontology term errors',
+                               file_vocabularies,
+                               _document_collected_issues)
 
         # Check that qualityParameters are used as defined and unique within a run/setQuality
         self._check_metric_use('metric use', file_vocabularies, _document_collected_issues)
 
         # Regarding metadata, verify that input files are consistent and unique.
         self._check_InputFile_consistency('input files', _document_collected_issues)
-        
-        return 
+
+        return
