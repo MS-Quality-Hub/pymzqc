@@ -261,7 +261,7 @@ class SemanticCheck(UserDict):
                 if infilo.lower().endswith('.gz'):
                     infilo = os.path.splitext(infilo)[0]
                 infilo_noex = os.path.splitext(infilo)[0]
-                # filename must match location with or without extension 
+                # filename must match location with or without extension
                 # (allowing for additional .gz)
                 if (input_file.name != infilo) and (input_file.name != infilo_noex) :
                     self.raising(issue_type_category,
@@ -327,11 +327,34 @@ class SemanticCheck(UserDict):
             try:
                 metricsubclass_sets_list.append(
                     {pib.id for pib in {x for x in v['MS:4000002'].subclasses().to_set()} if \
-                     v['MS:4000008'] in pib.relationships.get(v.get_relationship('has_metric_category'),[])}\
+                        v['MS:4000008'] in pib.relationships.get(v.get_relationship('has_metric_category'),[])}\
                 )
             except KeyError:
                 pass
         return set().union(chain.from_iterable(metricsubclass_sets_list))
+
+    def _getVocabularyIDFiles(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+        """Retrieves all ID based file type accessions from given vocabularies
+
+        Parameters
+        ----------
+        filevocabularies : Dict[str,Ontology]
+            the vocabularies given as a dict of names and pronto Ontology objects
+
+        Returns
+        -------
+        Set[str]
+            a set of accessions of ID based type terms in the given vocabularies
+        """
+        idfilesubclass_sets_list = list()
+        for k,v in filevocabularies.items():
+            try:
+                idfilesubclass_sets_list.append(
+                    {pib.id for pib in {x for x in v['MS:1002130'].subclasses().to_set()}}
+                )
+            except KeyError:
+                pass
+        return set().union(chain.from_iterable(idfilesubclass_sets_list))
 
     def _getVocabularyTables(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
         """Retrieves all table type accessions from given vocabularies
@@ -383,12 +406,13 @@ class SemanticCheck(UserDict):
         else:
             return set(next(filter(lambda x: x[0].name=='has_column', tab_def.relationships.items()), (None,frozenset()))[1]), set(next(filter(lambda x: x[0].name=='has_optional_column', tab_def.relationships.items()), (None,frozenset()))[1])
     
-    def _hasIDInputFile(self, run_or_set_quality: BaseQuality) -> bool:
+    def _hasIDInputFile(self, run_or_set_quality: BaseQuality, idfile_cvs: Set) -> bool:
         """Confirms if a run or set_quality has ID type file in their inputFile
 
         For now, the ID types are recognised by ther filename extensions, including:
-        '.mzid', '.pepxml', '.idxml', '.mztab'
-        in various forms of spelling.
+        '.mzid', '.pepxml', '.idxml', '.mztab', '.proteinGroups.txt', '.evidence.txt', 
+        '.msms.txt', '.msmsScans.txt', '.peptides.txt', in various forms of spelling, 
+        and children of CV term "MS:1002130 | identification file format".
 
         Parameters
         ----------
@@ -400,11 +424,16 @@ class SemanticCheck(UserDict):
         bool
             returns True if any of the notorious ID type files is present
         """
-        idfext = ('.mzid', '.pepxml', '.idxml', '.mztab')  # NB case is all _lower_ and to be used after .lower() on target
+        idfext = ('.mzid', '.pepxml', '.idxml', '.mztab')
         idfext = idfext + tuple(f+'.gz' for f in idfext)
+        mqfext = ('.proteinGroups.txt', '.evidence.txt', '.msms.txt', '.msmsScans.txt', '.peptides.txt')
+        # NB case is all _lower_ and to be used after .lower() on target
+        # idf_cvs =_getVocabularyIDFiles()
         for input_file in run_or_set_quality.metadata.inputFiles:
-            if input_file.location.lower().endswith(idfext) or \
-                input_file.name.lower().endswith(idfext):
+            if input_file.location.lower().endswith(idfext+mqfext) or \
+                input_file.name.lower().endswith(idfext+mqfext): # or \
+                return True
+            elif input_file.fileFormat.accession in idfile_cvs:
                 return True
         return False
 
@@ -550,11 +579,12 @@ class SemanticCheck(UserDict):
         metric_cvs = self._getVocabularyMetrics(file_vocabularies)
         table_cvs = self._getVocabularyTables(file_vocabularies)
         idmetric_cvs = self._getVocabularyIDMetrics(file_vocabularies)
+        idfile_cvs = self._getVocabularyIDFiles(file_vocabularies)
 
         for run_or_set_quality in chain(self.mzqc_obj.runQualities,self.mzqc_obj.setQualities):
             # Check for ID metrics and if present if ID file is present in input
             if any([quality_metric.accession in idmetric_cvs for quality_metric in run_or_set_quality.qualityMetrics]):
-                if not self._hasIDInputFile(run_or_set_quality):
+                if not self._hasIDInputFile(run_or_set_quality, idfile_cvs):
                     if run_or_set_quality.metadata.label != "":
                         lab = run_or_set_quality.metadata.label
                     else:
