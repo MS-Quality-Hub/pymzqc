@@ -414,9 +414,6 @@ class MetaDataParameters(jsonobject):
         self.inputFiles =  [] if inputFiles is None else inputFiles  # required
         self.analysisSoftware = [] if analysisSoftware is None else analysisSoftware  # required
 
-    # schema: at least one input_file in input_files
-    # schema: at least one analysis_software in analysis_software
-
 @JsonSerialisable.register
 class QualityMetric(CvParameter):
     """
@@ -431,9 +428,8 @@ class QualityMetric(CvParameter):
     #                 value: Union[int,str,float,IntVector,StringVector,FloatVector,IntMatrix,StringMatrix,FloatMatrix,Table, None]=None,  # here we could clamp down on allowed value types
     #                 unit: str=""):
     #     super().__init__(cvRef, accession, name, description, value, unit)  # optional, this will set None to optional omitted arguments
-    # schema: is cvParam object
-    # schema: do we allow no-value metrics? cvParam value attribute is optional
-    # implementation: this is a different object class because we want to make semantical distinctions between pure metrics and generic CvParams
+    # implementation: this is a different object class because we want to make
+    # semantical distinctions between pure metrics and generic CvParams
 
 @JsonSerialisable.register
 class BaseQuality(jsonobject):
@@ -445,7 +441,6 @@ class BaseQuality(jsonobject):
                     qualityMetrics: List[QualityMetric]=None):
         self.metadata = metadata  # required
         self.qualityMetrics = [] if qualityMetrics is None else qualityMetrics  # required,
-    # schema: at least one item in quality_metrics
 
 @JsonSerialisable.register
 class RunQuality(BaseQuality):
@@ -469,8 +464,9 @@ class MzQcFile(jsonobject):
     MzQcFile Object representation for mzQC schema type MzQcFile
 
     """
-    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), version: str = "1.0.0",
-                        contactName: str = "", contactAddress: str = "", description: str = "",
+    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), 
+                    version: str = "1.0.0",
+                    contactName: str = "", contactAddress: str = "", description: str = "",
                     runQualities: List[RunQuality]=None,
                     setQualities: List[SetQuality]=None,
                     controlledVocabularies: List[ControlledVocabulary]=None
@@ -483,6 +479,3 @@ class MzQcFile(jsonobject):
         self.runQualities = [] if runQualities is None else runQualities  # either or set required
         self.setQualities = [] if setQualities is None else setQualities  # either or run required
         self.controlledVocabularies = [] if controlledVocabularies is None else controlledVocabularies  # required
-    # schema: at least one cv in controlled_vocabularies
-    # schema: at least one of run_qualities or set_qualities
-    # schema: at least one item in run_qualities or set_qualities
