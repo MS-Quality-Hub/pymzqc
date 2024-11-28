@@ -584,6 +584,9 @@ class SemanticCheck(UserDict):
             self.raising(issue_type_category, SemanticIssue("Metric value no-unit", 3,
                                                 f'Metric CV term used without value unit specification. '
                                                 f'accession(s) = {"auto_doc"}'))
+            self.raising(issue_type_category, SemanticIssue("Metric value undefined unit", 3,
+                                                f'Metric CV term used value unit specification undefined in CV. '
+                                                f'accession(s) = {"auto_doc"}'))
             return
 
         metric_cvs = self._get_vocabulary_metrics(file_vocabularies)
@@ -650,6 +653,12 @@ class SemanticCheck(UserDict):
                         self.raising(issue_type_category, SemanticIssue("Metric value no-unit", 3,
                                                 f'Metric CV term used without value unit specification. '
                                                 f'accession(s) = {quality_metric.accession}'))
+                    else:
+                        if not any([voc.get(quality_metric.accession) for voc in file_vocabularies.values() if voc.get(quality_metric.accession).relationships.get(voc.get_relationship('has_units'))]):
+                            self.raising(issue_type_category, SemanticIssue("Metric value undefined unit", 3,
+                                                f'Metric CV term used value unit specification undefined in CV. '
+                                                f'accession(s) = {quality_metric.accession}'))
+
         return
 
     def string_export(self) -> Dict[str,List[str]]:
