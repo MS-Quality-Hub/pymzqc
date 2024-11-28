@@ -175,7 +175,10 @@ class SemanticCheck(UserDict):
 
         return
 
-    def _load_and_check_Vocabularies(self, issue_type_category: str, load_local: bool = False, _document_collected_issues: bool = False) -> Dict[str,Ontology]:
+    def _load_and_check_Vocabularies(self, issue_type_category: str, 
+                                     load_local: bool = False, 
+                                     _document_collected_issues: bool = False
+                                     ) -> Dict[str,Ontology]:
         """Loads remote or local vocabularies and registers any issues during load
 
         Parameters
@@ -288,7 +291,7 @@ class SemanticCheck(UserDict):
                 input_file_sets.append(one_input_file_set)
         return
 
-    def _getVocabularyMetrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+    def _get_vocabulary_metrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
         """Retrieves all metric type accessions from given vocabularies
 
         Parameters
@@ -309,7 +312,7 @@ class SemanticCheck(UserDict):
                 pass
         return set().union(chain.from_iterable(metricsubclass_sets_list))
 
-    def _getVocabularyIDMetrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+    def _get_vocabulary_idmetrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
         """Retrieves all ID based type accessions from given vocabularies
 
         Parameters
@@ -333,7 +336,7 @@ class SemanticCheck(UserDict):
                 pass
         return set().union(chain.from_iterable(metricsubclass_sets_list))
 
-    def _getVocabularyIDFiles(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+    def _get_vocabulary_idfiles(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
         """Retrieves all ID based file type accessions from given vocabularies
 
         Parameters
@@ -356,7 +359,7 @@ class SemanticCheck(UserDict):
                 pass
         return set().union(chain.from_iterable(idfilesubclass_sets_list))
 
-    def _getVocabularyTables(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+    def _get_vocabulary_tables(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
         """Retrieves all table type accessions from given vocabularies
 
         Parameters
@@ -372,12 +375,15 @@ class SemanticCheck(UserDict):
         tablesubclass_sets_list = list()
         for k,v in filevocabularies.items():
             try:
-                tablesubclass_sets_list.append({x.id for x in v['MS:4000005'].subclasses().to_set()})
+                tablesubclass_sets_list.append(
+                    {x.id for x in v['MS:4000005'].subclasses().to_set()})
             except KeyError:
                 pass
         return set().union(chain.from_iterable(tablesubclass_sets_list))
 
-    def _getRequiredCols(self, accession: str, filevocabularies: Dict[str,Ontology]) -> Tuple[Set[Term],Set[Term]]:
+    def _get_required_cols(self, accession: str,
+                         filevocabularies: Dict[str,Ontology]
+                         ) -> Tuple[Set[Term],Set[Term]]:
         """Retrieves the names of required columns from the given accession
 
         The accession is looked up in the given vocabularies
@@ -392,7 +398,8 @@ class SemanticCheck(UserDict):
         Returns
         -------
         Tuple[Set[Term],Set[Term]]
-            a tuple of sets, the first for required columns' names,  the second for the optional columns' names 
+            a tuple of sets, the first for required columns' names,  
+            the second for the optional columns' names 
         """
         tab_def = None
         for k,v in filevocabularies.items():
@@ -405,8 +412,8 @@ class SemanticCheck(UserDict):
             return set(),set()
         else:
             return set(next(filter(lambda x: x[0].name=='has_column', tab_def.relationships.items()), (None,frozenset()))[1]), set(next(filter(lambda x: x[0].name=='has_optional_column', tab_def.relationships.items()), (None,frozenset()))[1])
-    
-    def _hasIDInputFile(self, run_or_set_quality: BaseQuality, idfile_cvs: Set) -> bool:
+
+    def _has_id_InputFile(self, run_or_set_quality: BaseQuality, idfile_cvs: Set) -> bool:
         """Confirms if a run or set_quality has ID type file in their inputFile
 
         For now, the ID types are recognised by ther filename extensions, including:
@@ -426,7 +433,8 @@ class SemanticCheck(UserDict):
         """
         idfext = ('.mzid', '.pepxml', '.idxml', '.mztab')
         idfext = idfext + tuple(f+'.gz' for f in idfext)
-        mqfext = ('.proteinGroups.txt', '.evidence.txt', '.msms.txt', '.msmsScans.txt', '.peptides.txt')
+        mqfext = ('.proteinGroups.txt', '.evidence.txt',
+                  '.msms.txt', '.msmsScans.txt', '.peptides.txt')
         # NB case is all _lower_ and to be used after .lower() on target
         # idf_cvs =_getVocabularyIDFiles()
         for input_file in run_or_set_quality.metadata.inputFiles:
@@ -437,7 +445,9 @@ class SemanticCheck(UserDict):
                 return True
         return False
 
-    def _check_CVTerm_match(self, issue_type_category: str, cv_par: CvParameter, voc_par: Term, _document_collected_issues: bool = False):
+    def _check_CVTerm_match(self, issue_type_category: str,
+                            cv_par: CvParameter, voc_par: Term,
+                            _document_collected_issues: bool = False):
         """Checks any cvParameter for correct definition and reference
 
         Parameters
@@ -457,7 +467,7 @@ class SemanticCheck(UserDict):
                          SemanticIssue("Used CVTerm without definition", 4,
                                         f'Term instance used in file missing definition: '
                                         f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms definition conflict", 5,
                                         f'Term instance used in file with definition different from ontology: '
                                         f'accession = {"auto_doc"}'))
@@ -467,13 +477,13 @@ class SemanticCheck(UserDict):
                                         f'accession = {"auto_doc"}'))
             return
 
-        #warn if definition is empty or mismatch
-        if not cv_par.description:
+        # warn if definition is empty or mismatch
+        if not cv_par.description and 'UO:0000000' not in {t.id for t in voc_par.superclasses(with_self=False).to_set()}:
             self.raising(issue_type_category,
                          SemanticIssue("Used CVTerm without definition", 4,
                                         f'Term instance used in file missing definition: '
                                         f'accession = {cv_par.accession}'))
-        elif cv_par.description != voc_par.definition:
+        elif cv_par.description != voc_par.definition and 'UO:0000000' not in {t.id for t in voc_par.superclasses(with_self=False).to_set()}:
         # elif as the following error would be nonsensical for omitted definition
             self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms definition conflict", 5,
@@ -526,7 +536,7 @@ class SemanticCheck(UserDict):
                                         f'CV term used without matching ontology entry: '
                                         f'accession = {cv_parameter.accession}'))
             else:
-                self._check_CVTerm_match(issue_type_category, cv_parameter, 
+                self._check_CVTerm_match(issue_type_category, cv_parameter,
                                          voc_par[0], _document_collected_issues)
         return
 
@@ -575,16 +585,16 @@ class SemanticCheck(UserDict):
                                                 f'Metric CV term used without value unit specification. '
                                                 f'accession(s) = {"auto_doc"}'))
             return
-        
-        metric_cvs = self._getVocabularyMetrics(file_vocabularies)
-        table_cvs = self._getVocabularyTables(file_vocabularies)
-        idmetric_cvs = self._getVocabularyIDMetrics(file_vocabularies)
-        idfile_cvs = self._getVocabularyIDFiles(file_vocabularies)
+
+        metric_cvs = self._get_vocabulary_metrics(file_vocabularies)
+        table_cvs = self._get_vocabulary_tables(file_vocabularies)
+        idmetric_cvs = self._get_vocabulary_idmetrics(file_vocabularies)
+        idfile_cvs = self._get_vocabulary_idfiles(file_vocabularies)
 
         for run_or_set_quality in chain(self.mzqc_obj.runQualities,self.mzqc_obj.setQualities):
             # Check for ID metrics and if present if ID file is present in input
             if any([quality_metric.accession in idmetric_cvs for quality_metric in run_or_set_quality.qualityMetrics]):
-                if not self._hasIDInputFile(run_or_set_quality, idfile_cvs):
+                if not self._has_id_InputFile(run_or_set_quality, idfile_cvs):
                     if run_or_set_quality.metadata.label != "":
                         lab = run_or_set_quality.metadata.label
                     else:
@@ -592,12 +602,12 @@ class SemanticCheck(UserDict):
                     self.raising(issue_type_category, SemanticIssue("ID based metric but no ID input file", 6,
                                                 f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
                                                 f'run/set label = {lab}'))
-            
+
             # Verify that quality metrics are unique within a run/setQuality.
             uniq_accessions: Set[str] = set()
             for quality_metric in run_or_set_quality.qualityMetrics:
                 if quality_metric.accession in uniq_accessions:
-                    self.raising(issue_type_category, SemanticIssue("Metric uniqueness", 6, 
+                    self.raising(issue_type_category, SemanticIssue("Metric uniqueness", 6,
                                                 f'Duplicate quality metric in a run/set: '
                                                 f'accession = {quality_metric.accession}'))
                 else:
@@ -610,9 +620,9 @@ class SemanticCheck(UserDict):
 
                 # check table's value types and column lengths
                 if quality_metric.accession in table_cvs:
-                    req_col_accs = {x.id for x in self._getRequiredCols(quality_metric.accession, file_vocabularies)[0]}
-                    opt_col_accs = {x.id for x in self._getRequiredCols(quality_metric.accession, file_vocabularies)[1]}
-                    
+                    req_col_accs = {x.id for x in self._get_required_cols(quality_metric.accession, file_vocabularies)[0]}
+                    opt_col_accs = {x.id for x in self._get_required_cols(quality_metric.accession, file_vocabularies)[1]}
+
                     if not isinstance(quality_metric.value , dict):
                         self.raising(issue_type_category, SemanticIssue("Metric value non-table", 6,
                                                 f'Table metric CV term used without being a table: '
