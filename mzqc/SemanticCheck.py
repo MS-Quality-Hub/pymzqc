@@ -3,7 +3,7 @@ import os
 import sys
 from itertools import chain
 from dataclasses import dataclass
-from collections import UserDict
+from collections import UserDict, defaultdict
 from typing import Dict, List, Set, Tuple
 from contextlib import contextmanager
 from pronto import Ontology, Term
@@ -66,7 +66,8 @@ class SemanticCheck(UserDict):
         self.version = version
         self.file_path = file_path
         self.mzqc_obj = mzqc_obj
-        # the following are to keep record of the validation parameters and set by the validate() function
+        # the following are to keep record of the validation parameters and 
+        # set by the validate() function
         self._max_errors:int=0
         self._load_local:bool=False
         self._keep_issues:bool=False
@@ -241,54 +242,49 @@ class SemanticCheck(UserDict):
         """
         if _document_collected_issues:
             self.raising(issue_type_category,
-                         SemanticIssue("Inconsistent input file", 4,
+                        SemanticIssue("Inconsistent input file", 1,
                                         f'Inconsistent file name and location: '
                                         f'{"auto_doc"}'))
             self.raising(issue_type_category,
-                         SemanticIssue("Reused file location", 6,
+                        SemanticIssue("Reused file location", 5,
                                         f'Duplicate inputFile locations within '
-                                        f'a metadata object: '
-                                        f'accession = {"auto_doc"}'))
+                                        f'a metadata object: {"auto_doc"}'))
             self.raising(issue_type_category,
-                         SemanticIssue("Duplicate input files", 5,
-                                        f'Duplicate input files in a run/set: '
-                                        f'accession = {"auto_doc"}'))
+                        SemanticIssue("Duplicate names for input files with different locations ", 6,
+                                        f'Input file names not location-unique '
+                                        f'(one inputFile.name must correspond to one inputFile.location): '
+                                        f'{"auto_doc"}'))
+
             return
 
-        input_file_sets = list()
+        input_file_sets = defaultdict(set)  # [name: [location(s)]]
         for quality in chain(self.mzqc_obj.runQualities, self.mzqc_obj.setQualities):
-            one_input_file_set = set()
+            one_input_file_location_set = set()
             for input_file in quality.metadata.inputFiles:
-                # strip gz first
-                infilo = os.path.basename(input_file.location)
-                if infilo.lower().endswith('.gz'):
-                    infilo = os.path.splitext(infilo)[0]
-                infilo_noex = os.path.splitext(infilo)[0]
-                # filename must match location with or without extension
-                # (allowing for additional .gz)
-                if (input_file.name != infilo) and (input_file.name != infilo_noex) :
+                input_file_sets[input_file.name].add(input_file.location)
+                if input_file.name not in input_file.location:
                     self.raising(issue_type_category,
-                                 SemanticIssue("Inconsistent input file", 4,
-                                                f'Inconsistent file name and location:'
-                                                f'{input_file.name}/{infilo}'))
-                one_input_file_set.add(input_file.location)
+                                 SemanticIssue("Inconsistent input file", 1,
+                                                f'Possible file name and location inconsistency:'
+                                                f'{input_file.name}/{input_file.location}'))
+                one_input_file_location_set.add(input_file.location)
 
             # if more than 2 inputs but just one location
-            if len(quality.metadata.inputFiles) != len(one_input_file_set):
+            if len(quality.metadata.inputFiles) != len(one_input_file_location_set):
                 self.raising(issue_type_category,
-                             SemanticIssue("Reused file location", 6,
+                             SemanticIssue("Reused file location", 5,
                                             f'Duplicate inputFile locations within '
-                                            f'a metadata object: '
-                                            f'accession = {one_input_file_set}'))
+                                            f'one metadata object: {one_input_file_location_set}'))
+        # conceptually no problems with reuse of locations for different purposes
 
-            # check duplicates
-            if one_input_file_set in input_file_sets:
+        # check duplicates
+        for k,v in input_file_sets.items():
+            if len(v)>1:
                 self.raising(issue_type_category,
-                                 SemanticIssue("Duplicate input files", 5,
-                                                f'Duplicate input files in a run/set: '
-                                                f'accession = {one_input_file_set}'))
-            else:
-                input_file_sets.append(one_input_file_set)
+                            SemanticIssue("Duplicate names for input files with different locations ", 6,
+                                            f'Input file names not location-unique '
+                                            f'(one inputFile.name must correspond to one inputFile.location): '
+                                            f'{k} = {v}'))
         return
 
     def _get_vocabulary_metrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
@@ -584,6 +580,9 @@ class SemanticCheck(UserDict):
             self.raising(issue_type_category, SemanticIssue("Metric value no-unit", 3,
                                                 f'Metric CV term used without value unit specification. '
                                                 f'accession(s) = {"auto_doc"}'))
+            self.raising(issue_type_category, SemanticIssue("Metric value unit misuse", 3,
+                                                f'Metric CV term used value unit specification diverging from CV specification. '
+                                                f'accession(s) = {"auto_doc"}'))
             self.raising(issue_type_category, SemanticIssue("Metric value undefined unit", 3,
                                                 f'Metric CV term used value unit specification undefined in CV. '
                                                 f'accession(s) = {"auto_doc"}'))
@@ -596,13 +595,15 @@ class SemanticCheck(UserDict):
 
         for run_or_set_quality in chain(self.mzqc_obj.runQualities,self.mzqc_obj.setQualities):
             # Check for ID metrics and if present if ID file is present in input
-            if any([quality_metric.accession in idmetric_cvs for quality_metric in run_or_set_quality.qualityMetrics]):
+            if any([quality_metric.accession in idmetric_cvs for
+                    quality_metric in run_or_set_quality.qualityMetrics]):
                 if not self._has_id_InputFile(run_or_set_quality, idfile_cvs):
                     if run_or_set_quality.metadata.label != "":
                         lab = run_or_set_quality.metadata.label
                     else:
                         lab = '+'.join([i.name for i in run_or_set_quality.metadata.inputFiles])
-                    self.raising(issue_type_category, SemanticIssue("ID based metric but no ID input file", 6,
+                    self.raising(issue_type_category,
+                                 SemanticIssue("ID based metric but no ID input file", 6,
                                                 f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
                                                 f'run/set label = {lab}'))
 
@@ -615,13 +616,13 @@ class SemanticCheck(UserDict):
                                                 f'accession = {quality_metric.accession}'))
                 else:
                     uniq_accessions.add(quality_metric.accession)
-                # Verify that quality_metric actually is of metric type/relationship?
+                # Verify that quality_metric actually is of metric type
                 if quality_metric.accession not in metric_cvs:
                     self.raising(issue_type_category, SemanticIssue("Metric use", 5,
                                                 f'Non-metric CV term used in metric context: '
                                                 f'accession = {quality_metric.accession}'))
 
-                # check table's value types and column lengths
+                # Check table's value types and column lengths
                 if quality_metric.accession in table_cvs:
                     req_col_accs = {x.id for x in self._get_required_cols(quality_metric.accession, file_vocabularies)[0]}
                     opt_col_accs = {x.id for x in self._get_required_cols(quality_metric.accession, file_vocabularies)[1]}
@@ -648,16 +649,37 @@ class SemanticCheck(UserDict):
                         self.raising(issue_type_category, SemanticIssue("Metric value undefined table column", 5,
                                                 f'Table metric CV term used with extra (undefined) columns: '
                                                 f'accession(s) = {extras}'))
+                # For regular metrics do a units use check (makes only sense for metrics with terms
+                # - those without are flagged already above)
                 else:
-                    if quality_metric.unit is None or quality_metric.unit == "":
-                        self.raising(issue_type_category, SemanticIssue("Metric value no-unit", 3,
-                                                f'Metric CV term used without value unit specification. '
+                    # pythonic one-liner got out of hand, for maintainability the following is
+                    # explicit, no matter the performance:
+                    # we want the first matching term in the first vocabulary,
+                    # and the first unit if it has one
+                    quality_metric_term, quality_metric_term_unit = None, None
+                    for voc in file_vocabularies.values():
+                        if voc.get(quality_metric.accession):
+                            quality_metric_term = voc.get(quality_metric.accession)
+                            quality_metric_term_unit = next(iter(voc.get(quality_metric.accession).relationships.get(voc.get_relationship('has_units'),[None])))
+                            break
+                    if quality_metric_term_unit:
+                        if quality_metric.unit is None or quality_metric.unit == "":
+                            self.raising(issue_type_category,
+                                         SemanticIssue("Metric value no-unit", 3,
+                                            f'Metric CV term used without value unit specification. '
+                                            f'accession(s) = {quality_metric.accession}'))
+                        else:  # Unit present
+                            if quality_metric.unit.accession != quality_metric_term_unit.id:
+                                self.raising(issue_type_category,
+                                             SemanticIssue("Metric value unit misuse", 3,
+                                                f'Metric CV term used value unit specification diverging from CV specification. '
                                                 f'accession(s) = {quality_metric.accession}'))
-                    else:
-                        if not any([voc.get(quality_metric.accession) for voc in file_vocabularies.values() if voc.get(quality_metric.accession).relationships.get(voc.get_relationship('has_units'))]):
-                            self.raising(issue_type_category, SemanticIssue("Metric value undefined unit", 3,
-                                                f'Metric CV term used value unit specification undefined in CV. '
-                                                f'accession(s) = {quality_metric.accession}'))
+                    else:  # no unit on term but unit on metric
+                        if quality_metric.unit is not None or quality_metric.unit != "":
+                            self.raising(issue_type_category,
+                                         SemanticIssue("Metric value undefined unit", 3,
+                                            f'Metric CV term used value unit specification undefined in CV. '
+                                            f'accession(s) = {quality_metric.accession}'))
 
         return
 

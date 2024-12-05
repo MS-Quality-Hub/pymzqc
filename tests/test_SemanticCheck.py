@@ -130,7 +130,7 @@ def test_SemanticCheck_validation_trip_all():
         sm = SemanticCheck(mzqcobject, file_path=infi)
         sm.validate(load_local=True)
         sem_val = sm.string_export()
-        
+
     # Test export creates as many issues as the object holds
     assert(len(list(chain.from_iterable(sem_val.values())))==len(list(chain.from_iterable(sm.values()))))
 
@@ -142,7 +142,7 @@ def test_SemanticCheck_validation_trip_all():
     doc = SemanticCheck(None, file_path="")
     doc._document_collected_issues()
     assert(all([len(x)==0 for x in doc.values()]))
-    
+
     # Register all issues available
     doc = SemanticCheck(mzqc_file(), file_path="")
     doc._document_collected_issues()
@@ -160,7 +160,9 @@ def test_SemanticCheck_validation_trip_all():
 
     # Test all documented issues were tripped
     assert({s.name for s in chain.from_iterable(sm.values())} ==
-            {s.name for s in chain.from_iterable(doc.values())})  
+            {s.name for s in chain.from_iterable(doc.values())})
+
+# not tripped: 'Metric value undefined unit',
 
 def test_SemanticCheck_validation_success():
     infi = "tests/examples/individual-runs.mzQC"  # success test
@@ -179,4 +181,3 @@ def test_SemanticCheck_validation_success():
     # print(json.dumps(sem_val.string_export(), sort_keys=True, indent=4))
     for issue_type_category in sem_val.keys():
         assert(len(sem_val.get(issue_type_category,list()))==0)
-    

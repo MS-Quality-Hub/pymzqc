@@ -33,6 +33,21 @@
                   "value": "LTQ Orbitrap Velos"
                 }
               ]
+            },
+            {
+              "name": "CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3",
+              "location": "ftp://ftp.pride.ebi.ac.uk/pride/data/archive/2014/09/PXD000966/CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.raw/CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3.mzq",
+              "fileFormat": {
+                "accession": "MS:1002075",
+                "name": "mzQuantML format"
+              },
+              "fileProperties": [
+                {
+                  "accession": "MS:1000747",
+                  "name": "completion time",
+                  "value": "2012-02-04 21:23:04"
+                }
+              ]
             }
           ],
           "analysisSoftware": [
