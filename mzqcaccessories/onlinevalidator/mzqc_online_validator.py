@@ -58,7 +58,7 @@ class Validator(Resource):
         default_unknown = jsonify({"general": "No mzQC structure detectable."})
         inpu = request.form.get('validator_input', None)
         try:
-            target = mzqc_io.FromJson(inpu)
+            target = mzqc_io.from_json(inpu)
         except Exception as e:
             return default_unknown
 
@@ -81,7 +81,7 @@ class Validator(Resource):
                 proto_response.update({"ontology validation": 
                                        ["invalid ontology URI for "+ str(it.name) for it in removed_items]})
 
-            valt = mzqc_io.ToJson(target)
+            valt = mzqc_io.to_json(target)
             syn_val_res = SyntaxCheck().validate(valt)
             # older versions of the validator report a generic response in an array - return first only
             if type(syn_val_res.get('schema validation', None)) == list:

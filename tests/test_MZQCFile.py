@@ -45,37 +45,37 @@ mzqc = qc.MzQcFile(version="1.0.0",
 class TestSerialisation:
 
     def test_ControlledVocabulary(self):
-        assert qc.JsonSerialisable.ToJson(cv, complete=False) == CV
+        assert qc.JsonSerialisable.to_json(cv, complete=False) == CV
 
     def test_CvParameter(self):
-        assert  qc.JsonSerialisable.ToJson(cvt, complete=False) == CVT
+        assert  qc.JsonSerialisable.to_json(cvt, complete=False) == CVT
 
     def test_AnalysisSoftware(self):
-        assert qc.JsonSerialisable.ToJson(anso, complete=False) == ANSO
+        assert qc.JsonSerialisable.to_json(anso, complete=False) == ANSO
 
     def test_InputFile(self):
-        assert qc.JsonSerialisable.ToJson(infi, complete=False) == INFI
+        assert qc.JsonSerialisable.to_json(infi, complete=False) == INFI
 
     def test_MetaDataParameters(self):
-        assert qc.JsonSerialisable.ToJson(meta, complete=False) == META
+        assert qc.JsonSerialisable.to_json(meta, complete=False) == META
 
     def test_QualityMetric(self):
-        assert qc.JsonSerialisable.ToJson(qm, complete=False) == QM
+        assert qc.JsonSerialisable.to_json(qm, complete=False) == QM
         #TODO more metric value types (str, float, List[float], Dict[str,float])
 
     def test_BaseQuality(self):
         pass
 
     def test_RunQuality(self):
-        assert qc.JsonSerialisable.ToJson(rq, complete=False) == RUQU
+        assert qc.JsonSerialisable.to_json(rq, complete=False) == RUQU
 
     def test_SetQuality(self):
-        assert qc.JsonSerialisable.ToJson(sq, complete=False) == SEQU
+        assert qc.JsonSerialisable.to_json(sq, complete=False) == SEQU
 
     def test_MzQcFile(self):
         #pass
         with open("/tmp/test.mzQC","w") as f:
-            f.write(qc.JsonSerialisable.ToJson(mzqc,2, complete=False))
+            f.write(qc.JsonSerialisable.to_json(mzqc,2, complete=False))
 
     def test_NumpyValues(self):
         nup = qc.QualityMetric()
@@ -83,7 +83,7 @@ class TestSerialisation:
         nup.name = "einszweidrei"
         npnd = np.array([1/9,2/8,3/7], dtype=np.float32)
         nup.value= {"np":npnd}
-        assert qc.JsonSerialisable.ToJson(nup, complete=False) == NPQM
+        assert qc.JsonSerialisable.to_json(nup, complete=False) == NPQM
 
     def test_DateTimeConsumption(self):
         tobjs = [datetime.now().isoformat(),  # includes nanoseconds
@@ -101,50 +101,50 @@ class TestSerialisation:
 #First, serialisation should be tested separately!
 class TestDeserialisation:
     def test_ControlledVocabulary(self):
-        assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(cv)) == cv
-        assert isinstance(qc.JsonSerialisable.FromJson(
-            qc.JsonSerialisable.ToJson(cv)),qc.ControlledVocabulary)
+        assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(cv)) == cv
+        assert isinstance(qc.JsonSerialisable.from_json(
+            qc.JsonSerialisable.to_json(cv)),qc.ControlledVocabulary)
 
     def test_CvParameter(self):
-        assert  qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(cvt)) == cvt
-        assert isinstance(qc.JsonSerialisable.FromJson(
-            qc.JsonSerialisable.ToJson(cvt)),qc.CvParameter)
+        assert  qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(cvt)) == cvt
+        assert isinstance(qc.JsonSerialisable.from_json(
+            qc.JsonSerialisable.to_json(cvt)),qc.CvParameter)
 
     def test_AnalysisSoftware(self):
-        assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(anso)) == anso
-        assert isinstance(qc.JsonSerialisable.FromJson(
-            qc.JsonSerialisable.ToJson(anso)),qc.AnalysisSoftware)
+        assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(anso)) == anso
+        assert isinstance(qc.JsonSerialisable.from_json(
+            qc.JsonSerialisable.to_json(anso)),qc.AnalysisSoftware)
 
     def test_InputFile(self):
-        assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(infi)) == infi
-        assert isinstance(qc.JsonSerialisable.FromJson(
-            qc.JsonSerialisable.ToJson(infi)),qc.InputFile)
+        assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(infi)) == infi
+        assert isinstance(qc.JsonSerialisable.from_json(
+            qc.JsonSerialisable.to_json(infi)),qc.InputFile)
 
     def test_MetaDataParameters(self):
-        assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(meta)) == meta
-        assert isinstance(qc.JsonSerialisable.FromJson(
-            qc.JsonSerialisable.ToJson(meta)),qc.MetaDataParameters)
+        assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(meta)) == meta
+        assert isinstance(qc.JsonSerialisable.from_json(
+            qc.JsonSerialisable.to_json(meta)),qc.MetaDataParameters)
 
     def test_QualityMetric(self):
-        assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(qm)) == qm
-        assert isinstance(qc.JsonSerialisable.FromJson(
-            qc.JsonSerialisable.ToJson(qm)),qc.QualityMetric)
+        assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(qm)) == qm
+        assert isinstance(qc.JsonSerialisable.from_json(
+            qc.JsonSerialisable.to_json(qm)),qc.QualityMetric)
         #TODO more metric value types (str, float, List[float], Dict[str,float])
         
     def test_BaseQuality(self):
         pass
 
     def test_RunQuality(self):
-        sdrq = (qc.RunQuality)(**qc.JsonSerialisable.FromJson(
-            qc.JsonSerialisable.ToJson(rq)).__dict__)
+        sdrq = (qc.RunQuality)(**qc.JsonSerialisable.from_json(
+            qc.JsonSerialisable.to_json(rq)).__dict__)
         assert  sdrq == rq
         assert isinstance(sdrq,qc.RunQuality)
 
     def test_SetQuality(self):
-        assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(sq)) == sq
-        assert isinstance(qc.JsonSerialisable.FromJson(
-            qc.JsonSerialisable.ToJson(sq)),qc.SetQuality)
+        assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(sq)) == sq
+        assert isinstance(qc.JsonSerialisable.from_json(
+            qc.JsonSerialisable.to_json(sq)),qc.SetQuality)
 
     def test_MzQcFile(self):
-        assert qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(mzqc)) == mzqc
-        assert isinstance(qc.JsonSerialisable.FromJson(qc.JsonSerialisable.ToJson(mzqc)),qc.MzQcFile)
+        assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(mzqc)) == mzqc
+        assert isinstance(qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(mzqc)),qc.MzQcFile)

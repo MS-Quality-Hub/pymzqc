@@ -23,7 +23,7 @@ def validate(inpu):
     """
     default_unknown = {"general": "No mzQC structure detectable."}
     try:
-        target = mzqc_io.FromJson(inpu)
+        target = mzqc_io.from_json(inpu)
     except Exception:
         return default_unknown
 
@@ -41,7 +41,7 @@ def validate(inpu):
         proto_response.update({"ontology validation":
                             ["invalid ontology URI for "+ str(it.name) for it in removed_items]})
 
-    valt = mzqc_io.ToJson(target)
+    valt = mzqc_io.to_json(target)
     syn_val_res = SyntaxCheck().validate(valt)
     # older versions of the validator report a generic response in an array - return first only
     if isinstance(syn_val_res.get('schema validation', None), list):

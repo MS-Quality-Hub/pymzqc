@@ -31,7 +31,7 @@ def mzqcfileinfo(infile):
     if not infile:
         print_help()
     try:
-        infofile = mzqc_io.FromJson(infile)
+        infofile = mzqc_io.from_json(infile)
     except Exception:
         print("No mzQC structure detected in input!")
         print_help()

@@ -73,7 +73,7 @@ def test_SemanticCheck_clearfunction():
 def test_SemanticCheck_maxerrorsfunction():
     infi = "tests/examples/individual-runs_tripallsemanticchecks.mzQC"
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -94,7 +94,7 @@ def test_SemanticCheck_exportfunction():
 
     infi = "tests/examples/individual-runs.mzQC"  # success test
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -116,7 +116,7 @@ def test_SemanticCheck_class_validation_None():
 def test_SemanticCheck_validation_trip_all():
     infi = "tests/examples/individual-runs_tripallsemanticchecks.mzQC"
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -167,7 +167,7 @@ def test_SemanticCheck_validation_trip_all():
 def test_SemanticCheck_validation_success():
     infi = "tests/examples/individual-runs.mzQC"  # success test
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))

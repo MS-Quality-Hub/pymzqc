@@ -171,9 +171,9 @@ class JsonSerialisable(object):
         return cls
 
     @classmethod
-    def ToJson(classself, obj, readability=0, complete=True):
+    def to_json(classself, obj, readability=0, complete=True):
         """
-        ToJson Main method for serialisation
+        to_json main method for serialisation
 
         Parameters
         ----------
@@ -208,13 +208,13 @@ class JsonSerialisable(object):
         #remove empty run/setQualities and other optinal and empty elements, return with mzqc root,
         ret = re.sub(r'(\"setQualities\"\:\s+\[\s*\][,]*)|(\"runQualities\"\:\s+\[\s*\][,]*)|([,]*\s+\"fileProperties\"\:\s+\[\s*\][,]*)', "", ret)
         ret = re.sub(r'(\s*\"contactName\"\:\s+"",)|(\s*\"contactAddress\"\:\s+"",)|(\s*\"description\"\:\s+"",)', "", ret)
-        ret = "{{\"mzQC\": \n{dump} \n}}".format(dump=ret) if complete else ret
+        ret = f"{{\"mzQC\": \n{ret} \n}}" if complete else ret
         return ret
 
     @classmethod
-    def FromJson(classself, json_str, complete=False):
+    def from_json(classself, json_str, complete=False):
         """
-        FromJson Main method for deserialisation
+        from_json main method for deserialisation
 
         Accounts for neccessary object rectification due to same-attribute 
         class footprints. N.B.: for this to work the class init variables must
@@ -261,8 +261,12 @@ def rectify(obj):
     object
         The rectified object
     """
-    static_list_typemap = {'runQualities': RunQuality, 'setQualities': SetQuality, 'controlledVocabularies': ControlledVocabulary, 
-            'qualityMetrics': QualityMetric, 'inputFiles': InputFile, 'analysisSoftware': AnalysisSoftware, 'fileProperties': CvParameter}
+    static_list_typemap = {'runQualities': RunQuality, 'setQualities': SetQuality,
+                           'controlledVocabularies': ControlledVocabulary,
+                           'qualityMetrics': QualityMetric,
+                           'inputFiles': InputFile,
+                           'analysisSoftware': AnalysisSoftware,
+                           'fileProperties': CvParameter}
     static_singlet_typemap = {'fileFormat': CvParameter, 'metadata': MetaDataParameters}
     if hasattr(obj, '__dict__'):
         for k,v in obj.__dict__.items():
@@ -304,9 +308,9 @@ class MzqcJSONEncoder(json.JSONEncoder):
             yield s
 
 
-class jsonobject(object):
+class JsonObject(object):
     """
-    jsonobject Proxy object for better integration of mzQC objects
+    JsonObject Proxy object for better integration of mzQC objects
 
     Useful for testing and validity checks as __eq__ is overridden to compare all 
     attributes as well.
@@ -326,7 +330,7 @@ class jsonobject(object):
         -------
         bool
             False if the two objects are not of the same class or any of the attributes differ
-        """      
+        """
         if isinstance(other, __class__):
             # TODO find difference in keys and check whether they are None or "" in the other or vice versa
             snn = [k for k,v in self.__dict__.items() if (not v is None and not v == "")]
@@ -336,7 +340,7 @@ class jsonobject(object):
         return False
 
 @JsonSerialisable.register
-class ControlledVocabulary(jsonobject):
+class ControlledVocabulary(JsonObject):
     """
     ControlledVocabulary Object representation for mzQC schema type ControlledVocabulary
 
@@ -347,7 +351,7 @@ class ControlledVocabulary(jsonobject):
         self.version = version  # optional
 
 @JsonSerialisable.register
-class CvParameter(jsonobject):
+class CvParameter(JsonObject):
     """
     CvParameter Object representation for mzQC schema type CvParameter
 
@@ -381,7 +385,7 @@ class AnalysisSoftware(CvParameter):
         self.uri = uri  # required
 
 @JsonSerialisable.register
-class InputFile(jsonobject):
+class InputFile(JsonObject):
     """
     InputFile Object representation for mzQC schema type InputFile
 
@@ -396,7 +400,7 @@ class InputFile(jsonobject):
         self.fileProperties = [] if fileProperties is None else fileProperties  # optional, cvParam, at least one item
 
 @JsonSerialisable.register
-class MetaDataParameters(jsonobject):
+class MetaDataParameters(JsonObject):
     """
     MetaDataParameters Object representation for mzQC schema type MetaDataParameters
 
@@ -432,7 +436,7 @@ class QualityMetric(CvParameter):
     # semantical distinctions between pure metrics and generic CvParams
 
 @JsonSerialisable.register
-class BaseQuality(jsonobject):
+class BaseQuality(JsonObject):
     """
     BaseQuality Object representation for mzQC schema type BaseQuality
 
@@ -459,7 +463,7 @@ class SetQuality(BaseQuality):
     pass
 
 @JsonSerialisable.register
-class MzQcFile(jsonobject):
+class MzQcFile(JsonObject):
     """
     MzQcFile Object representation for mzQC schema type MzQcFile
 

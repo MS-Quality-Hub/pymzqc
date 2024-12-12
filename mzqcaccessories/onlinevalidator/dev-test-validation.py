@@ -63,7 +63,7 @@ with open(infi, 'r') as f:
 # input from web validator comes in as a js dumps() equivalent
 
 try:
-    mzqcobject = mzqc_io.FromJson(inpu)
+    mzqcobject = mzqc_io.from_json(inpu)
     print("Found mzQC content, successfully loaded!")
 except Exception as e:
     print("No mzQC content found!")
@@ -95,7 +95,7 @@ else:
     proto_response = {'validation': 'abort due to mzQC-incompatible JSON'}
 
 
-valt = mzqc_io.ToJson(mzqcobject)
+valt = mzqc_io.to_json(mzqcobject)
 syn_val_res = SyntaxCheck().validate(valt)
 if type(syn_val_res.get('schema validation', None)) == list:
             syn_val_res = {'schema validation': syn_val_res.get('schema validation', None)[0] if syn_val_res.get('schema validation', None) else ''}

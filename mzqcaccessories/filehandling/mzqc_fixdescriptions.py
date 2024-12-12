@@ -40,7 +40,7 @@ def mzqcfixdescriptions(infile, outfile):
     if not infile:
         print_help()
     try:
-        fixfile = mzqc_io.FromJson(infile)
+        fixfile = mzqc_io.from_json(infile)
     except Exception:
         print("No mzQC structure detected in input!")
         print_help()
@@ -52,7 +52,7 @@ def mzqcfixdescriptions(infile, outfile):
         except Exception:
             pass
     rfix_term(fixfile, vocs)
-    outfile.write(mzqc_io.ToJson(fixfile,readability=2))
+    outfile.write(mzqc_io.to_json(fixfile,readability=2))
 
 if __name__ == '__main__':
     mzqcfixdescriptions()
