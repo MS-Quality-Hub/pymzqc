@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='pymzqc',
-    version='1.0.0rc2',
+    version='1.0.0rc3',
     packages=find_packages(exclude=("tests",)),
     author='Mathias Walzer',
     author_email='walzer@ebi.ack.uk',
@@ -27,10 +27,12 @@ setup(
     setup_requires=['wheel', 'Click'],
     python_requires='>=3.8',
     include_package_data=True,
+    # this will install additional to the mzqc module the mzqcaccessories module with the scripts from the accessories folder
     entry_points = {
         'console_scripts': [
             'mzqc-fileinfo=mzqcaccessories.filehandling.mzqc_fileinfo:mzqcfileinfo',
             'mzqc-filemerger=mzqcaccessories.filehandling.mzqc_filemerger:mzqcfilemerger',
+            'mzqc-fixdescriptions=mzqcaccessories.filehandling.mzqc_fixdescriptions:mzqcfixdescriptions',
             # 'mzQC-online-validator=mzqconlinevalidator.mzqc_online_validator:app.run',
             # Note: onlinevalidator has extra dependencies not covered by this setup!
             #       See accessories/onlinevalidator/requirements.txt!

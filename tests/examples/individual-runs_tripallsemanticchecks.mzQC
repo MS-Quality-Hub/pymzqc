@@ -11,8 +11,8 @@
             "label": "duplicate label",
             "inputFiles": [
               {
-                "name": "file.mzML",
-                "location": "ftp://ftp.dont.use.ftp.co/renamed_same_location.raw",
+                "name": "file",
+                "location": "ftp://ftp.dont.use.ftp.co/renamed_same_location.raw.mzML",
                 "fileFormat": {
                   "accession": "MS:1000584",
                   "name": "mzML format"
@@ -36,7 +36,7 @@
                 ]
               },
               {
-                "name": "renamed_and_different_type.raw",
+                "name": "file",
                 "location": "ftp://ftp.dont.use.ftp.co/renamed_same_location.raw",
                 "fileFormat": {
                   "accession": "MS:1000584",
@@ -198,6 +198,16 @@
               "accession": "MS:4000095",
               "name": "slowest frequency for MS level 1 collection",
               "value": 123
+            },
+            {
+              "accession": "MS:4000070",
+              "name": "retention time acquisition range",
+              "value": [ 0.2959, 5969.8172 ],
+              "unit": {
+                "accession": "UO:0010072",
+                "name": "microgram per microliter"
+              },
+              "description": "Upper and lower limit of retention time at which spectra are recorded."
             }
           ]
         }

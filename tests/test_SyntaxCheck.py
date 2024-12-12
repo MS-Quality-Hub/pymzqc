@@ -27,7 +27,7 @@ def test_SyntaxCheck_synth():
     #     f.write("{ \"mzQC\": " + mzqc_lib.JsonSerialisable.ToJson(mzqc) + " }")
         
     syn_check = SyntaxCheck()
-    syn_check.validate("{ \"mzQC\": " + mzqc_lib.JsonSerialisable.ToJson(mzqc) + " }")
+    syn_check.validate("{ \"mzQC\": " + mzqc_lib.JsonSerialisable.to_json(mzqc) + " }")
 
 def test_SyntaxCheck_brokenAnalysisSoftware():
     infi = "tests/examples/individual-runs_brokenAnalysisSoftware.mzQC"  # test good detectin schema invalid

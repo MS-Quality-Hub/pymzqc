@@ -100,8 +100,8 @@
             "name": "retention time acquisition range",
             "value": [ 0.2959, 5969.8172 ],
             "unit": {
-              "accession": "UO:0000010",
-              "name": "second"
+              "accession": "UO:0010072",
+              "name": "microgram per microliter"
             },
             "description": "Upper and lower limit of retention time at which spectra are recorded."
           }

@@ -1,27 +1,22 @@
 __author__ = 'bittremieux, walzer'
-import json
-import mzqc
-import os
-import urllib.request
-from typing import Dict, List, Set, Union, Tuple, Any
-from mzqc.MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, QualityMetric, MetaDataParameters, CvParameter
-from itertools import chain
-from dataclasses import dataclass, field
-from collections import UserDict
-
-import jsonschema
-from pronto import Ontology, Term
-from contextlib import contextmanager
 import os
 import sys
+from itertools import chain
+from dataclasses import dataclass
+from collections import UserDict, defaultdict
+from typing import Dict, List, Set, Tuple
+from contextlib import contextmanager
+from pronto import Ontology, Term
 from jsonschema.exceptions import ValidationError
+from mzqc.MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, MetaDataParameters, QualityMetric, CvParameter
 
 @contextmanager
 def suppress_verbose_modules():
+    """prevent verbosity spill from other modules' messaging on stderr"""
     with open(os.devnull, "w") as devnull:
         sys_stderr_bak = sys.stderr
         sys.stderr = devnull
-        try:  
+        try:
             yield
         finally:
             sys.stderr = sys_stderr_bak
@@ -71,7 +66,8 @@ class SemanticCheck(UserDict):
         self.version = version
         self.file_path = file_path
         self.mzqc_obj = mzqc_obj
-        # the following are to keep record of the validation parameters and set by the validate() function
+        # the following are to keep record of the validation parameters and 
+        # set by the validate() function
         self._max_errors:int=0
         self._load_local:bool=False
         self._keep_issues:bool=False
@@ -123,7 +119,7 @@ class SemanticCheck(UserDict):
     def clear(self) -> None:
         """Substitute to the UserDict clear which clears the dict and resets _exceeded_errors
         """
-        super().clear() 
+        super().clear()
         self._exceeded_errors = False
         return
 
@@ -140,17 +136,19 @@ class SemanticCheck(UserDict):
         cvParameter
             any object that has an 'accession' member
         """
-        if hasattr(val, 'accession'):
-            yield val
-        elif isinstance(val, List):
+        if isinstance(val, List):
             for v in val:
                 yield from self._get_cv_parameters(v)
         elif isinstance(val, (MzQcFile,SetQuality,RunQuality,MetaDataParameters)):
             for attr, value in vars(val).items():
                 yield from self._get_cv_parameters(value)
-        else:
-            # recursion dead-end
-            pass
+        elif isinstance(val, QualityMetric):
+            if hasattr(val, 'accession'):
+                yield from self._get_cv_parameters(val.unit)
+                yield val
+        elif hasattr(val, 'accession'):
+            yield val
+
 
     def _check_label_uniqueness(self, issue_type_category: str, _document_collected_issues: bool = False):
         """Checks a mzQC object's metadata labels for uniqueness
@@ -165,19 +163,23 @@ class SemanticCheck(UserDict):
         if _document_collected_issues:
             self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
                     "Run/SetQuality label {} is not unique in file!".format("auto_doc")))
-            return        
-        
+            return
+
         uniq_labels = set()
         for qle in chain(self.mzqc_obj.runQualities,self.mzqc_obj.setQualities):
-            if qle.metadata.label in uniq_labels:
-                self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
-                    "Run/SetQuality label {} is not unique in file!".format(qle.metadata.label)))
-            else: 
-                uniq_labels.add(qle.metadata.label)
+            if qle.metadata.label != "":
+                if qle.metadata.label in uniq_labels:
+                    self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
+                        "Run/SetQuality label {} is not unique in file!".format(qle.metadata.label)))
+                else:
+                    uniq_labels.add(qle.metadata.label)
 
         return
-    
-    def _load_and_check_Vocabularies(self, issue_type_category: str, load_local: bool = False, _document_collected_issues: bool = False) -> Dict[str,Ontology]:
+
+    def _load_and_check_Vocabularies(self, issue_type_category: str, 
+                                     load_local: bool = False, 
+                                     _document_collected_issues: bool = False
+                                     ) -> Dict[str,Ontology]:
         """Loads remote or local vocabularies and registers any issues during load
 
         Parameters
@@ -195,12 +197,12 @@ class SemanticCheck(UserDict):
             the loaded vocabularies as pronto Ontlogies, key is the name of the Ontology
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5, 
+            self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5,
                     f'Loading the following local ontology referenced in mzQC file: {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5, 
+            self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5,
                     f'Error loading the following online ontology referenced in mzQC file: {"auto_doc"}'))         
             return
-        
+
         vocs = dict()
 
         # check if ontologies are listed multiple times (different versions etc)
@@ -211,7 +213,7 @@ class SemanticCheck(UserDict):
                     loc = cve.uri
                     if loc.startswith('file://'):
                         loc = loc[len('file://'):]
-                        self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5, 
+                        self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5,
                                                   f'Loading the following local ontology referenced in mzQC file: {loc}'))
                     with suppress_verbose_modules():
                         vocs[cve.name] = Ontology(loc, import_depth=0)
@@ -219,7 +221,7 @@ class SemanticCheck(UserDict):
                     with suppress_verbose_modules():
                         vocs[cve.name] = Ontology(cve.uri, import_depth=0)
             except Exception as e:
-                self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5, 
+                self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5,
                                           f'Error loading the following online ontology referenced in mzQC file: {e}'))
         return vocs
 
@@ -239,54 +241,53 @@ class SemanticCheck(UserDict):
             for auto documentation this is set True, by default False
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, 
-                         SemanticIssue("Inconsistent input file", 4,
+            self.raising(issue_type_category,
+                        SemanticIssue("Inconsistent input file", 1,
                                         f'Inconsistent file name and location: '
                                         f'{"auto_doc"}'))
-            self.raising(issue_type_category, 
-                         SemanticIssue("Reused file location", 6,
+            self.raising(issue_type_category,
+                        SemanticIssue("Reused file location", 5,
                                         f'Duplicate inputFile locations within '
-                                        f'a metadata object: '
-                                        f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, 
-                         SemanticIssue("Duplicate input files", 5,
-                                        f'Duplicate input files in a run/set: '
-                                        f'accession = {"auto_doc"}'))
+                                        f'a metadata object: {"auto_doc"}'))
+            self.raising(issue_type_category,
+                        SemanticIssue("Duplicate names for input files with different locations ", 6,
+                                        f'Input file names not location-unique '
+                                        f'(one inputFile.name must correspond to one inputFile.location): '
+                                        f'{"auto_doc"}'))
+
             return
-        
-        input_file_sets = list()
+
+        input_file_sets = defaultdict(set)  # [name: [location(s)]]
         for quality in chain(self.mzqc_obj.runQualities, self.mzqc_obj.setQualities):
-            one_input_file_set = set()
+            one_input_file_location_set = set()
             for input_file in quality.metadata.inputFiles:
-                # filename and location
-                infilo = os.path.splitext(
-                    os.path.basename(input_file.location))[0]
-                if input_file.name != infilo:
-                    self.raising(issue_type_category, 
-                                 SemanticIssue("Inconsistent input file", 4,
-                                                f'Inconsistent file name and location:'
-                                                f'{input_file.name}/{infilo}'))
-                one_input_file_set.add(input_file.location)
+                input_file_sets[input_file.name].add(input_file.location)
+                if input_file.name not in input_file.location:
+                    self.raising(issue_type_category,
+                                 SemanticIssue("Inconsistent input file", 1,
+                                                f'Possible file name and location inconsistency:'
+                                                f'{input_file.name}/{input_file.location}'))
+                one_input_file_location_set.add(input_file.location)
 
             # if more than 2 inputs but just one location
-            if len(quality.metadata.inputFiles) != len(one_input_file_set):
-                self.raising(issue_type_category, 
-                             SemanticIssue("Reused file location", 6,
+            if len(quality.metadata.inputFiles) != len(one_input_file_location_set):
+                self.raising(issue_type_category,
+                             SemanticIssue("Reused file location", 5,
                                             f'Duplicate inputFile locations within '
-                                            f'a metadata object: '
-                                            f'accession = {one_input_file_set}'))
+                                            f'one metadata object: {one_input_file_location_set}'))
+        # conceptually no problems with reuse of locations for different purposes
 
-            # check duplicates 
-            if one_input_file_set in input_file_sets:
-                    self.raising(issue_type_category, 
-                                 SemanticIssue("Duplicate input files", 5,
-                                                f'Duplicate input files in a run/set: '
-                                                f'accession = {one_input_file_set}'))
-            else:
-                input_file_sets.append(one_input_file_set)
+        # check duplicates
+        for k,v in input_file_sets.items():
+            if len(v)>1:
+                self.raising(issue_type_category,
+                            SemanticIssue("Duplicate names for input files with different locations ", 6,
+                                            f'Input file names not location-unique '
+                                            f'(one inputFile.name must correspond to one inputFile.location): '
+                                            f'{k} = {v}'))
         return
 
-    def _getVocabularyMetrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+    def _get_vocabulary_metrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
         """Retrieves all metric type accessions from given vocabularies
 
         Parameters
@@ -307,7 +308,7 @@ class SemanticCheck(UserDict):
                 pass
         return set().union(chain.from_iterable(metricsubclass_sets_list))
 
-    def _getVocabularyIDMetrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+    def _get_vocabulary_idmetrics(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
         """Retrieves all ID based type accessions from given vocabularies
 
         Parameters
@@ -325,13 +326,36 @@ class SemanticCheck(UserDict):
             try:
                 metricsubclass_sets_list.append(
                     {pib.id for pib in {x for x in v['MS:4000002'].subclasses().to_set()} if \
-                     v['MS:4000008'] in pib.relationships.get(v.get_relationship('has_metric_category'),[])}\
+                        v['MS:4000008'] in pib.relationships.get(v.get_relationship('has_metric_category'),[])}\
                 )
             except KeyError:
                 pass
         return set().union(chain.from_iterable(metricsubclass_sets_list))
 
-    def _getVocabularyTables(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+    def _get_vocabulary_idfiles(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
+        """Retrieves all ID based file type accessions from given vocabularies
+
+        Parameters
+        ----------
+        filevocabularies : Dict[str,Ontology]
+            the vocabularies given as a dict of names and pronto Ontology objects
+
+        Returns
+        -------
+        Set[str]
+            a set of accessions of ID based type terms in the given vocabularies
+        """
+        idfilesubclass_sets_list = list()
+        for k,v in filevocabularies.items():
+            try:
+                idfilesubclass_sets_list.append(
+                    {pib.id for pib in {x for x in v['MS:1002130'].subclasses().to_set()}}
+                )
+            except KeyError:
+                pass
+        return set().union(chain.from_iterable(idfilesubclass_sets_list))
+
+    def _get_vocabulary_tables(self, filevocabularies: Dict[str,Ontology]) -> Set[str]:
         """Retrieves all table type accessions from given vocabularies
 
         Parameters
@@ -347,12 +371,15 @@ class SemanticCheck(UserDict):
         tablesubclass_sets_list = list()
         for k,v in filevocabularies.items():
             try:
-                tablesubclass_sets_list.append({x.id for x in v['MS:4000005'].subclasses().to_set()})
+                tablesubclass_sets_list.append(
+                    {x.id for x in v['MS:4000005'].subclasses().to_set()})
             except KeyError:
                 pass
         return set().union(chain.from_iterable(tablesubclass_sets_list))
 
-    def _getRequiredCols(self, accession: str, filevocabularies: Dict[str,Ontology]) -> Tuple[Set[Term],Set[Term]]:
+    def _get_required_cols(self, accession: str,
+                         filevocabularies: Dict[str,Ontology]
+                         ) -> Tuple[Set[Term],Set[Term]]:
         """Retrieves the names of required columns from the given accession
 
         The accession is looked up in the given vocabularies
@@ -367,7 +394,8 @@ class SemanticCheck(UserDict):
         Returns
         -------
         Tuple[Set[Term],Set[Term]]
-            a tuple of sets, the first for required columns' names,  the second for the optional columns' names 
+            a tuple of sets, the first for required columns' names,  
+            the second for the optional columns' names 
         """
         tab_def = None
         for k,v in filevocabularies.items():
@@ -380,13 +408,14 @@ class SemanticCheck(UserDict):
             return set(),set()
         else:
             return set(next(filter(lambda x: x[0].name=='has_column', tab_def.relationships.items()), (None,frozenset()))[1]), set(next(filter(lambda x: x[0].name=='has_optional_column', tab_def.relationships.items()), (None,frozenset()))[1])
-    
-    def _hasIDInputFile(self, run_or_set_quality: BaseQuality) -> bool:
+
+    def _has_id_InputFile(self, run_or_set_quality: BaseQuality, idfile_cvs: Set) -> bool:
         """Confirms if a run or set_quality has ID type file in their inputFile
 
         For now, the ID types are recognised by ther filename extensions, including:
-        '.mzid', '.pepxml', '.idxml', '.mztab'
-        in various forms of spelling.
+        '.mzid', '.pepxml', '.idxml', '.mztab', '.proteinGroups.txt', '.evidence.txt', 
+        '.msms.txt', '.msmsScans.txt', '.peptides.txt', in various forms of spelling, 
+        and children of CV term "MS:1002130 | identification file format".
 
         Parameters
         ----------
@@ -398,18 +427,23 @@ class SemanticCheck(UserDict):
         bool
             returns True if any of the notorious ID type files is present
         """
-        idfext = ('.mzid', '.pepxml', '.idxml', '.mztab')  # NB case is all _lower_ and to be used after .lower() on target
+        idfext = ('.mzid', '.pepxml', '.idxml', '.mztab')
+        idfext = idfext + tuple(f+'.gz' for f in idfext)
+        mqfext = ('.proteinGroups.txt', '.evidence.txt',
+                  '.msms.txt', '.msmsScans.txt', '.peptides.txt')
+        # NB case is all _lower_ and to be used after .lower() on target
+        # idf_cvs =_getVocabularyIDFiles()
         for input_file in run_or_set_quality.metadata.inputFiles:
-            infilo = os.path.splitext(
-                    os.path.basename(input_file.location))[0]
-            infina = os.path.splitext(
-                os.path.basename(input_file.name))[0]
-            if infilo.lower().endswith(idfext) or \
-                infina.lower().endswith(idfext):
+            if input_file.location.lower().endswith(idfext+mqfext) or \
+                input_file.name.lower().endswith(idfext+mqfext): # or \
+                return True
+            elif input_file.fileFormat.accession in idfile_cvs:
                 return True
         return False
 
-    def _check_CVTerm_match(self, issue_type_category: str, cv_par: CvParameter, voc_par: Term, _document_collected_issues: bool = False):
+    def _check_CVTerm_match(self, issue_type_category: str,
+                            cv_par: CvParameter, voc_par: Term,
+                            _document_collected_issues: bool = False):
         """Checks any cvParameter for correct definition and reference
 
         Parameters
@@ -425,42 +459,42 @@ class SemanticCheck(UserDict):
 
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerm without definition", 4,
                                         f'Term instance used in file missing definition: '
                                         f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms definition conflict", 5,
                                         f'Term instance used in file with definition different from ontology: '
                                         f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms name conflict", 6,
                                         f'Term instance used in file with name different from ontology: '
                                         f'accession = {"auto_doc"}'))
             return
-        
-        cv_par.accession == voc_par.id
-        cv_par.name == voc_par.name
-        
-        #warn if definition is empty or mismatch
-        if not cv_par.description:
-            self.raising(issue_type_category, 
+
+        # warn if definition is empty or mismatch
+        if not cv_par.description and 'UO:0000000' not in {t.id for t in voc_par.superclasses(with_self=False).to_set()}:
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerm without definition", 4,
                                         f'Term instance used in file missing definition: '
                                         f'accession = {cv_par.accession}'))
-        elif cv_par.description != voc_par.definition:  # elif as the following error would be nonsensical for omitted definition
-            self.raising(issue_type_category, 
+        elif cv_par.description != voc_par.definition and 'UO:0000000' not in {t.id for t in voc_par.superclasses(with_self=False).to_set()}:
+        # elif as the following error would be nonsensical for omitted definition
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms definition conflict", 5,
                                         f'Term instance used in file with definition different from ontology: '
                                         f'accession = {cv_par.accession}'))
         if cv_par.name != voc_par.name:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms name conflict", 6,
                                         f'Term instance used in file with name different from ontology: '
                                         f'accession = {cv_par.accession}'))
-        return 
-    
-    def _check_CVTerm_use(self, issue_type_category: str, file_vocabularies: Dict[str,Ontology], _document_collected_issues: bool = False):
+        return
+
+    def _check_CVTerm_use(self, issue_type_category: str,
+                          file_vocabularies: Dict[str,Ontology],
+                          _document_collected_issues: bool = False):
         """Checks any cvParameter for correct use according to definition and schema
 
         Parameters
@@ -473,16 +507,16 @@ class SemanticCheck(UserDict):
             for auto documentation this is set True, by default False
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Ambiguous CVTerms", 6,
                                         f'term found in multiple vocabularies = {"auto_doc"}'))
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("Unknown CVTerm", 7,
                                         f'CV term used without matching ontology entry: '
                                         f'accession = {"auto_doc"}'))
             self._check_CVTerm_match(issue_type_category, None, None, _document_collected_issues)
             return
-        
+
         # For all cv terms involved:
         for cv_parameter in self._get_cv_parameters(self.mzqc_obj):
             # Verify that the term exists in the CV.
@@ -490,7 +524,7 @@ class SemanticCheck(UserDict):
             if len(voc_par) > 1:
                 # multiple choices for accession error
                 occs = [str(o) for o in voc_par]
-                self.raising(issue_type_category, 
+                self.raising(issue_type_category,
                              SemanticIssue("Ambiguous CVTerms", 6,
                                         f'term found in multiple vocabularies = {",".join(occs)}'))
             elif len(voc_par) < 1:
@@ -498,10 +532,13 @@ class SemanticCheck(UserDict):
                                         f'CV term used without matching ontology entry: '
                                         f'accession = {cv_parameter.accession}'))
             else:
-                self._check_CVTerm_match(issue_type_category, cv_parameter, voc_par[0], _document_collected_issues)
+                self._check_CVTerm_match(issue_type_category, cv_parameter,
+                                         voc_par[0], _document_collected_issues)
         return
 
-    def _check_metric_use(self, issue_type_category: str, file_vocabularies: Dict[str,Ontology], _document_collected_issues: bool = False):
+    def _check_metric_use(self, issue_type_category: str,
+                          file_vocabularies: Dict[str,Ontology],
+                          _document_collected_issues: bool = False):
         """Checks any QC metric for correct use according to definition and schema
 
         Parameters
@@ -514,12 +551,12 @@ class SemanticCheck(UserDict):
             for auto documentation this is set True, by default False
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, 
+            self.raising(issue_type_category,
                          SemanticIssue("ID based metric but no ID input file", 6,
                                         f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
                                         f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, 
-                         SemanticIssue("Metric uniqueness", 6, 
+            self.raising(issue_type_category,
+                         SemanticIssue("Metric uniqueness", 6,
                                         f'Duplicate quality metric in a run/set: '
                                         f'accession = {"auto_doc"}'))
             self.raising(issue_type_category, SemanticIssue("Metric use", 5,
@@ -543,40 +580,53 @@ class SemanticCheck(UserDict):
             self.raising(issue_type_category, SemanticIssue("Metric value no-unit", 3,
                                                 f'Metric CV term used without value unit specification. '
                                                 f'accession(s) = {"auto_doc"}'))
+            self.raising(issue_type_category, SemanticIssue("Metric value unit misuse", 3,
+                                                f'Metric CV term used value unit specification diverging from CV specification. '
+                                                f'accession(s) = {"auto_doc"}'))
+            self.raising(issue_type_category, SemanticIssue("Metric value undefined unit", 3,
+                                                f'Metric CV term used value unit specification undefined in CV. '
+                                                f'accession(s) = {"auto_doc"}'))
             return
-        
-        metric_cvs = self._getVocabularyMetrics(file_vocabularies)
-        table_cvs = self._getVocabularyTables(file_vocabularies)
-        idmetric_cvs = self._getVocabularyIDMetrics(file_vocabularies)
+
+        metric_cvs = self._get_vocabulary_metrics(file_vocabularies)
+        table_cvs = self._get_vocabulary_tables(file_vocabularies)
+        idmetric_cvs = self._get_vocabulary_idmetrics(file_vocabularies)
+        idfile_cvs = self._get_vocabulary_idfiles(file_vocabularies)
 
         for run_or_set_quality in chain(self.mzqc_obj.runQualities,self.mzqc_obj.setQualities):
             # Check for ID metrics and if present if ID file is present in input
-            if any([quality_metric.accession in idmetric_cvs for quality_metric in run_or_set_quality.qualityMetrics]):
-                if not self._hasIDInputFile(run_or_set_quality):
-                    self.raising(issue_type_category, SemanticIssue("ID based metric but no ID input file", 6,
+            if any([quality_metric.accession in idmetric_cvs for
+                    quality_metric in run_or_set_quality.qualityMetrics]):
+                if not self._has_id_InputFile(run_or_set_quality, idfile_cvs):
+                    if run_or_set_quality.metadata.label != "":
+                        lab = run_or_set_quality.metadata.label
+                    else:
+                        lab = '+'.join([i.name for i in run_or_set_quality.metadata.inputFiles])
+                    self.raising(issue_type_category,
+                                 SemanticIssue("ID based metric but no ID input file", 6,
                                                 f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
-                                                f'run/set label = {run_or_set_quality.metadata.label}'))
-            
+                                                f'run/set label = {lab}'))
+
             # Verify that quality metrics are unique within a run/setQuality.
             uniq_accessions: Set[str] = set()
             for quality_metric in run_or_set_quality.qualityMetrics:
                 if quality_metric.accession in uniq_accessions:
-                    self.raising(issue_type_category, SemanticIssue("Metric uniqueness", 6, 
+                    self.raising(issue_type_category, SemanticIssue("Metric uniqueness", 6,
                                                 f'Duplicate quality metric in a run/set: '
                                                 f'accession = {quality_metric.accession}'))
                 else:
                     uniq_accessions.add(quality_metric.accession)
-                # Verify that quality_metric actually is of metric type/relationship?
+                # Verify that quality_metric actually is of metric type
                 if quality_metric.accession not in metric_cvs:
                     self.raising(issue_type_category, SemanticIssue("Metric use", 5,
                                                 f'Non-metric CV term used in metric context: '
                                                 f'accession = {quality_metric.accession}'))
 
-                # check table's value types and column lengths
+                # Check table's value types and column lengths
                 if quality_metric.accession in table_cvs:
-                    req_col_accs = {x.id for x in self._getRequiredCols(quality_metric.accession, file_vocabularies)[0]}
-                    opt_col_accs = {x.id for x in self._getRequiredCols(quality_metric.accession, file_vocabularies)[1]}
-                    
+                    req_col_accs = {x.id for x in self._get_required_cols(quality_metric.accession, file_vocabularies)[0]}
+                    opt_col_accs = {x.id for x in self._get_required_cols(quality_metric.accession, file_vocabularies)[1]}
+
                     if not isinstance(quality_metric.value , dict):
                         self.raising(issue_type_category, SemanticIssue("Metric value non-table", 6,
                                                 f'Table metric CV term used without being a table: '
@@ -599,11 +649,38 @@ class SemanticCheck(UserDict):
                         self.raising(issue_type_category, SemanticIssue("Metric value undefined table column", 5,
                                                 f'Table metric CV term used with extra (undefined) columns: '
                                                 f'accession(s) = {extras}'))
+                # For regular metrics do a units use check (makes only sense for metrics with terms
+                # - those without are flagged already above)
                 else:
-                    if quality_metric.unit is None or quality_metric.unit == "":
-                        self.raising(issue_type_category, SemanticIssue("Metric value no-unit", 3,
-                                                f'Metric CV term used without value unit specification. '
+                    # pythonic one-liner got out of hand, for maintainability the following is
+                    # explicit, no matter the performance:
+                    # we want the first matching term in the first vocabulary,
+                    # and the first unit if it has one
+                    quality_metric_term, quality_metric_term_unit = None, None
+                    for voc in file_vocabularies.values():
+                        if voc.get(quality_metric.accession):
+                            quality_metric_term = voc.get(quality_metric.accession)
+                            quality_metric_term_unit = next(iter(voc.get(quality_metric.accession).relationships.get(voc.get_relationship('has_units'),[None])))
+                            break
+                    if quality_metric_term_unit:
+                        if quality_metric.unit is None or quality_metric.unit == "":
+                            self.raising(issue_type_category,
+                                         SemanticIssue("Metric value no-unit", 3,
+                                            f'Metric CV term used without value unit specification. '
+                                            f'accession(s) = {quality_metric.accession}'))
+                        else:  # Unit present
+                            if quality_metric.unit.accession != quality_metric_term_unit.id:
+                                self.raising(issue_type_category,
+                                             SemanticIssue("Metric value unit misuse", 3,
+                                                f'Metric CV term used value unit specification diverging from CV specification. '
                                                 f'accession(s) = {quality_metric.accession}'))
+                    else:  # no unit on term but unit on metric
+                        if quality_metric.unit is not None or quality_metric.unit != "":
+                            self.raising(issue_type_category,
+                                         SemanticIssue("Metric value undefined unit", 3,
+                                            f'Metric CV term used value unit specification undefined in CV. '
+                                            f'accession(s) = {quality_metric.accession}'))
+
         return
 
     def string_export(self) -> Dict[str,List[str]]:
@@ -628,9 +705,11 @@ class SemanticCheck(UserDict):
         validate function documentation for more details and check its use in the 
         SemanticCheck tests.
         """
-        return self.validate(max_errors=0, load_local=True, keep_issues=False, _document_collected_issues=True)
+        return self.validate(max_errors=0, load_local=True,
+                             keep_issues=False, _document_collected_issues=True)
 
-    def validate(self, max_errors: int = 0, load_local: bool = False, keep_issues: bool = False, _document_collected_issues: bool = False):
+    def validate(self, max_errors: int = 0, load_local: bool = False,
+                 keep_issues: bool = False, _document_collected_issues: bool = False):
         """Validates the object given during class initialisation, considers a number of parameters
 
         Note before adding new checks: create functions to check specific types of issues, 
@@ -667,8 +746,8 @@ class SemanticCheck(UserDict):
             for i in issue_types_genreated:
                 self[i] = list()
         else:
-           for i in set(issue_types_genreated) - set(self.keys()):
-               self[i] = list()
+            for i in set(issue_types_genreated) - set(self.keys()):
+                self[i] = list()
 
         self._max_errors = max_errors
         self._load_local = load_local
@@ -676,11 +755,11 @@ class SemanticCheck(UserDict):
         self._invalid_mzqc_obj = False
         self._exceeded_errors = False
 
-        # Stop early if we can't recognise the data object and return a simplified validation_errs dict
-        if type(self.mzqc_obj) != MzQcFile:
+        # Stop early if we can't recognise the data object and return a stub validation_errs dict
+        if not isinstance(self.mzqc_obj, MzQcFile):
             self._invalid_mzqc_obj = True
             return
-        
+
         # Check that label (metadata) must be unique in the file
         # at some point with max_error > 0 this will raise an ValidationError for max_error exceeded
         # so either try_catch or more fancy with contextmanger to manage max_error execution
@@ -692,12 +771,14 @@ class SemanticCheck(UserDict):
                                                              _document_collected_issues)
 
         # Check that terms used are defined and used in the right place
-        self._check_CVTerm_use('ontology term errors', file_vocabularies, _document_collected_issues)
+        self._check_CVTerm_use('ontology term errors',
+                               file_vocabularies,
+                               _document_collected_issues)
 
         # Check that qualityParameters are used as defined and unique within a run/setQuality
         self._check_metric_use('metric use', file_vocabularies, _document_collected_issues)
 
         # Regarding metadata, verify that input files are consistent and unique.
         self._check_InputFile_consistency('input files', _document_collected_issues)
-        
-        return 
+
+        return

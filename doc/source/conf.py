@@ -21,7 +21,7 @@ copyright = '2019-2024, Mathias Walzer'
 author = 'Mathias Walzer'
 
 # The full version, including alpha/beta/rc tags
-release = 'v1.0.0rc2'
+release = 'v1.0.0rc3'
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,7 +31,7 @@ release = 'v1.0.0rc2'
 # ones.
 extensions = ['sphinx.ext.napoleon', 'sphinx.ext.graphviz', 
     'sphinx.ext.inheritance_diagram', 'sphinx.ext.autosectionlabel',
-    'myst_parser']
+    'myst_parser', 'nbsphinx',]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

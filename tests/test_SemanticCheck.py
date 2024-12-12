@@ -45,16 +45,16 @@ def test_SemanticCheck_dictfunction():
     sc["test"] = [1]
     assert(sc["test"]==[1])
 
-    with pytest.raises(KeyError) as dictacc:  
+    with pytest.raises(KeyError) as dictacc:
         sc["fail"]
-    assert(str(dictacc.value) == "'fail'") 
+    assert(str(dictacc.value) == "'fail'")
 
     sc.raising("test",2)
     assert(sc["test"]==[1,2])
 
-    with pytest.raises(ValidationError) as dictacc:  
+    with pytest.raises(ValidationError) as dictacc:
         sc.raising("test",3)
-    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!") 
+    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!")
 
     assert(sc._exceeded_errors)
 
@@ -65,26 +65,26 @@ def test_SemanticCheck_clearfunction():
     assert(sc["test"]==[1,2])
     sc._exceeded_errors=True
     sc.clear()
-    with pytest.raises(KeyError) as dictacc:  
+    with pytest.raises(KeyError) as dictacc:
         sc["test"]
-    assert(str(dictacc.value) == "'test'") 
-    assert(not sc._exceeded_errors) 
+    assert(str(dictacc.value) == "'test'")
+    assert(not sc._exceeded_errors)
 
 def test_SemanticCheck_maxerrorsfunction():
     infi = "tests/examples/individual-runs_tripallsemanticchecks.mzQC"
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
     mzqcobject.controlledVocabularies = list(filter(lambda x: (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
 
-    with pytest.raises(ValidationError) as dictacc:  
+    with pytest.raises(ValidationError) as dictacc:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             sc2 = SemanticCheck(mzqc_obj=mzqcobject, file_path=infi)
             sc2.validate(load_local=True, max_errors=2)
-    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!")        
+    assert(str(dictacc.value) == "Maximum number of semantic errors incurred (2 < 4), aborting!")
     # print(json.dumps(sc2.string_export(), sort_keys=True, indent=4))
 
 def test_SemanticCheck_exportfunction():
@@ -94,7 +94,7 @@ def test_SemanticCheck_exportfunction():
 
     infi = "tests/examples/individual-runs.mzQC"  # success test
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -116,7 +116,7 @@ def test_SemanticCheck_class_validation_None():
 def test_SemanticCheck_validation_trip_all():
     infi = "tests/examples/individual-runs_tripallsemanticchecks.mzQC"
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -130,7 +130,7 @@ def test_SemanticCheck_validation_trip_all():
         sm = SemanticCheck(mzqcobject, file_path=infi)
         sm.validate(load_local=True)
         sem_val = sm.string_export()
-        
+
     # Test export creates as many issues as the object holds
     assert(len(list(chain.from_iterable(sem_val.values())))==len(list(chain.from_iterable(sm.values()))))
 
@@ -142,7 +142,7 @@ def test_SemanticCheck_validation_trip_all():
     doc = SemanticCheck(None, file_path="")
     doc._document_collected_issues()
     assert(all([len(x)==0 for x in doc.values()]))
-    
+
     # Register all issues available
     doc = SemanticCheck(mzqc_file(), file_path="")
     doc._document_collected_issues()
@@ -160,12 +160,14 @@ def test_SemanticCheck_validation_trip_all():
 
     # Test all documented issues were tripped
     assert({s.name for s in chain.from_iterable(sm.values())} ==
-            {s.name for s in chain.from_iterable(doc.values())})  
+            {s.name for s in chain.from_iterable(doc.values())})
+
+# not tripped: 'Metric value undefined unit',
 
 def test_SemanticCheck_validation_success():
     infi = "tests/examples/individual-runs.mzQC"  # success test
     with open(infi, 'r') as f:
-        mzqcobject = mzqc_io.FromJson(f)
+        mzqcobject = mzqc_io.from_json(f)
 
     assert(type(mzqcobject) == mzqc_file)
     removed_items = list(filter(lambda x: not (x.uri.startswith('http') or x.uri.startswith('file://')), mzqcobject.controlledVocabularies))
@@ -179,4 +181,3 @@ def test_SemanticCheck_validation_success():
     # print(json.dumps(sem_val.string_export(), sort_keys=True, indent=4))
     for issue_type_category in sem_val.keys():
         assert(len(sem_val.get(issue_type_category,list()))==0)
-    

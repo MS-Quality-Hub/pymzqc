@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to mzQC's python library documentation!
-======================================
+===============================================
 
 .. toctree::
    :maxdepth: 3
@@ -12,13 +12,12 @@ Welcome to mzQC's python library documentation!
    :glob:
    
    intro
+   examples
    codestructure
    package
-   examples
-   builds
-   containers
-   notebooks
+   build_and_container
    accessories
+   notebooks
 
 Indices and tables
 ==================

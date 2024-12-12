@@ -34,3 +34,8 @@ see [schema](https://github.com/HUPO-PSI/mzQC/tree/main/schema>) for a general o
     with open("nameOfYourFile.mzQC", "w") as file:
         file.write(inmem_file)
 ```
+
+> ⚠️**Note**⚠️ The readability argument determines the level of indentations, 0 by default with no additional whitespaces, 
+=1 minor indentation on MZQC objects (2 spaces), >1 heavy indentation for max. human readability (4 spaces, additional linebreaks).
+> In case you need an existing file made more readable, try `mzqc-fixdescriptions` from the [Accessories](../accessories), 
+it will also adjust indentation and linebreaks.

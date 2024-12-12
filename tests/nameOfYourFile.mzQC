@@ -2,7 +2,7 @@
 {
   "creationDate": "2022-03-07T15:01:48Z",
   "version": "1.0.0",
-        "runQualities": [
+  "runQualities": [
     {
       "metadata": {
         "inputFiles": [

@@ -77,7 +77,7 @@ def mzqcfilemerger(mzqc_output, mzqc_input, compare, log):
     to_merge = list()
     for fn in mzqc_input:
         with open(fn, "r") as file:
-            mzqc = qc.JsonSerialisable.FromJson(file)
+            mzqc = qc.JsonSerialisable.from_json(file)
             to_merge.extend(mzqc.runQualities)
             cvs.extend(mzqc.controlledVocabularies)
             cname.add(mzqc.contactName)
@@ -113,7 +113,7 @@ def mzqcfilemerger(mzqc_output, mzqc_input, compare, log):
             merged.append(merge_into_single_run(list(group)))
 
     with open(mzqc_output, "w") as file:
-        file.write(qc.JsonSerialisable.ToJson(
+        file.write(qc.JsonSerialisable.to_json(
             qc.MzQcFile(description="Merged from multiple mzqc files", 
                         contactName='+'.join(cname),
                         contactAddress='+'.join(caddress),
