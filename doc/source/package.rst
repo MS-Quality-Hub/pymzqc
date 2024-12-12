@@ -29,4 +29,5 @@ mzqc.SyntaxCheck submodule
 mzqcaccessories module
 ======================
 
-Any installation process using setup.py will create an additional module  `mzqcaccessories` exclusively for the `entry_points` scripts created.
+Any installation process using setup.py will create an additional module  `mzqcaccessories` 
+exclusively for the `entry_points` scripts created (for use see :doc:`Accessories <./accessories>` page).

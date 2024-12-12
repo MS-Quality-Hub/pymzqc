@@ -12,10 +12,10 @@ Welcome to mzQC's python library documentation!
    :glob:
    
    intro
+   examples
    codestructure
    package
    build_and_container
-   examples
    accessories
    notebooks
 

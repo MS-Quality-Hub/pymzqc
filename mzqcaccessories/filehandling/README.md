@@ -34,8 +34,13 @@ Please get more info on usage with the `--help` option.
 mzqc-filemerger [OPTIONS] [MZQC_INPUT]... MZQC_OUTPUT
 ```
 
-> [!NOTE]  
+> [🚧🏗🚧]  
+
 > Tool in beta stage of development.
+
+> ⚠ Merging operations are limited for beta. In case no _clear_ run or set correspondence can be established, the merge will fall back to a conservative merge into lists of separate runs
+
+> [🚧🏗🚧]  
 
 The filemerger tool is a CLI tool built on [click](https://click.palletsprojects.com/).
 Its purpose is to merge one or more mzQC files.
@@ -43,17 +48,17 @@ The tool accepts multiple files or CLI wildcards as input and takes the last fil
 
 For example: `mzqc-filemerger *.mzqc temp_test.mzqc`
 
-| :warning: |
-|:----------|
-| Merging operations are limited for beta. In case no _clear_ run or set correspondence can be established, the merge will fall back to a conservative merge into lists of separate runs.|
 
 ## Fixdescriptions
 ```
 mzqc-fixdescriptions [OPTIONS] INFILE OUTFILE
 ```
 
-> [!NOTE]  
+> [🚧🏗🚧]  
+
 > Tool in beta stage of development.
+
+> [🚧🏗🚧]  
 
 The description fixer tool is a CLI tool built on [click](https://click.palletsprojects.com/).
 Its purpose is to 'fix' the descriptions of all applicable elements in a mzQC files.
