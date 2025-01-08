@@ -1,4 +1,4 @@
-# Usage examples
+# Usage Examples
 I am a fan of quick hands-on overviews to get to know software, that I might or might not use in the future.
 Several hands-on examples can be found [here](https://github.com/MS-Quality-hub/pymzqc/tree/main/jupyter)
 Simply open them from [colab](https://colab.research.google.com/)

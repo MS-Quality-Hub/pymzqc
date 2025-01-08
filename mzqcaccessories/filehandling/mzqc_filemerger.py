@@ -114,11 +114,11 @@ def mzqcfilemerger(mzqc_output, mzqc_input, compare, log):
 
     with open(mzqc_output, "w") as file:
         file.write(qc.JsonSerialisable.to_json(
-            qc.MzQcFile(description="Merged from multiple mzqc files", 
+            qc.MzQcFile(description="Merged from multiple mzqc files",
                         contactName='+'.join(cname),
                         contactAddress='+'.join(caddress),
                         version="v1.0",
-                        controlledVocabularies=dedupe(cvs), 
+                        controlledVocabularies=dedupe(cvs),
                         runQualities=merged), readability=1))
 
     click.echo("Files merged. Thank you for doing QC!")

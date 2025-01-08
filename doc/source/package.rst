@@ -1,5 +1,10 @@
-mzqc main module
+pymzqc Modules
 ================
+
+The main pymzqc module consists of three submodules and a compainon module for accessories.
+Please note that most member attributes of the MZQCFile submodule classes and many functional elements do not conform to PEP8.
+The element names of the mzQC JSON-schema need to be preserved in order to create a successful and automated JSON<=>pymzqc object mapping. 
+Accordingly, other elements such as functions in all pymzqc modules will keep the JSON-schema names in their naming for consistency.
 
 
 mzqc.MZQCFile submodule
@@ -26,8 +31,10 @@ mzqc.SyntaxCheck submodule
    :undoc-members:
    :show-inheritance:
 
-mzqcaccessories module
-======================
+pymzqc Accessories Module
+-------------------------
 
-Any installation process using setup.py will create an additional module  `mzqcaccessories` 
+The compainon module for accessories to handle mzqc via tools (and CLI) rather than REPL can be useful when building processing chains or checking new files.
+
+Any installation process using setup.py (e.g. pip) will create an additional module  `mzqcaccessories` 
 exclusively for the `entry_points` scripts created (for use see :doc:`Accessories <./accessories>` page).

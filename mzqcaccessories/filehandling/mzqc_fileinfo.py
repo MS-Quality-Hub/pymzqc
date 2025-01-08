@@ -20,7 +20,7 @@ def print_help():
     click.echo(ctx.get_help())
     ctx.exit()
 
-@click.version_option('v1BETA')
+@click.version_option('v1')
 @click.command(short_help='mzQCFileInfo will report basic info on the mzQC file.')
 @click.argument('infile', type=click.File('r'))
 def mzqcfileinfo(infile):

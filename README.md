@@ -32,9 +32,9 @@ pip install pymzqc
 ### From Git
 If you want a development version, use for example : 
 ```
-pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git#v1.0.0rc3
+pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git
 ```
-You can select **a development branch of your choice** by changing the command after the `.git#`
+You can select **a development branch of your choice** by changing the command after the `.git`, see [the manual build instructions](BUILD.md).
 
 ### Containers
 However, we recommend using the ready-built [**containers**](https://quay.io/repository/mwalzer/pymzqc?tab=tags) to check out the latest updates.
@@ -51,6 +51,10 @@ Have a go with our [interactive python notebooks](jupyter/README.md) to explore 
 ## Development 
 Contributions are welcome! (Just fork, develop, and open PR.)
 
+Please note that most member attributes of the MZQCFile submodule classes and many functional elements do not conform to PEP8.
+The element names of the mzQC JSON-schema need to be preserved in order to create a successful and automated JSON<=>pymzqc object mapping. 
+Accordingly, other elements such as functions in all pymzqc modules will keep the JSON-schema names in their naming for consistency.
+
 ### Repository structure
 The python package's code is located in the `mzqc` folder, continuous testing code in `tests`, the documentation in `doc`. The libray-**use** container descriptions are in `containers`, if you want a container for library-**development**, you can use the container description within `.devcontainer`, more development presets can be found in `.vscode`. 
 The `jupyter` and `accessories` folders are subprojects making use of the library. 
@@ -58,4 +62,3 @@ See their README in the respective sub-folders.
 
 ### Documentation
 The code documentation style convention is of the type `Sphinx/numpy`.
-

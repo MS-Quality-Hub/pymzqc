@@ -54,7 +54,7 @@ def validate(inpu):
     # add note on removed CVs
     return proto_response
 
-@click.version_option('v1BETA')
+@click.version_option('v1')
 @click.command()  # no command necessary if it's the only one
 @click.option('-j','--write-to-file', required=False, type=click.Path(), default=None, help="File destination for the output of the validation result.")
 @click.argument('infile', type=click.File('r'))

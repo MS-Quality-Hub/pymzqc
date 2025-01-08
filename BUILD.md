@@ -3,7 +3,7 @@
 
 ## Manual build and release instruction
 
-First, install a local version of the release candidate installed via `pip git+` and get the sources for test and build, too:
+First, for a given release (candidate), install a local version via `pip git+` and get the sources for test and build, too:
 ```bash
     cd /tmp
     python3 -m venv pipgit && source pipgit/bin/activate

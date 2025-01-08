@@ -17,11 +17,11 @@ sys.path.insert(0, os.path.abspath('../../mzqc/'))
 # -- Project information -----------------------------------------------------
 
 project = 'pymzqc'
-copyright = '2019-2024, Mathias Walzer'
+copyright = '2019-2025, Mathias Walzer'
 author = 'Mathias Walzer'
 
 # The full version, including alpha/beta/rc tags
-release = 'v1.0.0rc3'
+release = 'v1.0.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -29,7 +29,7 @@ release = 'v1.0.0rc3'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.napoleon', 'sphinx.ext.graphviz', 
+extensions = ['sphinx.ext.napoleon', 'sphinx.ext.graphviz',
     'sphinx.ext.inheritance_diagram', 'sphinx.ext.autosectionlabel',
     'myst_parser', 'nbsphinx',]
 
@@ -63,4 +63,3 @@ html_sidebars = {
                 'sidebarbadges.html',
             ]
         } # [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.com/project/pymzqc)
-

@@ -409,7 +409,7 @@ class MetaDataParameters(JsonObject):
                     # fileProvenance: str="",
                     # cv_params: List[CvParameter] = None ,
                     label: str = "",
-                    inputFiles: List[InputFile] = None, 
+                    inputFiles: List[InputFile] = None,
                     analysisSoftware: List[AnalysisSoftware]=None
                 ):
         # self.fileProvenance = fileProvenance  # not in schema
@@ -468,7 +468,7 @@ class MzQcFile(JsonObject):
     MzQcFile Object representation for mzQC schema type MzQcFile
 
     """
-    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0), 
+    def __init__(self, creationDate: Union[datetime,str] = datetime.now().replace(microsecond=0),
                     version: str = "1.0.0",
                     contactName: str = "", contactAddress: str = "", description: str = "",
                     runQualities: List[RunQuality]=None,

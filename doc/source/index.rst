@@ -6,6 +6,10 @@
 Welcome to mzQC's python library documentation!
 ===============================================
 
+.. image:: pymzqc.png
+  :width: 600
+  :alt: artist's render of pymzqc in action
+
 .. toctree::
    :maxdepth: 3
    :caption: Contents:
