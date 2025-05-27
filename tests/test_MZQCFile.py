@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 from mzqc import MZQCFile as qc
 
-# String comparison -as in TestSerialisation- needs the 'empty' attributes, too, 
-# whereas Object comparison -as in TestDeserialisation- only compares 'non-empty' 
+# String comparison -as in TestSerialisation- needs the 'empty' attributes, too,
+# whereas Object comparison -as in TestDeserialisation- only compares 'non-empty
 # attributes
 QM = '{"accession": "QC:4000053", "name": "RT duration", "value": 99}'
 CV = '{"name": "TEST", "uri": "www.eff.off"}'
@@ -20,6 +20,8 @@ META = '{"label": "test_metadata", "inputFiles": [{"location": "file:///dev/null
 RUQU = '{"metadata": {"label": "test_metadata", "inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}]}, "qualityMetrics": [{"accession": "QC:4000053", "name": "RT duration", "value": 99}]}'
 SEQU = '{"metadata": {"label": "test_metadata", "inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}]}, "qualityMetrics": [{"accession": "QC:4000053", "name": "RT duration", "value": 99}]}'
 NPQM = '{"accession": "QC:123", "name": "einszweidrei", "value": {"np": [0.1111111119389534, 0.25, 0.4285714328289032]}}'
+
+METACV = '{"label": "test_metadata", "inputFiles": [{"location": "file:///dev/null", "name": "file.raw", "fileFormat": {"accession": "MS:1000584", "name": "mzML format"}, "fileProperties": [{"accession": "MS:1000747", "name": "completion time", "value": "2017-12-08-T15:38:57Z"}]}], "analysisSoftware": [{"accession": "QC:9999999", "name": "bigwhopqc", "version": "1.2.3", "uri": "file:///dev/null"}], "cvParameters": [{"accession": "TEST:123", "name": "testname", "value": 99}]}'
 
 cvt = qc.CvParameter(accession="TEST:123", name="testname", value=99)
 infi = qc.InputFile(name="file.raw",location="file:///dev/null",
@@ -58,6 +60,9 @@ class TestSerialisation:
 
     def test_MetaDataParameters(self):
         assert qc.JsonSerialisable.to_json(meta, complete=False) == META
+        metacv = qc.MetaDataParameters(inputFiles=[infi], analysisSoftware=[anso], label="test_metadata", cvParameters=[cvt])
+        print(qc.JsonSerialisable.to_json(metacv, complete=False))
+        assert qc.JsonSerialisable.to_json(metacv, complete=False) == METACV
 
     def test_QualityMetric(self):
         assert qc.JsonSerialisable.to_json(qm, complete=False) == QM
@@ -124,6 +129,8 @@ class TestDeserialisation:
         assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(meta)) == meta
         assert isinstance(qc.JsonSerialisable.from_json(
             qc.JsonSerialisable.to_json(meta)),qc.MetaDataParameters)
+        metacv = qc.MetaDataParameters(inputFiles=[infi], analysisSoftware=[anso], label="test_metadata", cvParameters=[cvt])
+        assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(metacv)) == metacv
 
     def test_QualityMetric(self):
         assert qc.JsonSerialisable.from_json(qc.JsonSerialisable.to_json(qm)) == qm

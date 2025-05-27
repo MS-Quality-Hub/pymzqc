@@ -206,8 +206,8 @@ class JsonSerialisable(object):
             ret = json.dumps(obj.__dict__ if isinstance(obj, MzQcFile) else
                              obj, default=classself.complex_handler, indent=4)
         #remove empty run/setQualities and other optinal and empty elements, return with mzqc root,
-        ret = re.sub(r'(\"setQualities\"\:\s+\[\s*\][,]*)|(\"runQualities\"\:\s+\[\s*\][,]*)|([,]*\s+\"fileProperties\"\:\s+\[\s*\][,]*)', "", ret)
-        ret = re.sub(r'(\s*\"contactName\"\:\s+"",)|(\s*\"contactAddress\"\:\s+"",)|(\s*\"description\"\:\s+"",)', "", ret)
+        ret = re.sub(r'(\"setQualities\"\:\s+\[\s*\][,]*)|(\"runQualities\"\:\s+\[\s*\][,]*)|([,]*\s+\"cvParameters\"\:\s+\[\s*\])', "", ret)
+        ret = re.sub(r'(\s*\"contactName\"\:\s+"",)|(\s*\"contactAddress\"\:\s+"",)|(\s*\"description\"\:\s+"",)|([,]*\s+\"fileProperties\"\:\s+\[\s*\][,]*)', "", ret)
         ret = f"{{\"mzQC\": \n{ret} \n}}" if complete else ret
         return ret
 
@@ -406,17 +406,17 @@ class MetaDataParameters(JsonObject):
 
     """
     def __init__(self,
-                    # fileProvenance: str="",
-                    # cv_params: List[CvParameter] = None ,
                     label: str = "",
                     inputFiles: List[InputFile] = None,
-                    analysisSoftware: List[AnalysisSoftware]=None
+                    analysisSoftware: List[AnalysisSoftware]=None,
+                    cvParameters: List[CvParameter] = None,
+                    # fileProvenance: str="",
                 ):
-        # self.fileProvenance = fileProvenance  # not in schema
-        # self.cv_params = [] if cv_params is None else cv_params  # not in schema, IMO should be in there
         self.label = label  # optional
         self.inputFiles =  [] if inputFiles is None else inputFiles  # required
         self.analysisSoftware = [] if analysisSoftware is None else analysisSoftware  # required
+        self.cvParameters = [] if cvParameters is None else cvParameters  # optional, min. len(1)
+        # self.fileProvenance = fileProvenance  # not in schema
 
 @JsonSerialisable.register
 class QualityMetric(CvParameter):
