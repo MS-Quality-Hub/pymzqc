@@ -38,11 +38,11 @@ class SyntaxCheck(object):
         version : str, optional
             _description_, by default "main"
         """        
-        self.version = version  
+        self.version = version
         # with open('tests/schema.json', 'r') as s:
         #    self.schema = json.loads(s.read())
         # self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
-        #             'v{v}/schema/mzqc_schema.json'.format(v=version)  
+        #             'v{v}/schema/mzqc_schema.json'.format(v=version)
         # TODO the URI should go into a config.ini
         self.schema_url = 'https://raw.githubusercontent.com/HUPO-PSI/mzQC/' \
                         + '{branch}/schema/mzqc_schema.json'.format(branch=version)
@@ -66,7 +66,7 @@ class SyntaxCheck(object):
             Returns a dictionary with key 'schema validation', containing a 
             truncated error message or in the absence of an error 'success', 
             both string type.
-        """        
+        """
         try:
             mzqc_json = json.loads(mzqc_str)
         except:
@@ -77,9 +77,12 @@ class SyntaxCheck(object):
             jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
         except ValidationError as e:
             try:
-                #res = "{} # {}".format(e.message, e.json_path )  # not what ValidationError doc says
+                #res = "{} # {}".format(e.message, e.json_path )  #Not what ValidationError doc says
+                # print(e)
                 res = e.message.partition('\n')[0] + ' @ ' + ''.join('[{}]'.format(k) for k in e.path )
             except:
                 res = str(e)
-            return { 'schema validation': res }
-        return { 'schema validation': 'success' }        
+
+            versionstring = f"Using schema: {self.schema_url}"
+            return { 'schema validation': versionstring+'\n'+res }
+        return { 'schema validation': 'success' }

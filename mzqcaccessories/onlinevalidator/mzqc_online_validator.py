@@ -5,9 +5,9 @@ from flask import Flask
 from flask import Flask, jsonify, request
 from flask_restful import Resource, Api
 from flask_cors import CORS
-
 from mzqc.MZQCFile import MzQcFile as mzqc_file
 from mzqc.MZQCFile import JsonSerialisable as mzqc_io
+from mzqc.MZQCFile import get_version_string
 from mzqc.SemanticCheck import SemanticCheck
 from mzqc.SyntaxCheck import SyntaxCheck
 
@@ -16,14 +16,20 @@ api = Api(app)
 CORS(app)
 
 class Status(Resource):
+    """flask_restful endpoint for the status of the API"""
     def get(self):
+        """GET method for the status endpoint"""
+
         try:
             return {'status': 'API is running', 'endpoints': ['status', 'documentation', 'validator']}
         except:
             return {'status': 'API fetch was unsuccessful'}
 
 class Documentation(Resource):
+    """flask_restful endpoint for the API self-documentation"""
     def get(self):
+        """GET method for the documentation endpoint"""
+
         api_doc_string = """
         This is the response to the API call for `documentation`. The API call for `status` will 
         be responded with a JSON object summarising the API `status` and list of `endpoints`. The 
@@ -48,49 +54,61 @@ class Documentation(Resource):
         The value to the 'schema validation' key is the parsed result to the JSONschema 
         validation of given file, using the current schema (unless stated otherwise).
         """
-        
-        return {'documentation': {'schema validation': syntactic_doc_string, 
+
+        return {'documentation': {'schema validation': syntactic_doc_string,
                                   'semantic validation': semantic_doc_string, 
-                                  'API doc': api_doc_string}}
+                                  'API doc': api_doc_string, 
+                                  'version': f"v{get_version_string()}-online"}}
 
 class Validator(Resource):
+    """flask_restful endpoint for the validator functionality of the API"""
     def post(self):
-        default_unknown = jsonify({"general": "No mzQC structure detectable."})
+        """POST method for the validator endpoint"""
+        proto_response = dict()
         inpu = request.form.get('validator_input', None)
+
         try:
             target = mzqc_io.from_json(inpu)
-        except Exception as e:
-            return default_unknown
-
-        if type(target) != mzqc_file:
-            return default_unknown
-        else:
-            removed_items = list(filter(lambda x: not x.uri.startswith('http'), target.controlledVocabularies))
-            target.controlledVocabularies = list(filter(lambda x: x.uri.startswith('http'), target.controlledVocabularies))
-            me = os.getenv('MAX_ERR', 0)
-            if isinstance(me, str) and me.isnumeric():
-                me = int(me)
-            
-            sem_val = SemanticCheck(mzqc_obj=target, file_path='.')
-            try:
-                sem_val.validate(load_local=False, max_errors=me)
-            except ValidationError as e:
-                print(e)
-            proto_response = sem_val.string_export()
-            if removed_items:
-                proto_response.update({"ontology validation": 
-                                       ["invalid ontology URI for "+ str(it.name) for it in removed_items]})
-
-            valt = mzqc_io.to_json(target)
-            syn_val_res = SyntaxCheck().validate(valt)
+        except Exception:
+            inpu.seek(0,0)
+            default_response = {"general": "No mzQC structure detectable."}
+            target = json.load(inpu)
+            syn_val_res = SyntaxCheck().validate(json.dumps(target))
             # older versions of the validator report a generic response in an array - return first only
-            if type(syn_val_res.get('schema validation', None)) == list:
-                syn_val_res = {'schema validation': syn_val_res.get('schema validation', None)[0] if syn_val_res.get('schema validation', None) else ''}
+            if isinstance(syn_val_res.get('schema validation', None), list):
+                syn_val_res = default_response
+                syn_val_res.update({'schema validation':
+                                    syn_val_res.get('schema validation', None)[0] if
+                                    syn_val_res.get('schema validation', None) else ''})
+            proto_response.update(default_response)
             proto_response.update(syn_val_res)
-
-            # print(json.dumps(proto_response, indent=2, sort_keys=True))            
             return jsonify(proto_response)
-        return default_unknown
+
+        # do syntax check first
+        valt = mzqc_io.to_json(target)
+        syn_val_res = SyntaxCheck().validate(valt)
+        # older versions of the validator report a generic response in an array - return first only
+        if isinstance(syn_val_res.get('schema validation', None), list):
+            syn_val_res = {'schema validation':
+                                syn_val_res.get('schema validation', None)[0] if
+                                syn_val_res.get('schema validation', None) else ''}
+        proto_response.update(syn_val_res)
+
+        # do semantic checks next
+        removed_items = list(filter(lambda x: not x.uri.startswith('http'), target.controlledVocabularies))
+        target.controlledVocabularies = list(filter(lambda x: x.uri.startswith('http'), target.controlledVocabularies))
+
+        sem_val = SemanticCheck(mzqc_obj=target, file_path='.')
+        sem_val.validate(load_local=True)
+        proto_response.update(sem_val.string_export())
+
+        # add note on removed CVs
+        if removed_items:
+            proto_response.update({"ontology validation":
+                                ["invalid ontology URI for "+ str(it.name) for it in removed_items]})
+
+        # print(json.dumps(proto_response, indent=2, sort_keys=True))
+        return jsonify(proto_response)
 
 api.add_resource(Status, '/','/status/')
 api.add_resource(Documentation, '/documentation/')

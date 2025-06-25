@@ -4,7 +4,7 @@ import sys
 from itertools import chain
 from dataclasses import dataclass
 from collections import UserDict, defaultdict
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Set, Tuple, Literal, Union
 from contextlib import contextmanager
 from pronto import Ontology, Term
 from jsonschema.exceptions import ValidationError
@@ -26,13 +26,13 @@ class SemanticIssue:
     """Class for keeping track of an instance of all the different issues during the 
         semantic validation for a particular dataset, collecting a few data members:
         name: name of the issue
-        severity: value from 1-9, increasing severity, no checks performed, no guaranties.
+        severity: Literal["ERROR", "WARNING", "INFO"]
         message: issue message
     Added is a _to_string function to simplify serialisation.
     Note: ValidationError was too inflexible for development, hence the dataclass.
     """
     name: str
-    severity: int
+    severity: Literal["ERROR", "WARNING", "INFO"]
     message: str
     def _to_string(self):
         return self.name + " of severity "+ str(self.severity) + " and message: " + self.message
@@ -66,7 +66,8 @@ class SemanticCheck(UserDict):
         self.version = version
         self.file_path = file_path
         self.mzqc_obj = mzqc_obj
-        # the following are to keep record of the validation parameters and 
+        self._invalid_mzqc_obj: Union[bool,None] = None
+        # the following are to keep record of the validation parameters and
         # set by the validate() function
         self._max_errors:int=0
         self._load_local:bool=False
@@ -94,12 +95,12 @@ class SemanticCheck(UserDict):
             if sum([len(x) for x in self.values()])+1 > self._max_errors:
                 self._exceeded_errors = True
                 super().__setitem__(key, value)
-                super().__setitem__("general", [SemanticIssue("Max semantic issues", 1,
+                super().__setitem__("general", [SemanticIssue("Max semantic issues", "INFO",
                                 f"Maximum number of semantic errors incurred ({self._max_errors} < {sum([len(x) for x in self.values()])}), aborting!")])
                 raise ValidationError("Maximum number of semantic errors incurred ({me} < {ie}), aborting!".format(
                     ie=sum([len(x) for x in self.values()]), me = self._max_errors))
         super().__setitem__(key, value)
-    
+
     def raising(self, category:str, issue:SemanticIssue):
         """Helper function to append new issues without circumventing the max_error 
         mechanism or initialising new issue types or categories
@@ -161,7 +162,7 @@ class SemanticCheck(UserDict):
             for auto documentation this is set True, by default False
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
+            self.raising(issue_type_category, SemanticIssue("Metadata labels", "ERROR",
                     "Run/SetQuality label {} is not unique in file!".format("auto_doc")))
             return
 
@@ -169,15 +170,15 @@ class SemanticCheck(UserDict):
         for qle in chain(self.mzqc_obj.runQualities,self.mzqc_obj.setQualities):
             if qle.metadata.label != "":
                 if qle.metadata.label in uniq_labels:
-                    self.raising(issue_type_category, SemanticIssue("Metadata labels", 6,
+                    self.raising(issue_type_category, SemanticIssue("Metadata labels", "ERROR",
                         "Run/SetQuality label {} is not unique in file!".format(qle.metadata.label)))
                 else:
                     uniq_labels.add(qle.metadata.label)
 
         return
 
-    def _load_and_check_Vocabularies(self, issue_type_category: str, 
-                                     load_local: bool = False, 
+    def _load_and_check_Vocabularies(self, issue_type_category: str,
+                                     load_local: bool = False,
                                      _document_collected_issues: bool = False
                                      ) -> Dict[str,Ontology]:
         """Loads remote or local vocabularies and registers any issues during load
@@ -197,9 +198,9 @@ class SemanticCheck(UserDict):
             the loaded vocabularies as pronto Ontlogies, key is the name of the Ontology
         """
         if _document_collected_issues:
-            self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5,
+            self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", "ERROR",
                     f'Loading the following local ontology referenced in mzQC file: {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5,
+            self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", "ERROR",
                     f'Error loading the following online ontology referenced in mzQC file: {"auto_doc"}'))         
             return
 
@@ -213,7 +214,7 @@ class SemanticCheck(UserDict):
                     loc = cve.uri
                     if loc.startswith('file://'):
                         loc = loc[len('file://'):]
-                        self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", 5,
+                        self.raising(issue_type_category, SemanticIssue("Loading local vocabulary", "ERROR",
                                                   f'Loading the following local ontology referenced in mzQC file: {loc}'))
                     with suppress_verbose_modules():
                         vocs[cve.name] = Ontology(loc, import_depth=0)
@@ -221,7 +222,7 @@ class SemanticCheck(UserDict):
                     with suppress_verbose_modules():
                         vocs[cve.name] = Ontology(cve.uri, import_depth=0)
             except Exception as e:
-                self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", 5,
+                self.raising(issue_type_category, SemanticIssue("Loading online vocabulary", "ERROR",
                                           f'Error loading the following online ontology referenced in mzQC file: {e}'))
         return vocs
 
@@ -242,15 +243,15 @@ class SemanticCheck(UserDict):
         """
         if _document_collected_issues:
             self.raising(issue_type_category,
-                        SemanticIssue("Inconsistent input file", 1,
+                        SemanticIssue("Inconsistent input file", "INFO",
                                         f'Inconsistent file name and location: '
                                         f'{"auto_doc"}'))
             self.raising(issue_type_category,
-                        SemanticIssue("Reused file location", 5,
+                        SemanticIssue("Reused file location", "WARNING",
                                         f'Duplicate inputFile locations within '
                                         f'a metadata object: {"auto_doc"}'))
             self.raising(issue_type_category,
-                        SemanticIssue("Duplicate names for input files with different locations ", 6,
+                        SemanticIssue("Duplicate names for input files with different locations ", "ERROR",
                                         f'Input file names not location-unique '
                                         f'(one inputFile.name must correspond to one inputFile.location): '
                                         f'{"auto_doc"}'))
@@ -264,7 +265,7 @@ class SemanticCheck(UserDict):
                 input_file_sets[input_file.name].add(input_file.location)
                 if input_file.name not in input_file.location:
                     self.raising(issue_type_category,
-                                 SemanticIssue("Inconsistent input file", 1,
+                                 SemanticIssue("Inconsistent input file", "INFO",
                                                 f'Possible file name and location inconsistency:'
                                                 f'{input_file.name}/{input_file.location}'))
                 one_input_file_location_set.add(input_file.location)
@@ -272,7 +273,7 @@ class SemanticCheck(UserDict):
             # if more than 2 inputs but just one location
             if len(quality.metadata.inputFiles) != len(one_input_file_location_set):
                 self.raising(issue_type_category,
-                             SemanticIssue("Reused file location", 5,
+                             SemanticIssue("Reused file location", "ERROR",
                                             f'Duplicate inputFile locations within '
                                             f'one metadata object: {one_input_file_location_set}'))
         # conceptually no problems with reuse of locations for different purposes
@@ -281,7 +282,7 @@ class SemanticCheck(UserDict):
         for k,v in input_file_sets.items():
             if len(v)>1:
                 self.raising(issue_type_category,
-                            SemanticIssue("Duplicate names for input files with different locations ", 6,
+                            SemanticIssue("Duplicate names for input files with different locations ", "ERROR",
                                             f'Input file names not location-unique '
                                             f'(one inputFile.name must correspond to one inputFile.location): '
                                             f'{k} = {v}'))
@@ -460,15 +461,15 @@ class SemanticCheck(UserDict):
         """
         if _document_collected_issues:
             self.raising(issue_type_category,
-                         SemanticIssue("Used CVTerm without definition", 4,
+                         SemanticIssue("Used CVTerm without definition", "WARNING",
                                         f'Term instance used in file missing definition: '
                                         f'accession = {"auto_doc"}'))
             self.raising(issue_type_category,
-                         SemanticIssue("Used CVTerms definition conflict", 5,
+                         SemanticIssue("Used CVTerms definition conflict", "ERROR",
                                         f'Term instance used in file with definition different from ontology: '
                                         f'accession = {"auto_doc"}'))
             self.raising(issue_type_category,
-                         SemanticIssue("Used CVTerms name conflict", 6,
+                         SemanticIssue("Used CVTerms name conflict", "ERROR",
                                         f'Term instance used in file with name different from ontology: '
                                         f'accession = {"auto_doc"}'))
             return
@@ -476,18 +477,18 @@ class SemanticCheck(UserDict):
         # warn if definition is empty or mismatch
         if not cv_par.description and 'UO:0000000' not in {t.id for t in voc_par.superclasses(with_self=False).to_set()}:
             self.raising(issue_type_category,
-                         SemanticIssue("Used CVTerm without definition", 4,
+                         SemanticIssue("Used CVTerm without definition", "WARNING",
                                         f'Term instance used in file missing definition: '
                                         f'accession = {cv_par.accession}'))
         elif cv_par.description != voc_par.definition and 'UO:0000000' not in {t.id for t in voc_par.superclasses(with_self=False).to_set()}:
         # elif as the following error would be nonsensical for omitted definition
             self.raising(issue_type_category,
-                         SemanticIssue("Used CVTerms definition conflict", 5,
+                         SemanticIssue("Used CVTerms definition conflict", "ERROR",
                                         f'Term instance used in file with definition different from ontology: '
                                         f'accession = {cv_par.accession}'))
         if cv_par.name != voc_par.name:
             self.raising(issue_type_category,
-                         SemanticIssue("Used CVTerms name conflict", 6,
+                         SemanticIssue("Used CVTerms name conflict", "ERROR",
                                         f'Term instance used in file with name different from ontology: '
                                         f'accession = {cv_par.accession}'))
         return
@@ -508,10 +509,10 @@ class SemanticCheck(UserDict):
         """
         if _document_collected_issues:
             self.raising(issue_type_category,
-                         SemanticIssue("Ambiguous CVTerms", 6,
+                         SemanticIssue("Ambiguous CVTerms", "ERROR",
                                         f'term found in multiple vocabularies = {"auto_doc"}'))
             self.raising(issue_type_category,
-                         SemanticIssue("Unknown CVTerm", 7,
+                         SemanticIssue("Unknown CVTerm", "ERROR",
                                         f'CV term used without matching ontology entry: '
                                         f'accession = {"auto_doc"}'))
             self._check_CVTerm_match(issue_type_category, None, None, _document_collected_issues)
@@ -525,10 +526,10 @@ class SemanticCheck(UserDict):
                 # multiple choices for accession error
                 occs = [str(o) for o in voc_par]
                 self.raising(issue_type_category,
-                             SemanticIssue("Ambiguous CVTerms", 6,
+                             SemanticIssue("Ambiguous CVTerms", "ERROR",
                                         f'term found in multiple vocabularies = {",".join(occs)}'))
             elif len(voc_par) < 1:
-                self.raising(issue_type_category, SemanticIssue("Unknown CVTerm", 7,
+                self.raising(issue_type_category, SemanticIssue("Unknown CVTerm", "ERROR",
                                         f'CV term used without matching ontology entry: '
                                         f'accession = {cv_parameter.accession}'))
             else:
@@ -552,38 +553,38 @@ class SemanticCheck(UserDict):
         """
         if _document_collected_issues:
             self.raising(issue_type_category,
-                         SemanticIssue("ID based metric but no ID input file", 6,
+                         SemanticIssue("ID based metric but no ID input file", "ERROR",
                                         f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
                                         f'accession = {"auto_doc"}'))
             self.raising(issue_type_category,
-                         SemanticIssue("Metric uniqueness", 6,
+                         SemanticIssue("Metric uniqueness", "ERROR",
                                         f'Duplicate quality metric in a run/set: '
                                         f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric use", 5,
+            self.raising(issue_type_category, SemanticIssue("Metric use", "WARNING",
                                                 f'Non-metric CV term used in metric context: '
                                                 f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric value non-table", 6,
+            self.raising(issue_type_category, SemanticIssue("Metric value non-table", "ERROR",
                                                 f'Table metric CV term used without being a table: '
                                                 f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric value non-column", 6,
+            self.raising(issue_type_category, SemanticIssue("Metric value non-column", "ERROR",
                                                 f'Table metric CV term used with non-column elements: '
                                                 f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric value disproportional table", 9,
+            self.raising(issue_type_category, SemanticIssue("Metric value disproportional table", "ERROR",
                                                 f'Table metric CV term used with differing column lengths: '
                                                 f'accession = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric value missing table column", 8,
+            self.raising(issue_type_category, SemanticIssue("Metric value missing table column", "ERROR",
                                                 f'Table metric CV term used missing required column(s): '
                                                 f'accession(s) = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric value undefined table column", 5,
+            self.raising(issue_type_category, SemanticIssue("Metric value undefined table column", "WARNING",
                                                 f'Table metric CV term used with extra (undefined) columns: '
                                                 f'accession(s) = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric value no-unit", 3,
+            self.raising(issue_type_category, SemanticIssue("Metric value no-unit", "INFO",
                                                 f'Metric CV term used without value unit specification. '
                                                 f'accession(s) = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric value unit misuse", 3,
+            self.raising(issue_type_category, SemanticIssue("Metric value unit misuse", "INFO",
                                                 f'Metric CV term used value unit specification diverging from CV specification. '
                                                 f'accession(s) = {"auto_doc"}'))
-            self.raising(issue_type_category, SemanticIssue("Metric value undefined unit", 3,
+            self.raising(issue_type_category, SemanticIssue("Metric value undefined unit", "INFO",
                                                 f'Metric CV term used value unit specification undefined in CV. '
                                                 f'accession(s) = {"auto_doc"}'))
             return
@@ -603,7 +604,7 @@ class SemanticCheck(UserDict):
                     else:
                         lab = '+'.join([i.name for i in run_or_set_quality.metadata.inputFiles])
                     self.raising(issue_type_category,
-                                 SemanticIssue("ID based metric but no ID input file", 6,
+                                 SemanticIssue("ID based metric but no ID input file", "ERROR",
                                                 f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
                                                 f'run/set label = {lab}'))
 
@@ -611,14 +612,14 @@ class SemanticCheck(UserDict):
             uniq_accessions: Set[str] = set()
             for quality_metric in run_or_set_quality.qualityMetrics:
                 if quality_metric.accession in uniq_accessions:
-                    self.raising(issue_type_category, SemanticIssue("Metric uniqueness", 6,
+                    self.raising(issue_type_category, SemanticIssue("Metric uniqueness", "ERROR",
                                                 f'Duplicate quality metric in a run/set: '
                                                 f'accession = {quality_metric.accession}'))
                 else:
                     uniq_accessions.add(quality_metric.accession)
                 # Verify that quality_metric actually is of metric type
                 if quality_metric.accession not in metric_cvs:
-                    self.raising(issue_type_category, SemanticIssue("Metric use", 5,
+                    self.raising(issue_type_category, SemanticIssue("Metric use", "WARNING",
                                                 f'Non-metric CV term used in metric context: '
                                                 f'accession = {quality_metric.accession}'))
 
@@ -628,25 +629,25 @@ class SemanticCheck(UserDict):
                     opt_col_accs = {x.id for x in self._get_required_cols(quality_metric.accession, file_vocabularies)[1]}
 
                     if not isinstance(quality_metric.value , dict):
-                        self.raising(issue_type_category, SemanticIssue("Metric value non-table", 6,
+                        self.raising(issue_type_category, SemanticIssue("Metric value non-table", "ERROR",
                                                 f'Table metric CV term used without being a table: '
                                                 f'accession = {quality_metric.accession}'))
                     elif not all([isinstance(sv, list) for sv in quality_metric.value.values()]):
-                        self.raising(issue_type_category, SemanticIssue("Metric value non-column", 6,
+                        self.raising(issue_type_category, SemanticIssue("Metric value non-column", "ERROR",
                                                 f'Table metric CV term used with non-column elements: '
                                                 f'accession = {quality_metric.accession}'))
                     elif len({len(sv) for sv in quality_metric.value.values()}) != 1:
-                        self.raising(issue_type_category, SemanticIssue("Metric value disproportional table", 9,
+                        self.raising(issue_type_category, SemanticIssue("Metric value disproportional table", "ERROR",
                                                 f'Table metric CV term used with differing column lengths: '
                                                 f'accession = {quality_metric.accession}'))
                     elif not req_col_accs.issubset(set(quality_metric.value.keys())):
                         deviants = ','.join(req_col_accs.difference(set(quality_metric.value.keys())))
-                        self.raising(issue_type_category, SemanticIssue("Metric value missing table column", 8,
+                        self.raising(issue_type_category, SemanticIssue("Metric value missing table column", "ERROR",
                                                 f'Table metric CV term used missing required column(s): '
                                                 f'accession(s) = {deviants}'))
                     elif not set(quality_metric.value.keys()).issubset(req_col_accs.union(opt_col_accs)):
                         extras = ','.join(set(quality_metric.value.keys()).difference(req_col_accs.union(opt_col_accs)))
-                        self.raising(issue_type_category, SemanticIssue("Metric value undefined table column", 5,
+                        self.raising(issue_type_category, SemanticIssue("Metric value undefined table column", "WARNING",
                                                 f'Table metric CV term used with extra (undefined) columns: '
                                                 f'accession(s) = {extras}'))
                 # For regular metrics do a units use check (makes only sense for metrics with terms
@@ -665,19 +666,19 @@ class SemanticCheck(UserDict):
                     if quality_metric_term_unit:
                         if quality_metric.unit is None or quality_metric.unit == "":
                             self.raising(issue_type_category,
-                                         SemanticIssue("Metric value no-unit", 3,
+                                         SemanticIssue("Metric value no-unit", "INFO",
                                             f'Metric CV term used without value unit specification. '
                                             f'accession(s) = {quality_metric.accession}'))
                         else:  # Unit present
                             if quality_metric.unit.accession != quality_metric_term_unit.id:
                                 self.raising(issue_type_category,
-                                             SemanticIssue("Metric value unit misuse", 3,
+                                             SemanticIssue("Metric value unit misuse", "INFO",
                                                 f'Metric CV term used value unit specification diverging from CV specification. '
                                                 f'accession(s) = {quality_metric.accession}'))
                     else:  # no unit on term but unit on metric
                         if quality_metric.unit is not None or quality_metric.unit != "":
                             self.raising(issue_type_category,
-                                         SemanticIssue("Metric value undefined unit", 3,
+                                         SemanticIssue("Metric value undefined unit", "INFO",
                                             f'Metric CV term used value unit specification undefined in CV. '
                                             f'accession(s) = {quality_metric.accession}'))
 
@@ -740,7 +741,7 @@ class SemanticCheck(UserDict):
         # needs to be kept up-to-date to document the implemented issue type or categories
         issue_types_genreated = ['input files', 'metric use', 'ontology load errors',
                                  'ontology term errors', 'label uniqueness']
-        
+
         if not keep_issues:
             self.clear()
             for i in issue_types_genreated:
@@ -753,7 +754,7 @@ class SemanticCheck(UserDict):
         self._load_local = load_local
         self._keep_issues = keep_issues
         self._invalid_mzqc_obj = False
-        self._exceeded_errors = False
+        # self._exceeded_errors = False
 
         # Stop early if we can't recognise the data object and return a stub validation_errs dict
         if not isinstance(self.mzqc_obj, MzQcFile):

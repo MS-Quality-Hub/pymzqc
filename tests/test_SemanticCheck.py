@@ -36,8 +36,8 @@ def test_SemanticCheck_class_basics():
     assert(sc._keep_issues==False)
     assert(sc._exceeded_errors==False)
 
-    # These may only exist after validation
-    assert(not hasattr(sc, '_invalid_mzqc_obj'))
+    # This may only be bool after validation
+    assert(sc._invalid_mzqc_obj == None)
 
 def test_SemanticCheck_dictfunction():
     sc = SemanticCheck(None)
