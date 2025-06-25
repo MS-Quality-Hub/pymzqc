@@ -20,7 +20,7 @@ def validate(inpu: io.TextIOWrapper) -> dict:
         Response structure is a dict of general, schema validation, 
         ontology validation, or categories of semantic validation
     """
-    proto_response = validator_combined_core(inpu)
+    proto_response = validator_combined_core(inpu, load_local=True)
 
     return proto_response
 

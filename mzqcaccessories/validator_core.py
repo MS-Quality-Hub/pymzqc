@@ -1,5 +1,6 @@
 import json
 import io
+import os
 from typing import Union
 from mzqc.MZQCFile import JsonSerialisable as mzqc_io
 from mzqc.MZQCFile import get_version_string
@@ -7,7 +8,7 @@ from mzqc.SemanticCheck import SemanticCheck
 from mzqc.SyntaxCheck import SyntaxCheck
 
 
-def validator_combined_core(inpu: Union[io.TextIOWrapper,str]) -> dict:
+def validator_combined_core(inpu: Union[io.TextIOWrapper,str], load_local:bool = True) -> dict:
     """Cross-validator shared core functionality"""   
     proto_response = dict()
     try:
@@ -43,7 +44,10 @@ def validator_combined_core(inpu: Union[io.TextIOWrapper,str]) -> dict:
     target.controlledVocabularies = list(filter(lambda x: x.uri.startswith('http'), target.controlledVocabularies))
 
     sem_val = SemanticCheck(mzqc_obj=target, file_path='.')
-    sem_val.validate(load_local=True)
+    me = os.getenv('MAX_ERR', 0)
+    if isinstance(me, str) and me.isnumeric():  # IDK if striclty necessary from getenv
+        me = int(me)
+    sem_val.validate(load_local=load_local, max_errors=me)
     proto_response.update(sem_val.string_export())
 
     # add note on removed CVs

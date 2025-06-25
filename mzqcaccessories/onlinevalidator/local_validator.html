@@ -169,6 +169,13 @@
 		}
 	}
 
+	function cleanAccordion(el){
+		// var acc = el.getElementsByClassName("accordion");
+		while(el.firstChild){
+			el.removeChild(el.firstChild);
+		}
+	}
+
 	function appendAccordionElement (elem, k, v) {
 		if (Array.isArray(v)) {
 			if (v.length) {
@@ -248,6 +255,7 @@
 						//The following line is to test the actual deployment
 						//$.post("https://mzqc-validator.herokuapp.com/validator/", {validator_input: JSON.stringify(mzqc)}, 'json').done(function(response) {
 						$.post("http://127.0.0.1:5000/validator/", {validator_input: JSON.stringify(mzqc)}, 'json').done(function(response) {
+							cleanAccordion(output);
 							//output.textContent = JSON.stringify(response);
 							$.each(response, function(k,v) {
   								appendAccordionElement(output, k,v)

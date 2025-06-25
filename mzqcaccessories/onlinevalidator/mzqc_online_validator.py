@@ -65,7 +65,7 @@ class Validator(Resource):
     def post(self):
         """POST method for the validator endpoint"""
         inpu = request.form.get('validator_input', None)
-        proto_response = validator_combined_core(inpu)
+        proto_response = validator_combined_core(inpu, load_local=False)
 
         proto_response["validator software"] = f"v{get_version_string()}-offline"
         return jsonify(proto_response)
