@@ -605,7 +605,8 @@ class SemanticCheck(UserDict):
                         lab = '+'.join([i.name for i in run_or_set_quality.metadata.inputFiles])
                     self.raising(issue_type_category,
                                  SemanticIssue("ID based metric but no ID input file", "ERROR",
-                                                f'ID based metrics present but no ID input file could be found registered in the mzQC file: '
+                                                f'ID based metrics present but no ID input file '
+                                                f'could be found registered in the mzQC file: '
                                                 f'run/set label = {lab}'))
 
             # Verify that quality metrics are unique within a run/setQuality.
@@ -663,23 +664,23 @@ class SemanticCheck(UserDict):
                             quality_metric_term = voc.get(quality_metric.accession)
                             quality_metric_term_unit = next(iter(voc.get(quality_metric.accession).relationships.get(voc.get_relationship('has_units'),[None])))
                             break
-                    if quality_metric_term_unit:
-                        if quality_metric.unit is None or quality_metric.unit == "":
+                    if quality_metric_term_unit:  # Unit present in CV
+                        if quality_metric.unit is None or quality_metric.unit == "":  # No unit present in metric
                             self.raising(issue_type_category,
                                          SemanticIssue("Metric value no-unit", "INFO",
                                             f'Metric CV term used without value unit specification. '
                                             f'accession(s) = {quality_metric.accession}'))
-                        else:  # Unit present
+                        else:  # Unit present in metric
                             if quality_metric.unit.accession != quality_metric_term_unit.id:
                                 self.raising(issue_type_category,
                                              SemanticIssue("Metric value unit misuse", "INFO",
                                                 f'Metric CV term used value unit specification diverging from CV specification. '
                                                 f'accession(s) = {quality_metric.accession}'))
-                    else:  # no unit on term but unit on metric
-                        if quality_metric.unit is not None or quality_metric.unit != "":
+                    else:  # No unit present in CV
+                        if quality_metric.unit:  # Unit present in metric
                             self.raising(issue_type_category,
                                          SemanticIssue("Metric value undefined unit", "INFO",
-                                            f'Metric CV term used value unit specification undefined in CV. '
+                                            f'Metric CV term used value unit without specification in CV. '
                                             f'accession(s) = {quality_metric.accession}'))
 
         return
