@@ -244,7 +244,7 @@ class SemanticCheck(UserDict):
         if _document_collected_issues:
             self.raising(issue_type_category,
                         SemanticIssue("Inconsistent input file", "INFO",
-                                        f'Inconsistent file name and location: '
+                                        f'Possible file name and location inconsistency: '
                                         f'{"auto_doc"}'))
             self.raising(issue_type_category,
                         SemanticIssue("Reused file location", "WARNING",
