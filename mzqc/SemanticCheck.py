@@ -484,8 +484,9 @@ class SemanticCheck(UserDict):
         # elif as the following error would be nonsensical for omitted definition
             self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms definition conflict", "ERROR",
-                                        f'Term instance used in file with definition different from ontology: '
-                                        f'accession = {cv_par.accession}'))
+                                        f'Term instance used in file with definition different from'
+                                        f' ontology: accession = {cv_par.accession}\n'
+                                        f'used:{cv_par.description} != CV:{voc_par.definition}'))
         if cv_par.name != voc_par.name:
             self.raising(issue_type_category,
                          SemanticIssue("Used CVTerms name conflict", "ERROR",
