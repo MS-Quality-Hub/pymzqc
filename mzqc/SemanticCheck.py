@@ -740,7 +740,7 @@ class SemanticCheck(UserDict):
         """
         # needs to be kept up-to-date to document the implemented issue type or categories
         issue_types_genreated = ['input files', 'metric use', 'ontology load errors',
-                                 'ontology term errors', 'label uniqueness']
+                                 'ontology term errors', 'label validation']
 
         if not keep_issues:
             self.clear()
@@ -764,7 +764,7 @@ class SemanticCheck(UserDict):
         # Check that label (metadata) must be unique in the file
         # at some point with max_error > 0 this will raise an ValidationError for max_error exceeded
         # so either try_catch or more fancy with contextmanger to manage max_error execution
-        self._check_label_uniqueness('label uniqueness', _document_collected_issues)
+        self._check_label_uniqueness('label validation', _document_collected_issues)
 
         # Check that all cvs referenced are linked to valid ontology
         file_vocabularies = self._load_and_check_Vocabularies('ontology load errors',

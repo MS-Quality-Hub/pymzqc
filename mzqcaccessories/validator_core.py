@@ -1,3 +1,7 @@
+"""
+This module is for shared functionality across the different types of validators offered in the mzqcaccessories.
+The specific validation functions are still to be found in the mzqc module itself.
+"""
 import json
 import io
 import os
