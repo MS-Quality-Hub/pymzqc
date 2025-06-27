@@ -6,7 +6,7 @@ import mzqc.MZQCFile as mzqc_lib
 from mzqc.SyntaxCheck import SyntaxCheck
 
 # The validation error will include this disclaimer before the first error message:
-SCHEMA_VERSION_DISCLAIMER = "Using schema: https://raw.githubusercontent.com/HUPO-PSI/mzQC/main/schema/mzqc_schema.json"
+SCHEMA_VERSION_DISCLAIMER = "INFO - using schema: https://raw.githubusercontent.com/HUPO-PSI/mzQC/main/schema/mzqc_schema.json"
 
 def test_SyntaxCheck_synth():
     cvt = mzqc_lib.CvParameter(accession="TEST:123", name="testname", value=99)
@@ -44,7 +44,7 @@ def test_SyntaxCheck_brokenAnalysisSoftware():
         # json.loads(inpu)
     syn_val = SyntaxCheck().validate(inpu)
     expected_error = "'version' is a required property @ [mzQC][runQualities][0][metadata][analysisSoftware][1]"
-    assert(syn_val.get('schema validation',"") == SCHEMA_VERSION_DISCLAIMER+'\n'+expected_error)
+    assert(syn_val.get('schema validation',"")[:2] == [SCHEMA_VERSION_DISCLAIMER, expected_error])
 
 def test_SyntaxCheck_creationDateNoTimezoneinfo():
     infi = "tests/examples/individual-runs_creationDateNoTimezoneinfo.mzQC"  # test good detectin schema invalid
@@ -53,7 +53,7 @@ def test_SyntaxCheck_creationDateNoTimezoneinfo():
         # json.loads(inpu)
     syn_val = SyntaxCheck().validate(inpu)
     expected_error = "'2020-12-01T11:56:34' is not a 'date-time' @ [mzQC][creationDate]"
-    assert(syn_val.get('schema validation',"") == SCHEMA_VERSION_DISCLAIMER+'\n'+expected_error)
+    assert(syn_val.get('schema validation',"")[:2] == [SCHEMA_VERSION_DISCLAIMER, expected_error])
 
 def test_SyntaxCheck_extraContent():
     infi = "tests/examples/individual-runs_extraJSONcontent.mzQC"  # test good detectin schema invalid, also QC:000 terms unknown
@@ -62,7 +62,7 @@ def test_SyntaxCheck_extraContent():
         # json.loads(inpu)
     syn_val = SyntaxCheck().validate(inpu)
     expected_error = "Additional properties are not allowed ('test' was unexpected) @ "
-    assert(syn_val.get('schema validation',"") == SCHEMA_VERSION_DISCLAIMER+'\n'+expected_error)
+    assert(syn_val.get('schema validation',"")[:2] == [SCHEMA_VERSION_DISCLAIMER, expected_error])
 
 def test_SyntaxCheck_noOuter():
     infi = "tests/examples/individual-runs-noOuter.json"  # No mzQC content found! no mzQC object no detectin
@@ -70,5 +70,6 @@ def test_SyntaxCheck_noOuter():
         inpu = f.read()
         # json.loads(inpu)
     syn_val = SyntaxCheck().validate(inpu)
-    offenders = ["Additional properties are not allowed (", "controlledVocabularies", "creationDate", "version", "description", "contactAddress", "contactName", "runQualities", "were unexpected) @"]
+    print(syn_val)
+    offenders = ['INFO - using schema: https://raw.githubusercontent.com/HUPO-PSI/mzQC/main/schema/mzqc_schema.json', "Additional properties are not allowed ('contactAddress', 'contactName', 'controlledVocabularies', 'creationDate', 'description', 'runQualities', 'version' were unexpected) @ ", "'mzQC' is a required property @ "]
     assert( all([x in syn_val.get('schema validation',"") for x in offenders] ))

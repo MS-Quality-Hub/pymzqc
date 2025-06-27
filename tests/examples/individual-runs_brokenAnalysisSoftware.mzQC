@@ -8,7 +8,7 @@
     "runQualities": [
       {
         "metadata": {
-          "label": "individual-runs_brokenAnalysisSoftware",
+          "label": "test_SyntaxCheck_brokenAnalysisSoftware",
           "inputFiles": [
             {
               "name": "CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3.mzML",
