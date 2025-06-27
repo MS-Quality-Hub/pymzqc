@@ -3,8 +3,13 @@ import io
 import click
 from mzqc.MZQCFile import get_version_string
 from mzqcaccessories.validator_core import validator_combined_core
-import os
-os.system('color')  # for windows terminal color to hopefully work
+
+import platform
+# for windows terminal color to hopefully work
+if platform.system() == 'Windows':
+    import os
+    os.system('color')
+
 
 def validate(inpu: io.TextIOWrapper) -> dict:
     """top-level function to validate mzqc input

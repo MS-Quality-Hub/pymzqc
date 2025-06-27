@@ -20,15 +20,9 @@ def validator_combined_core(inpu: Union[io.TextIOWrapper,str], load_local:bool =
     except Exception:
         if isinstance(inpu, io.TextIOWrapper):
             inpu.seek(0,0)
-        default_response = {"general": "No mzQC structure detectable."}
+        default_response = {"general": "No mzQC structure detectable. (Maybe non-schema elements are included?)"}
         target = json.load(inpu)
         syn_val_res = SyntaxCheck().validate(json.dumps(target))
-        # older versions of the validator report a generic response in an array - return first only
-        if isinstance(syn_val_res.get('schema validation', None), list):
-            syn_val_res = default_response
-            syn_val_res.update({'schema validation':
-                                syn_val_res.get('schema validation', None)[0] if
-                                syn_val_res.get('schema validation', None) else ''})
         proto_response.update(default_response)
         proto_response.update(syn_val_res)
         return proto_response
@@ -36,11 +30,7 @@ def validator_combined_core(inpu: Union[io.TextIOWrapper,str], load_local:bool =
     # do syntax check first
     valt = mzqc_io.to_json(target)
     syn_val_res = SyntaxCheck().validate(valt)
-    # older versions of the validator report a generic response in an array - return first only
-    if isinstance(syn_val_res.get('schema validation', None), list):
-        syn_val_res = {'schema validation':
-                            syn_val_res.get('schema validation', None)[0] if
-                            syn_val_res.get('schema validation', None) else ''}
+
     proto_response.update(syn_val_res)
 
     # do semantic checks next

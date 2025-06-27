@@ -70,19 +70,13 @@ class SyntaxCheck(object):
         try:
             mzqc_json = json.loads(mzqc_str)
         except:
-            #raise ValidationError("Given mzqc seems not to be a string representation of a json type.")
             return {'schema validation': "Given mzqc seems not to be a string representation of a json type."}
 
-        try:
-            jsonschema.validate(mzqc_json, self.schema, format_checker=jsonschema.FormatChecker())
-        except ValidationError as e:
-            try:
-                #res = "{} # {}".format(e.message, e.json_path )  #Not what ValidationError doc says
-                # print(e)
-                res = e.message.partition('\n')[0] + ' @ ' + ''.join('[{}]'.format(k) for k in e.path )
-            except:
-                res = str(e)
-
-            versionstring = f"Using schema: {self.schema_url}"
-            return { 'schema validation': versionstring+'\n'+res }
-        return { 'schema validation': 'success' }
+        versionstring = f"INFO - using schema: {self.schema_url}"
+        # get all validation errors
+        validator = jsonschema.Draft7Validator(self.schema, format_checker=jsonschema.FormatChecker())
+        errors: List[str] = [e.message.partition('\n')[0] + ' @ ' + ''.join('[{}]'.format(k) for k in e.path) for e in validator.iter_errors(mzqc_json)]
+        if errors:
+            errors[0:0] = [versionstring]
+            return { 'schema validation': errors }
+        return { 'schema validation': [versionstring, 'success'] }

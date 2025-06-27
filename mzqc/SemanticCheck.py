@@ -35,7 +35,7 @@ class SemanticIssue:
     severity: Literal["ERROR", "WARNING", "INFO"]
     message: str
     def _to_string(self):
-        return self.name + " of severity "+ str(self.severity) + " and message: " + self.message
+        return str(self.severity) + ": " + self.name + " - " + self.message
 
 class SemanticCheck(UserDict):
     """Class for keeping track of all instances of SemanticIssues arising during semantic validation.
