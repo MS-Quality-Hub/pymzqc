@@ -158,11 +158,11 @@ def test_SemanticCheck_validation_trip_all():
     assert({s.name for s in chain.from_iterable(sm.values())}).issubset(
             {s.name for s in chain.from_iterable(doc.values())})
 
+    print({s.name for s in chain.from_iterable(sm.values())})
+    print({s.name for s in chain.from_iterable(doc.values())})
     # Test all documented issues were tripped
     assert({s.name for s in chain.from_iterable(sm.values())} ==
             {s.name for s in chain.from_iterable(doc.values())})
-
-# not tripped: 'Metric value undefined unit',
 
 def test_SemanticCheck_validation_success():
     infi = "tests/examples/individual-runs.mzQC"  # success test

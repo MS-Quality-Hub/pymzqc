@@ -208,6 +208,20 @@
                 "name": "microgram per microliter"
               },
               "description": "Upper and lower limit of retention time at which spectra are recorded."
+            },
+            {
+              "accession": "MS:4000057",
+              "name": "MS1 TIC-change quartile ratios",
+              "description": "The log ratios of successive TIC-change quartiles. The TIC changes are the list of MS1 total ion current (TIC) value changes from one to the next scan, produced when each MS1 TIC is subtracted from the preceding MS1 TIC. The metric's value triplet represents the log ratio of the TIC-change Q2 to Q1, Q3 to Q2, TIC-change-max to Q3",
+              "unit": {
+                "accession": "UO:0000010",
+                "name": "second"
+              },
+              "value": [
+                0.897157,
+                0.79167,
+                3.41455
+              ]
             }
           ]
         }

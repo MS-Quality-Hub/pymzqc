@@ -8,6 +8,7 @@
     "runQualities": [
       {
         "metadata": {
+          "label": "individual-runs",
           "inputFiles": [
             {
               "name": "CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3",
@@ -94,16 +95,6 @@
             },
 
             "description": "Upper and lower limit of m/z precursor values at which MSn spectra are recorded."
-          },
-          {
-            "accession": "MS:4000070",
-            "name": "retention time acquisition range",
-            "value": [ 0.2959, 5969.8172 ],
-            "unit": {
-              "accession": "UO:0000010",
-              "name": "second"
-            },
-            "description": "Upper and lower limit of retention time at which spectra are recorded."
           }
         ]
       }
