@@ -3,6 +3,8 @@ import io
 import click
 from mzqc.MZQCFile import get_version_string
 from mzqcaccessories.validator_core import validator_combined_core
+import os
+os.system('color')  # for windows terminal color to hopefully work
 
 def validate(inpu: io.TextIOWrapper) -> dict:
     """top-level function to validate mzqc input
@@ -36,7 +38,22 @@ def start(infile, write_to_file):
         with open(write_to_file, 'w') as f:
             json.dump(proto_response, f)
     else:
-        print(json.dumps(proto_response, indent=4, sort_keys=True))
+        RESET = '\033[0m' # called to return to standard terminal text color
+        # BACKGROUND_BLACK = '\033[40m'
+        BACKGROUND_RED = '\033[41m'
+        BACKGROUND_DARK_GRAY = '\033[100m'
+        BACKGROUND_ORANGE = '\033[48;2;255;165;0m'
+
+        for l in json.dumps(proto_response, indent=4, sort_keys=True).splitlines(False):
+            match l:
+                case str(x) if 'INFO' in x:
+                    print(l.replace('INFO', BACKGROUND_DARK_GRAY + 'INFO' + RESET))
+                case str(x) if 'WARNING' in x:
+                    print(l.replace('WARNING', BACKGROUND_ORANGE + 'WARNING' + RESET))
+                case str(x) if 'ERROR' in x:
+                    print(l.replace('ERROR', BACKGROUND_RED + 'ERROR' + RESET))
+                case _:
+                    print(l)
 
 if __name__ == "__main__":
     start()
