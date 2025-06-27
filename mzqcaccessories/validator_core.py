@@ -47,5 +47,5 @@ def validator_combined_core(inpu: Union[io.TextIOWrapper,str], load_local:bool =
     # add note on removed CVs
     if removed_items:
         proto_response.update({"ontology validation":
-                            ["invalid ontology URI for "+ str(it.name) for it in removed_items]})
+                            ["WARNING: Unusable ontology URI for "+ str(it.name) for it in removed_items]})
     return proto_response
