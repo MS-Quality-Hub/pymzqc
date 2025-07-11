@@ -17,11 +17,11 @@ Welcome to mzQC's python library documentation!
    
    intro
    examples
+   accessories
    codestructure
+   notebooks
    package
    build_and_container
-   accessories
-   notebooks
 
 Indices and tables
 ==================
