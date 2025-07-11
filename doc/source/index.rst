@@ -1,14 +1,13 @@
 .. pymzqc documentation master file, created by
    sphinx-quickstart on Thu Nov  5 13:33:39 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+   Should at least contain the root `toctree` directive.
 
 Welcome to mzQC's python library documentation!
 ===============================================
 
 .. image:: pymzqc.png
   :width: 600
-  :alt: artist's render of pymzqc in action
+  :alt: artist's rendering of pymzqc in action
 
 .. toctree::
    :maxdepth: 3
