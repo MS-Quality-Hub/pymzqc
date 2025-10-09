@@ -1,8 +1,10 @@
 Notebooks
 =========
 
-.. include:: ../../jupyter/README.md
-   :parser: myst_parser.sphinx_
+.. .. include:: ../../jupyter/README.md
+..    :parser: myst_parser.sphinx_
+Below, you will find static versions of the notebooks in the pymzqc repository.
+Click on the links to open the notebooks in your browser.
 
 read mzQC notebook example
 --------------------------

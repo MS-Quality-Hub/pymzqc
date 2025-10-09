@@ -62,4 +62,4 @@ mzqc-fixdescriptions [OPTIONS] INFILE OUTFILE
 
 The description fixer tool is a CLI tool built on [click](https://click.palletsprojects.com/).
 Its purpose is to 'fix' the descriptions of all applicable elements in a mzQC files.
-It loads a mzQC file, loads its CVs (online), and adds descriptions where missing and possible from CV lookup.
+It loads a mzQC file, loads its CVs (online), and adds descriptions where missing if the CV lookup was successful.

@@ -4,6 +4,7 @@ import re
 import logging
 from datetime import datetime
 from typing import List,Dict,Union,Any
+from importlib import metadata
 import numpy as np
 import pandas as pd
 
@@ -18,6 +19,11 @@ IntMatrix = List[IntVector]
 StringMatrix = List[StringVector]
 #Table = Dict[str,Union(FloatVector,IntVector,StringVector)]
 Table = Dict[str,List]
+
+def get_version_string():
+    """returns the version string of the currently installed pymzqc package"""
+    return metadata.version("pymzqc")
+
 
 class JsonSerialisable(object):
     """

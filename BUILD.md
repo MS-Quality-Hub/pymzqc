@@ -9,8 +9,8 @@ First, for a given release (candidate), install a local version via `pip git+` a
     python3 -m venv pipgit && source pipgit/bin/activate
     pip install pip --upgrade
     pip install pytest build
-    pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0rc1#egg=pymzqc
-    git clone --single-branch --branch=v1.0.0rc1 --depth=1 https://github.com/MS-Quality-hub/pymzqc.git
+    pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0#egg=pymzqc
+    git clone --single-branch --branch=v1.0.0 --depth=1 https://github.com/MS-Quality-hub/pymzqc.git
 ```
 
 Re-activate your venv to let pytest reset to current venv and test installation: 
@@ -34,7 +34,7 @@ Now install the wheel in a new venv and test the wheel:
     deactivate
     python3 -m venv pipwhl && source pipwhl/bin/activate
     pip install pip --upgrade
-    pip install pytest wheel dist/pymzqc-1.0.0rc1-py3-none-any.whl
+    pip install pytest wheel dist/pymzqc-1.0.0-py3-none-any.whl
     deactivate && source pipwhl/bin/activate
     cd /tmp/pymzqc
     pytest
@@ -46,7 +46,7 @@ Also test wheel installation in legacy mode (w/o wheel module installed):
     deactivate
     python3 -m venv pipwhl && source pipwhl/bin/activate
     pip install pip --upgrade
-    pip install pytest dist/pymzqc-1.0.0rc1-py3-none-any.whl
+    pip install pytest dist/pymzqc-1.0.0-py3-none-any.whl
     deactivate && source pipwhl/bin/activate
     cd /tmp/pymzqc
     pytest
@@ -64,7 +64,7 @@ And finally test pypi installation:
     python3 -m venv pippypi && source pippypi/bin/activate
     pip install pip --upgrade
     pip install pytest
-    python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pymzqc==1.0.0rc1
+    python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pymzqc==1.0.0
     deactivate && source pippypi/bin/activate
     cd /tmp/pymzqc
     pytest

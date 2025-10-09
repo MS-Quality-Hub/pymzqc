@@ -8,6 +8,7 @@
     "runQualities": [
       {
         "metadata": {
+          "label": "test_SyntaxCheck_creationDateNoTimezoneinfo",
           "inputFiles": [
             {
               "name": "CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3.mzML",

@@ -24,7 +24,7 @@ def test_SemanticIssue_class_basics():
 
 def test_SemanticIssue_class_fns():
     si = SemanticIssue(name="name",severity=123,message="message")
-    assert(si._to_string()=="name" + " of severity "+ str(123) + " and message: " + "message")
+    assert(si._to_string()=="123: " + "name" + " - " + "message")
 
 def test_SemanticCheck_class_basics():
     sc = SemanticCheck(None)
@@ -36,8 +36,8 @@ def test_SemanticCheck_class_basics():
     assert(sc._keep_issues==False)
     assert(sc._exceeded_errors==False)
 
-    # These may only exist after validation
-    assert(not hasattr(sc, '_invalid_mzqc_obj'))
+    # This may only be bool after validation
+    assert(sc._invalid_mzqc_obj == None)
 
 def test_SemanticCheck_dictfunction():
     sc = SemanticCheck(None)
@@ -158,11 +158,11 @@ def test_SemanticCheck_validation_trip_all():
     assert({s.name for s in chain.from_iterable(sm.values())}).issubset(
             {s.name for s in chain.from_iterable(doc.values())})
 
+    print({s.name for s in chain.from_iterable(sm.values())})
+    print({s.name for s in chain.from_iterable(doc.values())})
     # Test all documented issues were tripped
     assert({s.name for s in chain.from_iterable(sm.values())} ==
             {s.name for s in chain.from_iterable(doc.values())})
-
-# not tripped: 'Metric value undefined unit',
 
 def test_SemanticCheck_validation_success():
     infi = "tests/examples/individual-runs.mzQC"  # success test

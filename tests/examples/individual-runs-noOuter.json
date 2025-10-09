@@ -1,12 +1,13 @@
 {   
     "version": "1.0.0",
-    "creationDate": "2020-12-01T11:56:34",
+    "creationDate": "2020-12-01T11:56:34Z",
     "contactName": "Mathias Walzer",
     "contactAddress": "walzer@ebi.ac.uk",
     "description": "A simple mzQC file containing information for a single run.",
     "runQualities": [
       {
         "metadata": {
+          "label": "test_SyntaxCheck_noOuter",
           "inputFiles": [
             {
               "name": "CPTAC_CompRef_00_iTRAQ_01_2Feb12_Cougar_11-10-09.trfr.t3.mzML",

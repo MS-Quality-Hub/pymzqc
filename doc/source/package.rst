@@ -2,7 +2,7 @@ pymzqc Modules
 ================
 
 The main pymzqc module consists of three submodules and a compainon module for accessories.
-Please note that most member attributes of the MZQCFile submodule classes and many functional elements do not conform to PEP8.
+Please note that most member attributes of the MZQCFile submodule classes and many functional elements do not conform to `PEP-8 <https://peps.python.org/pep-0008/>`_ snake_case.
 The element names of the mzQC JSON-schema need to be preserved in order to create a successful and automated JSON<=>pymzqc object mapping. 
 Accordingly, other elements such as functions in all pymzqc modules will keep the JSON-schema names in their naming for consistency.
 
