@@ -4,6 +4,7 @@ from itertools import groupby
 from itertools import chain
 import click
 from mzqc import MZQCFile as qc
+from mzqc.MZQCFile import get_version_string
 
 def print_help():
     """
@@ -54,7 +55,7 @@ def merge_into_single_run(runs):
 def match_and_merge_sets_files(sets):
     pass
 
-@click.version_option('v1BETA')
+@click.version_option(f"v{get_version_string()}-BETA")
 @click.command(short_help='A simple mzQC file merger using pymzqc assuming file metadata is compatible. mzQC files will be merged, where possible runs matched and metrics combined.')
 @click.argument('mzqc_input', nargs=-1, type=click.Path(exists=True,readable=True, dir_okay=False) )  # help="The mzqc files to merge"
 @click.argument('mzqc_output', type=click.Path(writable=True, dir_okay=False) )  # help="The output path for the resulting mzqc"

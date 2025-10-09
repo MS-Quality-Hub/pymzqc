@@ -4,6 +4,7 @@ import click
 from pronto import Ontology, Term
 from mzqc.MZQCFile import JsonSerialisable as mzqc_io
 from mzqc.MZQCFile import MzQcFile, BaseQuality, RunQuality, SetQuality, QualityMetric, MetaDataParameters, CvParameter
+from mzqc.MZQCFile import get_version_string
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -29,7 +30,7 @@ def print_help():
     click.echo(ctx.get_help())
     ctx.exit()
 
-@click.version_option('v1BETA')
+@click.version_option(f"v{get_version_string()}-BETA")
 @click.command(short_help='mzQCFileInfo will report basic info on the mzQC file.')
 @click.argument('infile', type=click.File('r'))
 @click.argument('outfile', type=click.File('w'))

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import datetime as dt
-from itertools import chain 
+from itertools import chain
 import click
 from mzqc.MZQCFile import JsonSerialisable as mzqc_io
+from mzqc.MZQCFile import get_version_string
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 INFO = '''
@@ -20,7 +21,7 @@ def print_help():
     click.echo(ctx.get_help())
     ctx.exit()
 
-@click.version_option('v1')
+@click.version_option(f"v{get_version_string()}-BETA")
 @click.command(short_help='mzQCFileInfo will report basic info on the mzQC file.')
 @click.argument('infile', type=click.File('r'))
 def mzqcfileinfo(infile):
