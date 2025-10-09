@@ -25,11 +25,13 @@ def suppress_verbose_modules():
 class SemanticIssue:
     """Class for keeping track of an instance of all the different issues during the 
         semantic validation for a particular dataset, collecting a few data members:
+        
         name: name of the issue
         severity: Literal["ERROR", "WARNING", "INFO"]
         message: issue message
-    Added is a _to_string function to simplify serialisation.
-    Note: ValidationError was too inflexible for development, hence the dataclass.
+      
+      Added is a _to_string function to simplify serialisation.
+      Note: ValidationError was too inflexible for development, hence the dataclass.
     """
     name: str
     severity: Literal["ERROR", "WARNING", "INFO"]
