@@ -1,10 +1,10 @@
 version: '3.2' 
 services: 
    mzqcvalidator: 
-     image: quay.io/mwalzer/mzqc-validator:v1.0.0rc2 
+     image: quay.io/mwalzer/mzqc-validator:v1.0.1 
      container_name: mzqcvalidator 
      restart: always 
-     entrypoint: ["python3", "-m", "gunicorn", "wsgi:app", "-b", "0.0.0.0:5000", "--chdir", "mzqc-validator/"] 
+     entrypoint: ["python3", "-m", "gunicorn", "mzqc_online_validator:app", "-b", "0.0.0.0:5000", "--chdir", "mzqc-validator/"] 
      networks: 
       - proxy 
      logging: 
