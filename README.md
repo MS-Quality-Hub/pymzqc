@@ -24,6 +24,9 @@ Find the specification document, examples, and and further documentation there.
 ## Install
 
 ### Latest Release
+⚠️ PLEASE NOTE THAT THE LATEST RELEASE v1.0.1 is not available via **pypi** _yet_. 
+Please use the `pip install git+` method (see below) or the [release wheel](https://github.com/MS-Quality-Hub/pymzqc/releases/download/v1.0.1/pymzqc-1.0.1-py3-none-any.whl) directly. ⚠️
+
 Most people will want to install the latest release version of pymzqc. Please install pymzqc via [**pypi**](https://pypi.org/project/pymzqc/): 
 ```
 pip install pymzqc
@@ -34,7 +37,8 @@ If you want a development version, use for example :
 ```
 pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git
 ```
-You can select **a development branch of your choice** by changing the command after the `.git`, see [the manual build instructions](BUILD.md).
+You can select **a development branch of your choice** by adding `@` and a valid tag or branch name to the command after the `pymzqc.git`; make sure to name the egg 'pymzqc' (e.g. `@v1.0.0#egg=pymzqc`)
+For more installation options see [the manual build instructions](BUILD.md).
 
 ### Containers
 However, we recommend using the ready-built [**containers**](https://quay.io/repository/mwalzer/pymzqc?tab=tags) to check out the latest updates.
