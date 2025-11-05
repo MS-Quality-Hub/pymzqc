@@ -24,8 +24,6 @@ Find the specification document, examples, and and further documentation there.
 ## Install
 
 ### Latest Release
-⚠️ PLEASE NOTE THAT THE LATEST RELEASE v1.0.1 is not available via **pypi** _yet_. 
-Please use the `pip install git+` method (see below) or the [release wheel](https://github.com/MS-Quality-Hub/pymzqc/releases/download/v1.0.1/pymzqc-1.0.1-py3-none-any.whl) directly. ⚠️
 
 Most people will want to install the latest release version of pymzqc. Please install pymzqc via [**pypi**](https://pypi.org/project/pymzqc/): 
 ```
