@@ -1,0 +1,62 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pymzqc"
+version = "1.0.1"
+description = "Python library for the PSI-mzQC quality control file format."
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    { name = "Mathias Walzer", email = "walzer@ebi.ack.uk" },
+]
+dependencies = [
+    "jsonschema>=3.2.0",
+    # Note: in order to validate JSON date-time type expressions the rfc3339 libs need to be present (otherwise the Formatchecker for date-time won't be initialised)
+    "strict-rfc3339",
+    "rfc3339-validator",
+    "numpy",
+    "pandas>=1.1.5",
+    "pronto",
+    "requests>=2.27.1",
+    "click",
+]
+
+[project.urls]
+Homepage = "https://github.com/MS-Quality-hub/pymzqc"
+
+# this will install additional to the mzqc module the mzqcaccessories module with the scripts from the accessories folder
+[project.scripts]
+mzqc-fileinfo = "mzqcaccessories.filehandling.mzqc_fileinfo:mzqcfileinfo"
+mzqc-filemerger = "mzqcaccessories.filehandling.mzqc_filemerger:mzqcfilemerger"
+mzqc-fixdescriptions = "mzqcaccessories.filehandling.mzqc_fixdescriptions:mzqcfixdescriptions"
+# mzQC-online-validator = "mzqconlinevalidator.mzqc_online_validator:app.run"
+# Note: onlinevalidator has extra dependencies not covered by this project file!
+#       See mzqcaccessories/onlinevalidator/requirements.txt!
+mzqc-validator = "mzqcaccessories.offlinevalidator.mzqc_offline_validator:start"
+
+[tool.hatch.build.targets.wheel]
+packages = ["mzqc", "mzqcaccessories"]
+# Unlike setuptools' find_packages(), hatchling includes every file under a
+# package directory. onlinevalidator is not an importable package (it has no
+# __init__.py) and ships its own container/requirements files, so keep it and
+# the per-directory READMEs out of the wheel, as the setuptools build did.
+exclude = [
+    "mzqcaccessories/onlinevalidator",
+    "**/README.md",
+]
+
+[tool.hatch.build.targets.sdist]
+# Leading slashes anchor to the project root; without them these patterns are
+# gitignore-style and would match e.g. containers/README.md too.
+include = [
+    "/mzqc",
+    "/mzqcaccessories",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+]
+exclude = [
+    "mzqcaccessories/onlinevalidator",
+]
