@@ -35,7 +35,7 @@ setup(
             'mzqc-fixdescriptions=mzqcaccessories.filehandling.mzqc_fixdescriptions:mzqcfixdescriptions',
             # 'mzQC-online-validator=mzqconlinevalidator.mzqc_online_validator:app.run',
             # Note: onlinevalidator has extra dependencies not covered by this setup!
-            #       See accessories/onlinevalidator/requirements.txt!
+            #       See mzqcaccessories/onlinevalidator/requirements.txt!
             'mzqc-validator=mzqcaccessories.offlinevalidator.mzqc_offline_validator:start'
         ],
     }

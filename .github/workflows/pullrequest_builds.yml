@@ -12,7 +12,7 @@ jobs:
         python-version: ["3.8"]
 
     steps:
-    - uses: actions/checkout@v1 
+    - uses: actions/checkout@v4 
       with:
         fetch-depth: 1
     - name: Set up Python ${{ matrix.python-version }}
@@ -45,7 +45,7 @@ jobs:
 
     steps:
     - name: Checkout git
-      uses: actions/checkout@v1 
+      uses: actions/checkout@v4 
       with:
         fetch-depth: 1
     - name: Set up Python ${{ matrix.python-version }}
@@ -72,7 +72,7 @@ jobs:
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v1 
+        uses: actions/checkout@v4 
         with:
           fetch-depth: 1
       - name: Get wheel
