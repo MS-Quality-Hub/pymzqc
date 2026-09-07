@@ -9,7 +9,7 @@ description = "Python library for the PSI-mzQC quality control file format."
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
-    { name = "Mathias Walzer", email = "walzer@ebi.ack.uk" },
+    { name = "Mathias Walzer", email = "walzer@ebi.ac.uk" },
 ]
 dependencies = [
     "jsonschema>=3.2.0",
