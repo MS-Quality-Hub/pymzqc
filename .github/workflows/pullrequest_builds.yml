@@ -69,6 +69,13 @@ jobs:
   container-build:
     runs-on: ubuntu-latest
     needs: wheel-build
+    env:
+      # Dependabot and fork pull requests deliberately run without access to
+      # repository secrets, so they cannot authenticate against quay.io and the
+      # login step fails with "Username and password required". Build the image
+      # regardless, so the Dockerfile still gets validated, and skip only the
+      # login and the push.
+      CAN_PUSH: ${{ secrets.quay_user_mzqc_action != '' }}
 
     steps:
       - name: Get dockerfile
@@ -96,6 +103,7 @@ jobs:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to quay.io
+        if: env.CAN_PUSH == 'true'
         uses: docker/login-action@v1 
         with:
           registry: quay.io
@@ -107,7 +115,7 @@ jobs:
           context: .
           file: containers/Dockerfile
           platforms: linux/amd64
-          push: true
+          push: ${{ env.CAN_PUSH == 'true' }}
           tags: |
             quay.io/mwalzer/pymzqc:latest_pullrequest_build
             quay.io/mwalzer/pymzqc:${{ env.SAFE_REF }}_${{ github.sha }}
