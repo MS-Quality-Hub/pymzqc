@@ -36,5 +36,5 @@ pymzqc Accessories Module
 
 The compainon module for accessories to handle mzqc via tools (and CLI) rather than REPL can be useful when building processing chains or checking new files.
 
-Any installation process using setup.py (e.g. pip) will create an additional module  `mzqcaccessories` 
+Any installation process using the project metadata (e.g. pip) will create an additional module  `mzqcaccessories` 
 exclusively for the `entry_points` scripts created (for use see :doc:`Accessories <./accessories>` page).

@@ -40,7 +40,9 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.8]
+        # See the note in release_builds.yml: build frontend only, the wheel is
+        # pure-python. Mirrors the release build so PRs exercise the same path.
+        python-version: ["3.12"]
     needs: unit-tests
 
     steps:
@@ -55,7 +57,7 @@ jobs:
     - name: Build wheel
       run: |
         python3 -m pip install --upgrade pip
-        pip install build wheel
+        pip install build
         python3 -m build --wheel
         ls -l dist/
         ls -l .

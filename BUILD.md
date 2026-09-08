@@ -1,7 +1,23 @@
 # How to build and release
 (aka pre-filght tests for a release)
 
-## Manual build and release instruction
+Packaging is declared in `pyproject.toml` and built with [hatchling](https://hatch.pypa.io/latest/).
+There is no `setup.py`; every build goes through the PEP 517 frontend (`python3 -m build`).
+
+## Release checklist
+
+1. Bump the version in **both** places and commit:
+   * `pyproject.toml` (`version = "..."`)
+   * `doc/source/conf.py` (`release = "v..."`)
+
+   `pytest --checkversioning` is the gate that checks these agree with the
+   version of the installed package.
+2. Run the pre-flight tests below.
+3. Publish a GitHub release tagged `vX.Y.Z`.
+   The `release-builds` workflow then builds the sdist and wheel and uploads
+   them to PyPI automatically (see [Automated release](#automated-release)).
+
+## Manual build and pre-flight tests
 
 First, for a given release (candidate), install a local version via `pip git+` and get the sources for test and build, too:
 ```bash
@@ -20,27 +36,13 @@ Re-activate your venv to let pytest reset to current venv and test installation:
     pytest
 ```
 
-Then, provide container-based builds an existing dist folder setup like so, and build:
+Then build both distributions:
 ```bash 
     cd /tmp/pymzqc
-    mkdir -p dist/mzqc
-    python3 -m build --sdist
-    python3 -m build --wheel
+    python3 -m build
 ```
 The build results will be at `/tmp/pymzqc/dist`. We'll need both as release artifacts.
 Now install the wheel in a new venv and test the wheel:
-```bash
-    cd /tmp/pymzqc
-    deactivate
-    python3 -m venv pipwhl && source pipwhl/bin/activate
-    pip install pip --upgrade
-    pip install pytest wheel dist/pymzqc-1.0.0-py3-none-any.whl
-    deactivate && source pipwhl/bin/activate
-    cd /tmp/pymzqc
-    pytest
-```
-
-Also test wheel installation in legacy mode (w/o wheel module installed):
 ```bash
     cd /tmp/pymzqc
     deactivate
@@ -52,12 +54,43 @@ Also test wheel installation in legacy mode (w/o wheel module installed):
     pytest
 ```
 
-If all tests were successful, upload to test.pypi.org with twine:
+Finally, run the versioning check, which is what the release workflow runs:
+```bash
+    pytest -v --checkversioning
+```
+
+## Automated release
+
+Publishing a GitHub release runs the `release-builds` workflow, which runs the
+unit tests, builds the sdist and wheel, builds the containers, and then uploads
+the distributions to PyPI from the `publish-pypi` job.
+
+That job authenticates with [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/)
+(OIDC), so there is no API token stored in the repository. It only runs for the
+`published` event, because the workflow also fires on `created` and `edited` and
+re-uploading an existing file would fail.
+
+This requires a one-time setup on pypi.org, under the `pymzqc` project's
+*Publishing* settings, adding a trusted publisher with:
+
+| Field             | Value                  |
+|-------------------|------------------------|
+| Owner             | `MS-Quality-Hub`       |
+| Repository name   | `pymzqc`               |
+| Workflow name     | `release_builds.yml`   |
+| Environment name  | `pypi`                 |
+
+Until that entry exists the `publish-pypi` job will fail at the authentication
+step; the rest of the release workflow is unaffected.
+
+### Publishing by hand
+
+If you need to upload outside the workflow, build as above and use twine.
+Test against test.pypi.org first:
 ```bash
     twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 ```
-
-And finally test pypi installation:
+And test that installation:
 ```bash    
     cd /tmp/pymzqc
     deactivate
