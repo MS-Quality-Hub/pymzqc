@@ -12,7 +12,7 @@ jobs:
         python-version: ["3.8"]
 
     steps:
-    - uses: actions/checkout@v1 
+    - uses: actions/checkout@v4 
       with:
         fetch-depth: 1
     - name: Set up Python ${{ matrix.python-version }}
@@ -40,12 +40,14 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.8]
+        # See the note in release_builds.yml: build frontend only, the wheel is
+        # pure-python. Mirrors the release build so PRs exercise the same path.
+        python-version: ["3.12"]
     needs: unit-tests
 
     steps:
     - name: Checkout git
-      uses: actions/checkout@v1 
+      uses: actions/checkout@v4 
       with:
         fetch-depth: 1
     - name: Set up Python ${{ matrix.python-version }}
@@ -55,7 +57,7 @@ jobs:
     - name: Build wheel
       run: |
         python3 -m pip install --upgrade pip
-        pip install build wheel
+        pip install build
         python3 -m build --wheel
         ls -l dist/
         ls -l .
@@ -69,18 +71,30 @@ jobs:
   container-build:
     runs-on: ubuntu-latest
     needs: wheel-build
+    env:
+      # Dependabot and fork pull requests deliberately run without access to
+      # repository secrets, so they cannot authenticate against quay.io and the
+      # login step fails with "Username and password required". Build the image
+      # regardless, so the Dockerfile still gets validated, and skip only the
+      # login and the push.
+      CAN_PUSH: ${{ secrets.quay_user_mzqc_action != '' }}
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v1 
+        uses: actions/checkout@v4 
         with:
           fetch-depth: 1
       - name: Get wheel
         uses: actions/download-artifact@v4
         with:
           name: wheel_${{ github.sha }}
-      - name: Set tags
-        run: echo mwalzerpymzqc:${GITHUB_REF##*/}
+      - name: Set image tag
+        run: |
+          # Branch names may contain '/' (all Dependabot branches do), which is
+          # not a legal character in a Docker tag. Map anything outside the
+          # allowed tag charset to '-'.
+          ref="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
+          printf 'SAFE_REF=%s\n' "$(printf '%s' "$ref" | tr -c 'a-zA-Z0-9_.-' '-')" >> "$GITHUB_ENV"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
@@ -91,6 +105,7 @@ jobs:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to quay.io
+        if: env.CAN_PUSH == 'true'
         uses: docker/login-action@v1 
         with:
           registry: quay.io
@@ -102,7 +117,7 @@ jobs:
           context: .
           file: containers/Dockerfile
           platforms: linux/amd64
-          push: true
+          push: ${{ env.CAN_PUSH == 'true' }}
           tags: |
             quay.io/mwalzer/pymzqc:latest_pullrequest_build
-            quay.io/mwalzer/pymzqc:${{ github.head_ref }}_${{ github.sha }}
+            quay.io/mwalzer/pymzqc:${{ env.SAFE_REF }}_${{ github.sha }}

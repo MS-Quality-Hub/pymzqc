@@ -12,7 +12,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v1 
+    - uses: actions/checkout@v4 
       with:
         fetch-depth: 1
     - name: Set up Python ${{ matrix.python-version }}
@@ -40,23 +40,27 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.8]
+        # Only used to run the build frontend; the result is a pure-python
+        # py3-none-any distribution, so this is independent of the package's
+        # own requires-python. Kept current so that hatchling is not pinned
+        # back to the last release supporting an EOL interpreter.
+        python-version: ["3.12"]
     needs: unit-tests
 
     steps:
     - name: Checkout git
-      uses: actions/checkout@v1 
+      uses: actions/checkout@v4 
       with:
         fetch-depth: 1
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Build wheel
+    - name: Build sdist and wheel
       run: |
         python3 -m pip install --upgrade pip
-        pip install build wheel
-        python3 -m build --wheel
+        pip install build
+        python3 -m build
         ls -l dist/
         ls -l .
     - name: Upload wheel
@@ -65,6 +69,12 @@ jobs:
         name: wheel_${{ github.sha }}
         path: dist/pymzqc-*any.whl
         retention-days: 14
+    - name: Upload distributions
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist_${{ github.sha }}
+        path: dist/
+        retention-days: 14
 
   container-build:
     runs-on: ubuntu-latest
@@ -72,7 +82,7 @@ jobs:
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v1 
+        uses: actions/checkout@v4 
         with:
           fetch-depth: 1
       - name: Get wheel
@@ -113,7 +123,7 @@ jobs:
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v1 
+        uses: actions/checkout@v4 
         with:
           fetch-depth: 1
       - name: Get wheel
@@ -147,3 +157,26 @@ jobs:
           tags: |
             quay.io/mwalzer/mzqc-validator:latest
             quay.io/mwalzer/mzqc-validator:${{ github.event.release.tag_name }}
+
+  publish-pypi:
+    # This workflow also fires on 'created' and 'edited'. Uploading a file that
+    # is already on PyPI is an error, so only publish once, on publication.
+    if: github.event.action == 'published'
+    runs-on: ubuntu-latest
+    needs: wheel-build
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pymzqc
+    permissions:
+      # Required for trusted publishing: mints the short-lived OIDC token that
+      # PyPI exchanges for an upload token. No API token secret is involved.
+      id-token: write
+
+    steps:
+      - name: Get distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: dist_${{ github.sha }}
+          path: dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
