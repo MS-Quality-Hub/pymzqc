@@ -8,7 +8,6 @@ Runs only if explicitly required (pytest -v --checkversioning)
 """
 __author__ = 'walzer'
 import re
-import pkg_resources
 from collections import defaultdict
 import pytest
 from mzqc import MZQCFile as qc
@@ -56,11 +55,13 @@ class TestVersions:
             if "release =" in line:
                 extract_version_and_check(line.strip(),version, no_v=False)
 
-    def test_setup(self):
-        with open("setup.py", 'r') as fh:
+    def test_pyproject(self):
+        with open("pyproject.toml", 'r') as fh:
             scpy = fh.readlines()
         for line in scpy:
-            if "version=" in line:
+            # anchored to the start of the line so that neither requires-python
+            # nor the version specifiers of the dependencies are picked up
+            if line.startswith("version ="):
                 extract_version_and_check(line.strip(),version, no_v=True)
 
     def test_accessories(self):

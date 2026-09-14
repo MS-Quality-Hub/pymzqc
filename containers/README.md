@@ -3,7 +3,7 @@ This folder contains various container build instruction files.
 * The `DevDockerfile` builds a container from github sources and installs some helpful modules and libraries before that.
 * The `Dockerfile` builds a container from a wheel build. This is used for the official container built.
 
-**Note**: there are other Dockerfiles for specific purposes. For an onlinevalidator container at `accessories/onlinevalidator/Dockerfile` 
+**Note**: there are other Dockerfiles for specific purposes. For an onlinevalidator container at `mzqcaccessories/onlinevalidator/Dockerfile` 
 and a vscode remote container at `.devcontainer/Dockerfile`.
 
 
