@@ -9,11 +9,14 @@ The documentation endpoint provides a `dict` with details to each part of the va
 The validator endpoint takes a mzQC file (JSON) and responds with an object as described in the documentation endpoint.
 
 ### Validator build
-From the root of the pymzqc source folder (i.e. build context `pymzqc/`) build the `mzqcaccessories/onlinevalidator/Dockerfile`, e.g. with podman:
-```
+From the root of the pymzqc source folder, build a wheel first and place it in the repository root, matching the release workflow:
+```bash
+uv build --wheel
+cp dist/pymzqc-*-py3-none-any.whl .
 podman build -t mzqc-validator -f mzqcaccessories/onlinevalidator/Dockerfile .
+rm -f pymzqc-*-py3-none-any.whl
 ```
-(If you are testing a release without pypi package uncomment the respective lines in the Dockerfile to override the pymzqc version used.)
+The validator image installs that exact wheel. This is important now that package versions are derived from Git tags with Hatch VCS: Docker build contexts do not reliably contain the repository's `.git` metadata.
 
 Pre-built container images for selected (pre-)release versions can be found at the [mzqc-validator container registry](https://quay.io/repository/mwalzer/mzqc-validator?tab=tags&tag=latest).
 If you want to deploy the **online**validator with your local pymzqc installation, please be aware of extra dependencies to the [online-validator](mzqcaccessories/onlinevalidator/requirements.txt). 
