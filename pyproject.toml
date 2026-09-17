@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
 name = "pymzqc"
-version = "1.0.1"
+dynamic = ["version"]
 description = "Python library for the PSI-mzQC quality control file format."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -35,6 +35,12 @@ mzqc-fixdescriptions = "mzqcaccessories.filehandling.mzqc_fixdescriptions:mzqcfi
 # Note: onlinevalidator has extra dependencies not covered by this project file!
 #       See mzqcaccessories/onlinevalidator/requirements.txt!
 mzqc-validator = "mzqcaccessories.offlinevalidator.mzqc_offline_validator:start"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
 
 [tool.hatch.build.targets.wheel]
 packages = ["mzqc", "mzqcaccessories"]
