@@ -1,7 +1,7 @@
 name: pullrequest-builds
 on:
     pull_request:
-      types: ['opened', 'edited', 'reopened', 'synchronize']  
+      types: ['opened', 'edited', 'reopened', 'synchronize']
 
 jobs:
   unit-tests:
@@ -12,9 +12,9 @@ jobs:
         python-version: ["3.8"]
 
     steps:
-    - uses: actions/checkout@v4 
+    - uses: actions/checkout@v4
       with:
-        fetch-depth: 1
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -47,9 +47,9 @@ jobs:
 
     steps:
     - name: Checkout git
-      uses: actions/checkout@v4 
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 1
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -81,9 +81,9 @@ jobs:
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
       - name: Get wheel
         uses: actions/download-artifact@v4
         with:
@@ -96,23 +96,23 @@ jobs:
           ref="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
           printf 'SAFE_REF=%s\n' "$(printf '%s' "$ref" | tr -c 'a-zA-Z0-9_.-' '-')" >> "$GITHUB_ENV"
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 #      - name: Login to DockerHub
-#        uses: docker/login-action@v1 
+#        uses: docker/login-action@v3
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to quay.io
         if: env.CAN_PUSH == 'true'
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.quay_user_mzqc_action }}
           password: ${{ secrets.quay_pw_mzqc_action }}
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: containers/Dockerfile

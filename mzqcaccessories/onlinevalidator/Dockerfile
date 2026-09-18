@@ -1,19 +1,22 @@
 FROM python:3.8-slim-buster
-# from root pymzqc directory: `podman build -t mzqc-validator -f mzqcaccessories/onlinevalidator/Dockerfile .`
+# From the pymzqc repository root, first build/copy a wheel into the build
+# context, then run:
+#   podman build -t mzqc-validator -f mzqcaccessories/onlinevalidator/Dockerfile .
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
-# following line for local testing only (it overrides the latest pymzqc from pypi) 
-COPY . /pymzqc/
+# Release workflows download the already-built pymzqc wheel into the repository
+# root. Installing that artifact avoids requiring .git metadata inside Docker for
+# hatch-vcs version discovery and guarantees the validator uses the exact wheel
+# produced by the release build.
+COPY pymzqc-*-any.whl /tmp/
 
 COPY mzqcaccessories/onlinevalidator/mzqc_online_validator.py mzqc-validator/
 COPY mzqcaccessories/onlinevalidator/requirements.txt mzqc-validator/
 COPY mzqcaccessories/onlinevalidator/Procfile mzqc-validator/
 
 RUN python -m pip install --upgrade pip
-# following line for local testing only (it overrides the latest pymzqc from pypi) 
-RUN pip install -e /pymzqc/ 
-RUN pip install -r mzqc-validator/requirements.txt 
-
+RUN pip install /tmp/pymzqc-*-any.whl
+RUN pip install -r mzqc-validator/requirements.txt

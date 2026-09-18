@@ -6,32 +6,36 @@ There is no `setup.py`; every build goes through the PEP 517 frontend (`python3 
 
 ## Release checklist
 
-1. Bump the version in **both** places and commit:
-   * `pyproject.toml` (`version = "..."`)
-   * `doc/source/conf.py` (`release = "v..."`)
-
-   `pytest --checkversioning` is the gate that checks these agree with the
-   version of the installed package.
-2. Run the pre-flight tests below.
-3. Publish a GitHub release tagged `vX.Y.Z`.
-   The `release-builds` workflow then builds the sdist and wheel and uploads
-   them to PyPI automatically (see [Automated release](#automated-release)).
+1. Choose the release version. Do **not** add a static package version to
+   `pyproject.toml` or `doc/source/conf.py`: Hatch VCS derives the package
+   version from Git tags, and the documentation reads the installed package
+   version dynamically. `pytest --checkversioning` verifies the VCS setup and
+   release-visible version consumers.
+2. Run the pre-flight tests below from a full Git checkout with tags available.
+3. Publish a GitHub release tagged `vX.Y.Z` at the release commit. The tag is
+   the package version source of truth.
+   The `release-builds` workflow then builds the sdist and wheel, verifies their
+   filenames match the release tag, builds the containers, and uploads the
+   distributions to PyPI automatically (see [Automated release](#automated-release)).
 
 ## Manual build and pre-flight tests
 
-First, for a given release (candidate), install a local version via `pip git+` and get the sources for test and build, too:
+First, for a given release candidate, work from a full clone so Hatch VCS can
+see the version tags:
 ```bash
     cd /tmp
-    python3 -m venv pipgit && source pipgit/bin/activate
+    git clone https://github.com/MS-Quality-hub/pymzqc.git
+    cd pymzqc
+    git fetch --tags
+    python3 -m venv ../pipgit && source ../pipgit/bin/activate
     pip install pip --upgrade
     pip install pytest build
-    pip install -U git+https://github.com/MS-Quality-hub/pymzqc.git@v1.0.0#egg=pymzqc
-    git clone --single-branch --branch=v1.0.0 --depth=1 https://github.com/MS-Quality-hub/pymzqc.git
+    pip install -e .
 ```
 
 Re-activate your venv to let pytest reset to current venv and test installation: 
 ```bash
-    deactivate && source pipgit/bin/activate
+    deactivate && source /tmp/pipgit/bin/activate
     cd /tmp/pymzqc
     pytest
 ```
@@ -48,7 +52,7 @@ Now install the wheel in a new venv and test the wheel:
     deactivate
     python3 -m venv pipwhl && source pipwhl/bin/activate
     pip install pip --upgrade
-    pip install pytest dist/pymzqc-1.0.0-py3-none-any.whl
+    pip install pytest dist/pymzqc-*-py3-none-any.whl
     deactivate && source pipwhl/bin/activate
     cd /tmp/pymzqc
     pytest
@@ -97,7 +101,7 @@ And test that installation:
     python3 -m venv pippypi && source pippypi/bin/activate
     pip install pip --upgrade
     pip install pytest
-    python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pymzqc==1.0.0
+    python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pymzqc==X.Y.Z
     deactivate && source pippypi/bin/activate
     cd /tmp/pymzqc
     pytest

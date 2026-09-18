@@ -1,7 +1,7 @@
 name: release-builds
 on:
     release:
-      types: ['published','created','edited']  
+      types: ['published','created','edited']
 
 jobs:
   unit-tests:
@@ -12,9 +12,9 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v4 
+    - uses: actions/checkout@v4
       with:
-        fetch-depth: 1
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -49,20 +49,28 @@ jobs:
 
     steps:
     - name: Checkout git
-      uses: actions/checkout@v4 
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 1
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Build sdist and wheel
+    - name: Build and verify sdist and wheel
       run: |
         python3 -m pip install --upgrade pip
         pip install build
         python3 -m build
-        ls -l dist/
-        ls -l .
+
+        EXPECTED_VERSION="${{ github.event.release.tag_name }}"
+        EXPECTED_VERSION="${EXPECTED_VERSION#v}"
+
+        echo "Release tag: ${{ github.event.release.tag_name }}"
+        echo "Expected package version: ${EXPECTED_VERSION}"
+        ls -lh dist/
+
+        test -f "dist/pymzqc-${EXPECTED_VERSION}.tar.gz"
+        test -f "dist/pymzqc-${EXPECTED_VERSION}-py3-none-any.whl"
     - name: Upload wheel
       uses: actions/upload-artifact@v4
       with:
@@ -82,9 +90,9 @@ jobs:
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
       - name: Get wheel
         uses: actions/download-artifact@v4
         with:
@@ -92,22 +100,22 @@ jobs:
       - name: Set tags
         run: echo mwalzerpymzqc:${GITHUB_REF##*/}
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 #      - name: Login to DockerHub
-#        uses: docker/login-action@v1 
+#        uses: docker/login-action@v3
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to quay.io
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.quay_user_mzqc_action }}
           password: ${{ secrets.quay_pw_mzqc_action }}
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: containers/Dockerfile
@@ -123,9 +131,9 @@ jobs:
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
       - name: Get wheel
         uses: actions/download-artifact@v4
         with:
@@ -133,22 +141,22 @@ jobs:
       - name: Set tags
         run: echo mwalzerpymzqc:${GITHUB_REF##*/}
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 #      - name: Login to DockerHub
-#        uses: docker/login-action@v1 
+#        uses: docker/login-action@v3
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to quay.io
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v3
         with:
           registry: quay.io
           username: ${{ secrets.quay_user_mzqc_action }}
           password: ${{ secrets.quay_pw_mzqc_action }}
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: mzqcaccessories/onlinevalidator/Dockerfile
