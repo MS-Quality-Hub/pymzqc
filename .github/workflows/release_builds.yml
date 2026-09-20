@@ -61,7 +61,7 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         pip install build
-        python3 -m build --user
+        python3 -m build
 
         EXPECTED_VERSION="${{ github.event.release.tag_name }}"
         EXPECTED_VERSION="${EXPECTED_VERSION#v}"
