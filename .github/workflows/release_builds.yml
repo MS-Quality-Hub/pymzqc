@@ -198,7 +198,7 @@ jobs:
     # is already on PyPI is an error, so only publish once, on publication.
     if: github.event.action == 'published'
     runs-on: ubuntu-latest
-    needs: wheel-build
+    needs: publish-testpypi
     environment:
       name: pypi
       url: https://pypi.org/p/pymzqc
@@ -212,7 +212,7 @@ jobs:
         with:
           name: dist_${{ github.sha }}
           path: dist/
-      - name: Publish to TestPyPI
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
             repository-url: https://pypi.org/legacy/
