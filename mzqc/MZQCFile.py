@@ -290,28 +290,47 @@ def rectify(obj):
 
 class MzqcJSONEncoder(json.JSONEncoder):
     """
-    MzqcJSONEncoder The encoder used to facilitate indented encoding 
+    MzqcJSONEncoder The encoder used to facilitate indented encoding
 
     Handles the string encoding and formatting of the serialised objects.
+    Numeric metric ``value`` vectors are collapsed onto a single line so the
+    ``readability=1`` output matches the canonical mzQC representation.
     """
+    # Matches a `"value": [ ... ]` array (across lines). `leading` is restricted
+    # to horizontal whitespace so the captured indent does not swallow the
+    # preceding newline. The non-greedy inner group stops at the first closing
+    # bracket, which is correct for the flat value vectors this is meant to
+    # handle; nested arrays/objects are left alone.
+    _VALUE_ARRAY_RE = re.compile(r'(?P<leading>[ \t]*)"value"\s*:\s*\[(?P<inner>.*?)\]', re.DOTALL)
+
+    @classmethod
+    def _compact_value_arrays(classself, text, indent):
+        """Collapse ``"value": [...]`` element lists onto a single line."""
+        def _sub(match):
+            leading = match.group('leading')
+            inner = match.group('inner')
+            # Leave nested structures (matrices/tables) in standard form.
+            if '[' in inner or '{' in inner:
+                return match.group(0)
+            elems = []
+            for part in inner.split('\n'):
+                part = part.strip()
+                if part.endswith(','):
+                    part = part[:-1].strip()
+                if part:
+                    elems.append(part)
+            pad = leading + ' ' * indent
+            return '{0}"value": [\n{1}{2}\n{1}]'.format(leading, pad, ','.join(elems))
+        return classself._VALUE_ARRAY_RE.sub(_sub, text)
+
     def iterencode(self, o, _one_shot=False):
-        indent_level = 0
-        value_scope = False
-        for s in super(MzqcJSONEncoder, self).iterencode(o, _one_shot=_one_shot):
-            if value_scope and indent_level == 0 and s.startswith('}'):
-                value_scope = False
-            elif s.startswith('"value"'):
-                value_scope = True
-            if 0 < indent_level:
-                s = s.replace('\n', '').rstrip().lstrip()
-                if s.startswith(','):
-                    s = ',' + s[1:].lstrip()
-            if s.startswith('[') and value_scope:
-                indent_level += 1
-            if s.endswith(']') and value_scope:
-                indent_level -= 1
-                s = s.replace(']', '\n'+' '*self.indent*6+']').rstrip()
-            yield s
+        # Recent CPython releases emit the indented document in one (or very
+        # few) chunk(s), so the old per-chunk heuristics no longer fire. Build
+        # the full text first, then compact the value vectors deterministically.
+        text = ''.join(super().iterencode(o, _one_shot=_one_shot))
+        if self.indent:
+            text = self._compact_value_arrays(text, self.indent)
+        yield text
 
 
 class JsonObject(object):
