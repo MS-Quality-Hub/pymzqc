@@ -32,10 +32,10 @@ Homepage = "https://github.com/MS-Quality-hub/pymzqc"
 [project.optional-dependencies]
 # Flask app for the online validator API, which also serves the mzQC viewer.
 onlinevalidator = [
-    "Flask>=2.0",
-    "Flask-Cors>=5.0.0",
-    "Flask-RESTful>=0.3.9",
-    "Werkzeug>=2.2,<3.0",
+    "Flask>=3.0",
+    "Flask-Cors>=6.0.0",
+    "Flask-RESTful>=0.3.10",
+    "Werkzeug>=3.0.6",
     "gunicorn>=20.0; platform_system != 'Windows'",
 ]
 dev = [

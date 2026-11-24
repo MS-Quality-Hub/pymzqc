@@ -33,6 +33,11 @@ def test_status(client):
     assert client.get("/status/").get_json()["status"] == "API is running"
 
 
+def test_documentation(client):
+    doc = client.get("/documentation/").get_json()["documentation"]
+    assert {"schema validation", "semantic validation", "API doc", "version"} <= set(doc)
+
+
 def test_viewer_is_served(client):
     resp = client.get("/viewer/")
     assert resp.status_code == 200
