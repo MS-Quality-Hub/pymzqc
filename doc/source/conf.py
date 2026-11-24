@@ -52,6 +52,9 @@ html_theme_options = {
     "description": "A python library to use mzQC files",
     'github_repo': 'pymzqc',
     'github_user': 'MS-Quality-hub',
+    # The theme's GitHub button is a third-party iframe (ghbtns.com); a static
+    # badge link in _templates/sidebarbadges.html replaces it.
+    'github_button': False,
     'page_width': '1200px',
     'sidebar_width': '280px;',
 }
@@ -63,4 +66,4 @@ html_sidebars = {
                 'searchbox.html',
                 'sidebarbadges.html',
             ]
-        } # [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.com/project/pymzqc)
+        } # [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.org/project/pymzqc/)
