@@ -60,6 +60,20 @@ that only raises a warning on failure; the main test jobs do not install Playwri
 - Line length up to 127 (the flake8 setting in CI). No formatter is enforced; do not reformat code you
   are not changing.
 
+## Comments and docstrings
+- Match the documentation density of the existing code: in `mzqc/` roughly one comment line per
+  10-15 code lines, plus docstrings. Never a comment on every other line.
+- Comment *why* (a constraint, a workaround, a pointer to the schema or a bug), not *what* the next
+  line does. No comments that restate the code, and no change narration ("now uses X", "added for
+  Y"): that belongs in the commit message.
+- Public modules, classes, functions and methods get docstrings (PEP 257) in the numpydoc style used
+  in `mzqc/` (`Parameters`/`Returns` sections, rendered by Sphinx napoleon). Private helpers and tests
+  get a one-line docstring or none.
+- Update or delete comments that a change makes wrong (PEP 8: comments that contradict the code are
+  worse than no comments).
+- The same applies to the viewer's JavaScript and CSS: a short header per file, comments only where
+  the reason is not obvious.
+
 ## Viewer (`mzqcaccessories/viewer/`)
 - Plain HTML, CSS and classic `<script>` JavaScript: no dependencies, no build step, no ES modules,
   no CDN. It must keep working when `index.html` is opened from disk (`file://`), from the Flask app,
