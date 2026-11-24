@@ -36,6 +36,32 @@ jobs:
       run: |
         pytest -v
 
+  viewer-tests:
+    # Browser tests of the static mzQC viewer (tests/test_viewer.py) in headless
+    # Chromium. Non-blocking: a failure (install or tests) is reported as a
+    # warning annotation on the run but never fails the workflow.
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.14"
+    - name: Viewer tests (non-blocking)
+      run: |
+        set +e
+        python -m pip install --upgrade pip &&
+          pip install -e . pytest playwright &&
+          python -m playwright install --with-deps --only-shell chromium &&
+          pytest -v tests/test_viewer.py
+        status=$?
+        if [ "$status" -ne 0 ]; then
+          echo "::warning title=Viewer tests failed::The mzQC viewer browser tests failed (exit code $status). This does not fail the workflow; see the 'Viewer tests (non-blocking)' step log."
+        fi
+        exit 0
+
   wheel-build:
     runs-on: ubuntu-latest
     strategy:
