@@ -1,7 +1,9 @@
 name: release-builds
 on:
     release:
-      types: ['published','created','edited']
+      # 'published' fires once per release, pre-releases included. 'created' and
+      # 'edited' started the whole pipeline again (v1.0.3 ran it twice).
+      types: ['published']
 
 jobs:
   unit-tests:
@@ -122,9 +124,10 @@ jobs:
           file: containers/Dockerfile
           platforms: linux/amd64
           push: true
+          # pre-releases (e.g. v1.1.0rc1) get their own tag but do not move 'latest'
           tags: |
-            quay.io/mwalzer/pymzqc:latest
             quay.io/mwalzer/pymzqc:${{ github.event.release.tag_name }}
+            ${{ !github.event.release.prerelease && 'quay.io/mwalzer/pymzqc:latest' || '' }}
 
   validator-container-build:
     runs-on: ubuntu-latest
@@ -163,15 +166,12 @@ jobs:
           file: mzqcaccessories/onlinevalidator/Dockerfile
           platforms: linux/amd64
           push: true
+          # pre-releases (e.g. v1.1.0rc1) get their own tag but do not move 'latest'
           tags: |
-            quay.io/mwalzer/mzqc-validator:latest
             quay.io/mwalzer/mzqc-validator:${{ github.event.release.tag_name }}
+            ${{ !github.event.release.prerelease && 'quay.io/mwalzer/mzqc-validator:latest' || '' }}
 
   publish-testpypi:
-    # if: github.event.action == 'published' ||
-        # github.event.action == 'created' ||
-        # github.event.action == 'edited'
-
     runs-on: ubuntu-latest
     needs: wheel-build
     environment:
@@ -194,9 +194,6 @@ jobs:
 
 
   publish-pypi:
-    # This workflow also fires on 'created' and 'edited'. Uploading a file that
-    # is already on PyPI is an error, so only publish once, on publication.
-    if: github.event.action == 'published'
     runs-on: ubuntu-latest
     needs: publish-testpypi
     environment:
