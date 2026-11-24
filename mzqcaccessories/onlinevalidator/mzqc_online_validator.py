@@ -1,7 +1,7 @@
 import argparse
 
 try:
-    from flask import Flask, jsonify, request
+    from flask import Flask, jsonify, request, redirect, send_from_directory
     from flask_restful import Resource, Api
     from flask_cors import CORS
 except ImportError as err:
@@ -15,6 +15,7 @@ from mzqc.MZQCFile import get_version_string
 from mzqc.SemanticCheck import SemanticCheck
 from mzqc.SyntaxCheck import SyntaxCheck
 from mzqcaccessories.validator_core import validator_combined_core
+from mzqcaccessories.viewer import VIEWER_DIR
 
 app = Flask(__name__)
 api = Api(app)
@@ -80,15 +81,28 @@ api.add_resource(Documentation, '/documentation/')
 api.add_resource(Validator, '/validator/')
 
 
+@app.route('/viewer')
+def viewer_root():
+    """Redirect to the viewer folder so its relative asset paths resolve."""
+    return redirect('/viewer/')
+
+
+@app.route('/viewer/')
+@app.route('/viewer/<path:filename>')
+def viewer(filename='index.html'):
+    """Serve the static mzQC viewer (it runs entirely in the browser)."""
+    return send_from_directory(VIEWER_DIR, filename)
+
+
 def main(argv=None):
-    """Run the validator API with Flask's built-in server.
+    """Run the validator API and viewer with Flask's built-in server.
 
     For production deployments use a WSGI server, e.g.
     ``gunicorn mzqcaccessories.onlinevalidator.mzqc_online_validator:app``.
     """
     parser = argparse.ArgumentParser(
         prog='mzqc-onlinevalidator',
-        description='Serve the mzQC validator API.')
+        description='Serve the mzQC validator API and the mzQC viewer (at /viewer/).')
     parser.add_argument('--host', default='127.0.0.1', help='interface to bind (default: %(default)s)')
     parser.add_argument('--port', type=int, default=5000, help='port to listen on (default: %(default)s)')
     args = parser.parse_args(argv)

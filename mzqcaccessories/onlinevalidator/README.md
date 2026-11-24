@@ -1,7 +1,8 @@
 ## Simple mzqc-validator API
 
 The online validator needs the `onlinevalidator` extra: `pip install "pymzqc[onlinevalidator]"`.
-Run it locally with `mzqc-onlinevalidator` (options `--host`, `--port`, default `127.0.0.1:5000`).
+Run it locally with `mzqc-onlinevalidator` (options `--host`, `--port`, default `127.0.0.1:5000`);
+besides the API it serves the browser [mzQC viewer](../viewer/README.md) at `/viewer/`.
 For production use a WSGI server, e.g. `gunicorn mzqcaccessories.onlinevalidator.mzqc_online_validator:app -b 0.0.0.0:5000`.
 
 The simple API has three **endpoints**: 

@@ -30,7 +30,7 @@ Homepage = "https://github.com/MS-Quality-hub/pymzqc"
 # the offline validator CLI (mzqc-validator) and the file-handling CLIs. Extras
 # only add dependencies; see README.md for what each one enables.
 [project.optional-dependencies]
-# Flask app for the online validator API.
+# Flask app for the online validator API, which also serves the mzQC viewer.
 onlinevalidator = [
     "Flask>=2.0",
     "Flask-Cors>=5.0.0",

@@ -31,3 +31,13 @@ def client():
 
 def test_status(client):
     assert client.get("/status/").get_json()["status"] == "API is running"
+
+
+def test_viewer_is_served(client):
+    resp = client.get("/viewer/")
+    assert resp.status_code == 200
+    assert b"<title>mzQC Viewer</title>" in resp.data
+    for asset in ("mzqc-core.js", "mzqc-plot.js", "mzqc-viewer.js", "mzqc-viewer.css"):
+        assert client.get(f"/viewer/{asset}").status_code == 200, asset
+    assert client.get("/viewer").status_code in (301, 302, 308)
+    assert client.get("/viewer/../validator_core.py").status_code == 404

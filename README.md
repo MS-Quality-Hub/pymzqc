@@ -36,7 +36,7 @@ Optional feature sets are installed as *extras*:
 
 | Extra | Adds |
 |---|---|
-| `pymzqc[onlinevalidator]` | the validator web API (`mzqc-onlinevalidator`; Flask, gunicorn) |
+| `pymzqc[onlinevalidator]` | the validator web API and the browser mzQC viewer (`mzqc-onlinevalidator`; Flask, gunicorn) |
 | `pymzqc[dev]` | the above plus test (pytest, Playwright), build and documentation (Sphinx) tools |
 
 For example `pip install "pymzqc[onlinevalidator]"` (quote the argument in shells such as zsh).
@@ -44,7 +44,7 @@ Console scripts are always installed; a script whose extra is missing exits with
 
 ### Viewing mzQC files in the browser
 The [mzQC viewer](mzqcaccessories/viewer/README.md) opens mzQC files in the browser, with highlighted, collapsible source and a rendered report with tables and plots.
-It is a static page that needs no installation and can be hosted e.g. on GitHub Pages.
+It is a static page that needs no installation and can be hosted e.g. on GitHub Pages; `mzqc-onlinevalidator` also serves it at `/viewer/`.
 
 ### From Git
 If you want a development version, use for example : 

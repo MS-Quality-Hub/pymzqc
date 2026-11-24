@@ -23,7 +23,9 @@ The viewer is plain HTML, CSS and JavaScript with no dependencies and no build s
 
 - open `index.html` straight from disk, or
 - copy this folder to any static web host (for example GitHub Pages; only `index.html`,
-  `mzqc-viewer.css` and the three `mzqc-*.js` files are needed).
+  `mzqc-viewer.css` and the three `mzqc-*.js` files are needed), or
+- run `mzqc-onlinevalidator` (`pip install "pymzqc[onlinevalidator]"`) and browse to
+  `http://127.0.0.1:5000/viewer/`.
 
 ### Code layout
 | File | Purpose |
