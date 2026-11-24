@@ -55,9 +55,16 @@ html_theme_options = {
     # The theme's GitHub button is a third-party iframe (ghbtns.com); a static
     # badge link in _templates/sidebarbadges.html replaces it.
     'github_button': False,
-    'page_width': '1200px',
-    'sidebar_width': '280px;',
+    # Below page_width alabaster switches to its single-column small-screen
+    # layout. Above it, _static/custom.css lets the page grow with the window
+    # (up to 1600px) instead of a fixed 1200px column.
+    'page_width': '1000px',
+    'sidebar_width': '280px',
+    # Sphinx's basic theme caps the text column at 800px, which left an empty
+    # band right of the text and wrapped long headings early.
+    'body_max_width': 'none',
 }
+html_static_path = ['_static']
 html_sidebars = {
         '**': [# located at _templates/
                 'about.html',
