@@ -29,9 +29,9 @@ see the version tags:
     git fetch --tags
     python3 -m venv ../pipgit && source ../pipgit/bin/activate
     pip install pip --upgrade
-    pip install pytest build
-    pip install -e .
+    pip install -e ".[dev]"
 ```
+The `dev` extra brings every optional feature plus the test, build and documentation tools.
 
 Re-activate your venv to let pytest reset to current venv and test installation: 
 ```bash
@@ -52,7 +52,7 @@ Now install the wheel in a new venv and test the wheel:
     deactivate
     python3 -m venv pipwhl && source pipwhl/bin/activate
     pip install pip --upgrade
-    pip install pytest dist/pymzqc-*-py3-none-any.whl
+    pip install pytest "$(ls dist/pymzqc-*-py3-none-any.whl)[onlinevalidator]"
     deactivate && source pipwhl/bin/activate
     cd /tmp/pymzqc
     pytest

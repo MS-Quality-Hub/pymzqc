@@ -1,5 +1,9 @@
 ## Simple mzqc-validator API
 
+The online validator needs the `onlinevalidator` extra: `pip install "pymzqc[onlinevalidator]"`.
+Run it locally with `mzqc-onlinevalidator` (options `--host`, `--port`, default `127.0.0.1:5000`).
+For production use a WSGI server, e.g. `gunicorn mzqcaccessories.onlinevalidator.mzqc_online_validator:app -b 0.0.0.0:5000`.
+
 The simple API has three **endpoints**: 
 1. to indicate '/status/' (GET)
 2. providing '/documentation/' (GET) 
@@ -19,7 +23,7 @@ rm -f pymzqc-*-py3-none-any.whl
 The validator image installs that exact wheel. This is important now that package versions are derived from Git tags with Hatch VCS: Docker build contexts do not reliably contain the repository's `.git` metadata.
 
 Pre-built container images for selected (pre-)release versions can be found at the [mzqc-validator container registry](https://quay.io/repository/mwalzer/mzqc-validator?tab=tags&tag=latest).
-If you want to deploy the **online**validator with your local pymzqc installation, please be aware of extra dependencies to the [online-validator](mzqcaccessories/onlinevalidator/requirements.txt). 
+If you want to deploy the **online**validator with your local pymzqc installation, install the `onlinevalidator` extra (the container build does this from the wheel). 
 
 ### Deployment
 To test a deployment, run the mzqc-validator flask app in gunicorn from the container like so: 

@@ -1,10 +1,15 @@
-import io
-import json
-from jsonschema import ValidationError
-from flask import Flask
-from flask import Flask, jsonify, request
-from flask_restful import Resource, Api
-from flask_cors import CORS
+import argparse
+
+try:
+    from flask import Flask, jsonify, request
+    from flask_restful import Resource, Api
+    from flask_cors import CORS
+except ImportError as err:
+    raise ImportError(
+        "The mzQC online validator requires extra dependencies. "
+        "Please install them using: pip install pymzqc[onlinevalidator]"
+    ) from err
+
 from mzqc.MZQCFile import MzQcFile as mzqc_file
 from mzqc.MZQCFile import get_version_string
 from mzqc.SemanticCheck import SemanticCheck
@@ -74,5 +79,21 @@ api.add_resource(Status, '/','/status/')
 api.add_resource(Documentation, '/documentation/')
 api.add_resource(Validator, '/validator/')
 
+
+def main(argv=None):
+    """Run the validator API with Flask's built-in server.
+
+    For production deployments use a WSGI server, e.g.
+    ``gunicorn mzqcaccessories.onlinevalidator.mzqc_online_validator:app``.
+    """
+    parser = argparse.ArgumentParser(
+        prog='mzqc-onlinevalidator',
+        description='Serve the mzQC validator API.')
+    parser.add_argument('--host', default='127.0.0.1', help='interface to bind (default: %(default)s)')
+    parser.add_argument('--port', type=int, default=5000, help='port to listen on (default: %(default)s)')
+    args = parser.parse_args(argv)
+    app.run(host=args.host, port=args.port)
+
+
 if __name__ == '__main__':
-    app.run()
+    main()

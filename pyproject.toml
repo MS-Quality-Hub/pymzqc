@@ -26,15 +26,41 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/MS-Quality-hub/pymzqc"
 
-# this will install additional to the mzqc module the mzqcaccessories module with the scripts from the accessories folder
+# Optional feature sets ("extras"). The base install covers the mzqc library,
+# the offline validator CLI (mzqc-validator) and the file-handling CLIs. Extras
+# only add dependencies; see README.md for what each one enables.
+[project.optional-dependencies]
+# Flask app for the online validator API.
+onlinevalidator = [
+    "Flask>=2.0",
+    "Flask-Cors>=5.0.0",
+    "Flask-RESTful>=0.3.9",
+    "Werkzeug>=2.2,<3.0",
+    "gunicorn>=20.0; platform_system != 'Windows'",
+]
+dev = [
+    "pymzqc[onlinevalidator]",
+    # tests
+    "pytest",
+    "flake8",
+    # build
+    "build",
+    # documentation
+    "sphinx>=5.0",
+    "myst-parser",
+    "nbsphinx",
+]
+
+# Console scripts are always installed with the wheel (Python packaging cannot
+# tie an entry point to an extra). A script whose extra dependencies are
+# missing exits with a message naming the extra to install.
 [project.scripts]
+mzqc-validator = "mzqcaccessories.offlinevalidator.mzqc_offline_validator:start"
 mzqc-fileinfo = "mzqcaccessories.filehandling.mzqc_fileinfo:mzqcfileinfo"
 mzqc-filemerger = "mzqcaccessories.filehandling.mzqc_filemerger:mzqcfilemerger"
 mzqc-fixdescriptions = "mzqcaccessories.filehandling.mzqc_fixdescriptions:mzqcfixdescriptions"
-# mzQC-online-validator = "mzqconlinevalidator.mzqc_online_validator:app.run"
-# Note: onlinevalidator has extra dependencies not covered by this project file!
-#       See mzqcaccessories/onlinevalidator/requirements.txt!
-mzqc-validator = "mzqcaccessories.offlinevalidator.mzqc_offline_validator:start"
+# pymzqc[onlinevalidator]
+mzqc-onlinevalidator = "mzqcaccessories.onlinevalidator.mzqc_online_validator:main"
 
 [tool.hatch.version]
 source = "vcs"
@@ -44,13 +70,17 @@ local_scheme = "no-local-version"
 
 [tool.hatch.build.targets.wheel]
 packages = ["mzqc", "mzqcaccessories"]
-# Unlike setuptools' find_packages(), hatchling includes every file under a
-# package directory. onlinevalidator is not an importable package (it has no
-# __init__.py) and ships its own container/requirements files, so keep it and
-# the per-directory READMEs out of the wheel, as the setuptools build did.
+# hatchling includes every file under a package directory, so leave out the
+# deployment, development and documentation files that live next to the code.
+# Hidden folders, jupyter/, doc/ and tests/ are outside the packages and never
+# reach the wheel.
 exclude = [
-    "mzqcaccessories/onlinevalidator",
     "**/README.md",
+    "**/__pycache__",
+    "mzqcaccessories/onlinevalidator/Dockerfile",
+    "mzqcaccessories/onlinevalidator/compose.yaml",
+    "mzqcaccessories/onlinevalidator/dev-test-validation.py",
+    "mzqcaccessories/onlinevalidator/local_validator.html",
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -64,5 +94,5 @@ include = [
     "/LICENSE",
 ]
 exclude = [
-    "mzqcaccessories/onlinevalidator",
+    "**/__pycache__",
 ]

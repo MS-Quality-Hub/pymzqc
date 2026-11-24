@@ -30,6 +30,18 @@ Most people will want to install the latest release version of pymzqc. Please in
 pip install pymzqc
 ```
 
+The base install contains the library, the offline validator CLI (`mzqc-validator`)
+and the file-handling CLIs (`mzqc-fileinfo`, `mzqc-filemerger`, `mzqc-fixdescriptions`).
+Optional feature sets are installed as *extras*:
+
+| Extra | Adds |
+|---|---|
+| `pymzqc[onlinevalidator]` | the validator web API (`mzqc-onlinevalidator`; Flask, gunicorn) |
+| `pymzqc[dev]` | the above plus test (pytest), build and documentation (Sphinx) tools |
+
+For example `pip install "pymzqc[onlinevalidator]"` (quote the argument in shells such as zsh).
+Console scripts are always installed; a script whose extra is missing exits with the `pip install` command that adds it.
+
 ### From Git
 If you want a development version, use for example : 
 ```
