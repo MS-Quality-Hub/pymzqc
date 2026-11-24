@@ -42,6 +42,10 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# The accessories pages include README.md files whose headings start below H1
+# by design (they are nested into the reST section structure).
+suppress_warnings = ['myst.header']
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -74,3 +78,33 @@ html_sidebars = {
                 'sidebarbadges.html',
             ]
         } # [![PyPi version](https://badgen.net/pypi/v/pymzqc/)](https://pypi.org/project/pymzqc/)
+
+
+# -- mzQC Viewer -------------------------------------------------------------
+# The browser viewer (mzqcaccessories/viewer) is static HTML/JS; publish it with
+# the HTML docs under viewer/. (html_extra_path would copy the folder contents
+# into the site root and replace the docs' index.html, hence this hook.)
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+VIEWER_SRC = os.path.join(REPO_ROOT, 'mzqcaccessories', 'viewer')
+VIEWER_FILES = ['index.html', 'mzqc-viewer.css', 'mzqc-core.js', 'mzqc-plot.js', 'mzqc-viewer.js']
+# Example files offered on the viewer docs page (published under viewer/examples/).
+VIEWER_EXAMPLES = [
+    os.path.join(VIEWER_SRC, 'tests', 'fixtures', 'showcase.mzQC'),
+    os.path.join(REPO_ROOT, 'tests', 'examples', 'individual-runs.mzQC'),
+]
+
+
+def copy_viewer(app, exception):
+    import shutil
+    if exception is not None or app.builder.format != 'html':
+        return
+    target = os.path.join(app.outdir, 'viewer')
+    os.makedirs(os.path.join(target, 'examples'), exist_ok=True)
+    for name in VIEWER_FILES:
+        shutil.copy2(os.path.join(VIEWER_SRC, name), target)
+    for path in VIEWER_EXAMPLES:
+        shutil.copy2(path, os.path.join(target, 'examples'))
+
+
+def setup(app):
+    app.connect('build-finished', copy_viewer)

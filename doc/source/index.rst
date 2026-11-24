@@ -21,6 +21,7 @@ Welcome to mzQC's python library documentation!
    notebooks
    package
    build_and_container
+   viewer
 
 Indices and tables
 ==================

@@ -20,3 +20,7 @@ Validator API
 -------------
 .. include:: ../../mzqcaccessories/onlinevalidator/README.md
    :parser: myst_parser.sphinx_
+
+Browser viewer
+--------------
+The browser viewer for mzQC files has its own page: :doc:`mzQC Viewer <./viewer>`.
