@@ -9,7 +9,8 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ["3.8"]
+        # oldest and newest supported Python (requires-python in pyproject.toml)
+        python-version: ["3.10", "3.14"]
 
     steps:
     - uses: actions/checkout@v4

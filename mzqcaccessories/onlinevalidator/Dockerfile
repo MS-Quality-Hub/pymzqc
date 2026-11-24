@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.13-slim
 # From the pymzqc repository root, first build/copy a wheel into the build
 # context, then run:
 #   podman build -t mzqc-validator -f mzqcaccessories/onlinevalidator/Dockerfile .

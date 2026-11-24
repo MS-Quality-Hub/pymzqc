@@ -7,7 +7,7 @@ name = "pymzqc"
 dynamic = ["version"]
 description = "Python library for the PSI-mzQC quality control file format."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 authors = [
     { name = "Mathias Walzer", email = "walzer@ebi.ac.uk" },
 ]
