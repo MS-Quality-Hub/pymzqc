@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../../mzqc/'))
 # -- Project information -----------------------------------------------------
 
 project = 'pymzqc'
-copyright = '2019-2025, Mathias Walzer'
+copyright = '2019-2027, Mathias Walzer'
 author = 'Mathias Walzer'
 
 # The full version, including alpha/beta/rc tags
