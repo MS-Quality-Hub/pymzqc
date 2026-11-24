@@ -15,7 +15,6 @@ COPY pymzqc-*-any.whl /tmp/
 
 COPY mzqcaccessories/onlinevalidator/mzqc_online_validator.py mzqc-validator/
 COPY mzqcaccessories/onlinevalidator/requirements.txt mzqc-validator/
-COPY mzqcaccessories/onlinevalidator/Procfile mzqc-validator/
 
 RUN python -m pip install --upgrade pip
 RUN pip install /tmp/pymzqc-*-any.whl

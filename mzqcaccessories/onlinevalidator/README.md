@@ -28,7 +28,7 @@ podman run -p 5000:5000 -ti localhost/mzqc-validator python3 -m gunicorn mzqc_on
 ```
 For local tests calling the flask app directly (i.e. as single thread app) is fine too: `python mzqcaccessories/onlinevalidator/mzqc_online_validator.py`; 
 note that the ports might differ, depending on the flask and system defaults. 
-Calling the mzqc_online_validator directly in gunicorn is fine too (`podman run -p 8123:8123 -ti localhost/mzqc-validator python3 -m gunicorn mzqc_online_validator:app -b 0.0.0.0:8123 --chdir mzqc-validator/`). Older versions of pymzqc contained a `wsgi.py` indirection (importing the 'app' from `mzqc_online_validator.py`) which was a legacy from heroku's Procfile use and their example app.
+Calling the mzqc_online_validator directly in gunicorn is fine too (`podman run -p 8123:8123 -ti localhost/mzqc-validator python3 -m gunicorn mzqc_online_validator:app -b 0.0.0.0:8123 --chdir mzqc-validator/`).
 
 
 The `validate` function of SemanticCheck is considerate of the environment variable `MAX_ERR` which set to an integer limits the amount of validation errors that can occur before validation is aborted. This can be for example adjusted in the call like so: `podman run --env 'MAX_ERR=5' -p 5000:5000 -ti localhost/mzqc-validator python3 -m gunicorn mzqc_online_validator:app -b 0.0.0.0:5000 --chdir mzqc-validator/`
@@ -46,16 +46,3 @@ You can find both files necessary within the repository under [mzqcaccessories/o
 
 
 Also, for either testing of a local deployment or as convenience for local validation, the repository provides a html page to call a locally deployed mzqc-validator API `mzqcaccessories/onlinevalidator/local_validator.html`
-
-#### Legacy Heroku Deployment
-Or you can deploy your own heroku dyno like so:
-```
-cd /tmp/
-curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
-heroku login
-heroku git:clone -a mzqc-validator 
-cd mzqc-validator
-rsync -aP --delete /home/walzer/psi/pymzqc/acessories/onlinevalidator  /tmp/mzqc-validator
-git push heroku master
-```
-

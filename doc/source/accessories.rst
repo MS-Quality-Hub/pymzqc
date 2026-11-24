@@ -14,8 +14,8 @@ Validator
 .. include:: ../../mzqcaccessories/offlinevalidator/README.md
    :parser: myst_parser.sphinx_
 
-Validator API (formerly heroku)
--------------------------------
+Validator API
+-------------
 .. include:: ../../mzqcaccessories/onlinevalidator/README.md
    :parser: myst_parser.sphinx_
 
