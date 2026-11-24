@@ -16,6 +16,7 @@ pytest --checkversioning           # also the release-time version checks (skipp
 flake8 . --select=E9,F63,F7,F82    # the lint CI treats as relevant
 python -m build --wheel            # check packaging changes; inspect with: unzip -l dist/*.whl
 sphinx-build -b html doc/source /tmp/pymzqc-docs   # graphviz needed for the class diagrams
+bash .github/scripts/smoke-test-container.sh validator IMAGE   # container check; see BUILD.md
 ```
 
 The viewer tests launch Playwright's Chromium and fall back to any Chromium build cached under
@@ -47,7 +48,8 @@ that only raises a warning on failure; the main test jobs do not install Playwri
   `json.JSONEncoder.iterencode` chunks its output; it differs between CPython versions (see commit
   b5e1ce8).
 - **Versions come from git tags** (hatch-vcs). Never write a version number into `pyproject.toml` or
-  code; CI checkouts need `fetch-depth: 0`.
+  code; CI checkouts need `fetch-depth: 0`. Release candidates are tagged `vX.Y.ZrcN` (no hyphen);
+  the release workflow checks that the built file names match the tag.
 - **Extras only add dependencies.** Every `[project.scripts]` entry is installed with the base package;
   Python packaging cannot gate a script on an extra. An accessory with optional dependencies imports
   them in `try/except ImportError` and raises an `ImportError` naming the install command
