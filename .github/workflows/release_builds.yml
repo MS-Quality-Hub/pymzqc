@@ -111,6 +111,16 @@ jobs:
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build image for the smoke test
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: containers/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: pymzqc-smoke-test
+      - name: Smoke test
+        run: bash .github/scripts/smoke-test-container.sh pymzqc pymzqc-smoke-test
       - name: Login to quay.io
         uses: docker/login-action@v3
         with:
@@ -153,6 +163,16 @@ jobs:
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build image for the smoke test
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: mzqcaccessories/onlinevalidator/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: validator-smoke-test
+      - name: Smoke test
+        run: bash .github/scripts/smoke-test-container.sh validator validator-smoke-test
       - name: Login to quay.io
         uses: docker/login-action@v3
         with:

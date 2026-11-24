@@ -131,6 +131,16 @@ jobs:
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build image for the smoke test
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: containers/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: pymzqc-smoke-test
+      - name: Smoke test
+        run: bash .github/scripts/smoke-test-container.sh pymzqc pymzqc-smoke-test
       - name: Login to quay.io
         if: env.CAN_PUSH == 'true'
         uses: docker/login-action@v3
@@ -148,3 +158,63 @@ jobs:
           tags: |
             quay.io/mwalzer/pymzqc:latest_pullrequest_build
             quay.io/mwalzer/pymzqc:${{ env.SAFE_REF }}_${{ github.sha }}
+
+  validator-container-build:
+    runs-on: ubuntu-latest
+    needs: wheel-build
+    env:
+      # see container-build
+      CAN_PUSH: ${{ secrets.quay_user_mzqc_action != '' }}
+
+    steps:
+      - name: Get dockerfile
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: wheel_${{ github.sha }}
+      - name: Set image tag
+        run: |
+          # Branch names may contain '/' (all Dependabot branches do), which is
+          # not a legal character in a Docker tag. Map anything outside the
+          # allowed tag charset to '-'.
+          ref="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
+          printf 'SAFE_REF=%s\n' "$(printf '%s' "$ref" | tr -c 'a-zA-Z0-9_.-' '-')" >> "$GITHUB_ENV"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+#      - name: Login to DockerHub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build image for the smoke test
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: mzqcaccessories/onlinevalidator/Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: validator-smoke-test
+      - name: Smoke test
+        run: bash .github/scripts/smoke-test-container.sh validator validator-smoke-test
+      - name: Login to quay.io
+        if: env.CAN_PUSH == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.quay_user_mzqc_action }}
+          password: ${{ secrets.quay_pw_mzqc_action }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: mzqcaccessories/onlinevalidator/Dockerfile
+          platforms: linux/amd64
+          push: ${{ env.CAN_PUSH == 'true' }}
+          tags: |
+            quay.io/mwalzer/mzqc-validator:latest_pullrequest_build
+            quay.io/mwalzer/mzqc-validator:${{ env.SAFE_REF }}_${{ github.sha }}
