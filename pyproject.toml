@@ -43,6 +43,7 @@ dev = [
     # tests
     "pytest",
     "flake8",
+    "playwright",
     # build
     "build",
     # documentation
@@ -81,6 +82,7 @@ exclude = [
     "mzqcaccessories/onlinevalidator/compose.yaml",
     "mzqcaccessories/onlinevalidator/dev-test-validation.py",
     "mzqcaccessories/onlinevalidator/local_validator.html",
+    "mzqcaccessories/viewer/tests",
 ]
 
 [tool.hatch.build.targets.sdist]

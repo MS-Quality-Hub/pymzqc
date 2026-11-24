@@ -30,8 +30,10 @@ see the version tags:
     python3 -m venv ../pipgit && source ../pipgit/bin/activate
     pip install pip --upgrade
     pip install -e ".[dev]"
+    playwright install chromium   # browser for the viewer tests (tests/test_viewer.py)
 ```
 The `dev` extra brings every optional feature plus the test, build and documentation tools.
+Without Playwright or a Chromium build the viewer tests are skipped.
 
 Re-activate your venv to let pytest reset to current venv and test installation: 
 ```bash

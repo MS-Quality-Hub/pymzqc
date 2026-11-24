@@ -37,7 +37,7 @@ Optional feature sets are installed as *extras*:
 | Extra | Adds |
 |---|---|
 | `pymzqc[onlinevalidator]` | the validator web API (`mzqc-onlinevalidator`; Flask, gunicorn) |
-| `pymzqc[dev]` | the above plus test (pytest), build and documentation (Sphinx) tools |
+| `pymzqc[dev]` | the above plus test (pytest, Playwright), build and documentation (Sphinx) tools |
 
 For example `pip install "pymzqc[onlinevalidator]"` (quote the argument in shells such as zsh).
 Console scripts are always installed; a script whose extra is missing exits with the `pip install` command that adds it.
