@@ -42,6 +42,10 @@ Optional feature sets are installed as *extras*:
 For example `pip install "pymzqc[onlinevalidator]"` (quote the argument in shells such as zsh).
 Console scripts are always installed; a script whose extra is missing exits with the `pip install` command that adds it.
 
+### Viewing mzQC files in the browser
+The [mzQC viewer](mzqcaccessories/viewer/README.md) opens mzQC files in the browser, with highlighted, collapsible source and a rendered report with tables and plots.
+It is a static page that needs no installation and can be hosted e.g. on GitHub Pages.
+
 ### From Git
 If you want a development version, use for example : 
 ```
@@ -71,7 +75,7 @@ Accordingly, other elements such as functions in all pymzqc modules will keep th
 
 ### Repository structure
 The python package's code is located in the `mzqc` folder, continuous testing code in `tests`, the documentation in `doc`. The libray-**use** container descriptions are in `containers`, if you want a container for library-**development**, you can use the container description within `.devcontainer`, more development presets can be found in `.vscode`. 
-The `jupyter` and `accessories` folders are subprojects making use of the library. 
+The `jupyter` and `mzqcaccessories` folders are subprojects making use of the library (`mzqcaccessories/viewer` is the browser viewer, plain HTML/JavaScript). 
 See their README in the respective sub-folders.
 
 ### Documentation

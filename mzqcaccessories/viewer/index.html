@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="View mzQC quality control files in the browser: highlighted source and a rendered report.">
+  <title>mzQC Viewer</title>
+  <link rel="stylesheet" href="mzqc-viewer.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>mzQC Viewer</h1>
+    <label class="btn primary">
+      Open file
+      <input type="file" id="file-input" accept=".mzqc,.mzQC,.json,application/json">
+    </label>
+    <span id="file-name" class="file-name"></span>
+    <span class="spacer"></span>
+    <div class="toolbar doc-only">
+      <button type="button" class="btn" id="expand-all">Expand all</button>
+      <button type="button" class="btn" id="collapse-all">Collapse all</button>
+      <button type="button" class="btn" id="download" title="Save the file as shown: 4-space indentation, empty optional elements removed">Download</button>
+      <button type="button" class="btn wide-only" id="toggle-report" aria-pressed="true">Report-Style</button>
+    </div>
+  </header>
+
+  <nav class="tabs doc-only" id="tabs" role="tablist" aria-label="Panels">
+    <button type="button" role="tab" data-tab="source">Source</button>
+    <button type="button" role="tab" data-tab="report">Report-Style</button>
+  </nav>
+
+  <div id="messages" class="messages" aria-live="polite"></div>
+
+  <main id="main" class="layout">
+    <div id="empty-state" class="empty-state">
+      <p class="lead">Open an mzQC file or drop it anywhere on this page.</p>
+      <p class="muted">The file is read by your browser only; nothing is uploaded.
+        To open a file from the web, add <code>?url=&lt;address of the file&gt;</code> to this page's address.</p>
+    </div>
+    <section id="source-panel" class="panel source-panel doc-only" aria-label="mzQC source">
+      <div id="source" class="code" hidden></div>
+    </section>
+    <section id="report-panel" class="panel report-panel doc-only" aria-label="Report">
+      <div id="report" class="report"></div>
+    </section>
+  </main>
+
+  <div class="drop-overlay" aria-hidden="true"><span>Drop the mzQC file to open it</span></div>
+
+  <script src="mzqc-core.js"></script>
+  <script src="mzqc-plot.js"></script>
+  <script src="mzqc-viewer.js"></script>
+</body>
+</html>
