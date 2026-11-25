@@ -1,5 +1,6 @@
 __author__ = 'bittremieux, walzer'
 import os
+import re
 import sys
 from itertools import chain
 from dataclasses import dataclass
@@ -228,6 +229,8 @@ class SemanticCheck(UserDict):
                                           f'Error loading the following online ontology referenced in mzQC file: {e}'))
         return vocs
 
+    _RE_ALPHA_NUM = re.compile(r'[^A-Za-z0-9]')
+    
     def _check_InputFile_consistency(self, issue_type_category: str, _document_collected_issues: bool = False):
         """Checks the InputFile consistency of given mzqc_object
 
@@ -261,15 +264,18 @@ class SemanticCheck(UserDict):
             return
 
         input_file_sets = defaultdict(set)  # [name: [location(s)]]
+        
+        lambda_infix_alpha_num = lambda inner,outer: self._RE_ALPHA_NUM.sub('', inner).casefold() in self._RE_ALPHA_NUM.sub('', outer).casefold()
+        
         for quality in chain(self.mzqc_obj.runQualities, self.mzqc_obj.setQualities):
             one_input_file_location_set = set()
             for input_file in quality.metadata.inputFiles:
                 input_file_sets[input_file.name].add(input_file.location)
-                if input_file.name not in input_file.location:
+                if not lambda_infix_alpha_num(input_file.name, input_file.location):
                     self.raising(issue_type_category,
                                  SemanticIssue("Inconsistent input file", "INFO",
                                                 f'Possible file name and location inconsistency:'
-                                                f'{input_file.name}/{input_file.location}'))
+                                                f' {input_file.name} <> {input_file.location}'))
                 one_input_file_location_set.add(input_file.location)
 
             # if more than 2 inputs but just one location
