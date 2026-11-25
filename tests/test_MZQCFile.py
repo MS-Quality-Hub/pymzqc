@@ -77,9 +77,8 @@ class TestSerialisation:
     def test_SetQuality(self):
         assert qc.JsonSerialisable.to_json(sq, complete=False) == SEQU
 
-    def test_MzQcFile(self):
-        #pass
-        with open("/tmp/test.mzQC","w") as f:
+    def test_MzQcFile(self, tmp_path):
+        with open(tmp_path / "test.mzQC", "w") as f:
             f.write(qc.JsonSerialisable.to_json(mzqc,2, complete=False))
 
     def test_NumpyValues(self):
