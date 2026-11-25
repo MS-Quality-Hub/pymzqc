@@ -15,7 +15,9 @@ The file is read by the browser only; nothing is uploaded.
   and numeric value lists, are plotted (line plot when the x column is sorted, otherwise scatter), with
   selectable columns. **{ } source** jumps to the metric in the source panel.
 - On wide windows (at least 1100 px) both panels are shown side by side, like a markdown preview;
-  narrower windows switch between them with tabs.
+  narrower windows switch between them with tabs. Drag the bar between the panels (or focus it and use
+  the arrow keys) to change their widths; double-click it to reset. The **Source** and **Report-Style**
+  buttons hide or show either panel.
 - `index.html?url=<address>` opens a file from the web (the server must allow cross-origin requests).
 
 ### Running it

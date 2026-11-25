@@ -214,6 +214,7 @@ def test_two_panels_when_wide_tabs_when_narrow(page, base_url):
 
     page.set_viewport_size({"width": 800, "height": 900})
     assert page.locator("#tabs").is_visible()
+    assert not page.locator("#splitter").is_visible()
     assert page.locator("#source-panel").is_visible()
     assert not page.locator("#report-panel").is_visible()
     page.click('#tabs [data-tab="report"]')
@@ -222,6 +223,56 @@ def test_two_panels_when_wide_tabs_when_narrow(page, base_url):
     # no horizontal page scroll at phone width
     page.set_viewport_size({"width": 375, "height": 800})
     assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
+
+
+def test_source_panel_can_be_hidden(page, base_url):
+    open_viewer(page, base_url, SHOWCASE)
+    page.click("#toggle-source")
+    assert not page.locator("#source-panel").is_visible()
+    assert not page.locator("#splitter").is_visible()
+    assert page.locator("#report-panel").bounding_box()["width"] > 1300
+    # the last shown panel cannot be hidden as well
+    assert page.locator("#toggle-report").is_disabled()
+    # "{ } source" brings the source panel back
+    page.locator("#report article.metric .source-link").first.click()
+    assert page.locator("#source-panel").is_visible()
+    assert page.get_attribute("#toggle-source", "aria-pressed") == "true"
+    assert page.locator("#toggle-report").is_enabled()
+
+
+def test_splitter_resizes_the_panels(page, base_url):
+    open_viewer(page, base_url, SHOWCASE)
+
+    def width(selector):
+        return page.locator(selector).bounding_box()["width"]
+
+    def drag_splitter_to(x):
+        bar = page.locator("#splitter").bounding_box()
+        y = bar["y"] + 200
+        page.mouse.move(bar["x"] + bar["width"] / 2, y)
+        page.mouse.down()
+        page.mouse.move(x, y, steps=4)
+        page.mouse.up()
+        bar = page.locator("#splitter").bounding_box()
+        return bar["x"] + bar["width"] / 2
+
+    assert abs(width("#source-panel") - width("#report-panel")) < 2
+    assert abs(drag_splitter_to(400) - 400) < 2
+    assert width("#source-panel") < width("#report-panel")
+    # each panel keeps a minimum width
+    drag_splitter_to(5)
+    assert abs(width("#source-panel") - 280) < 2
+    drag_splitter_to(1395)
+    assert abs(width("#report-panel") - 280) < 2
+    # keyboard: Enter resets, arrows move in 2 % steps
+    page.focus("#splitter")
+    page.keyboard.press("Enter")
+    assert page.get_attribute("#splitter", "aria-valuenow") == "50"
+    page.keyboard.press("ArrowRight")
+    assert page.get_attribute("#splitter", "aria-valuenow") == "52"
+    assert width("#source-panel") > width("#report-panel")
+    page.dblclick("#splitter")
+    assert page.get_attribute("#splitter", "aria-valuenow") == "50"
 
 
 def test_invalid_json_shows_error_with_position(page, base_url):
