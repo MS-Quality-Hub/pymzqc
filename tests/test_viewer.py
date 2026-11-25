@@ -21,7 +21,8 @@ sync_api = pytest.importorskip("playwright.sync_api")
 ROOT = Path(__file__).resolve().parent.parent
 VIEWER = "mzqcaccessories/viewer"
 SHOWCASE = f"{VIEWER}/tests/fixtures/showcase.mzQC"
-EXAMPLES = sorted(os.path.relpath(p, ROOT) for p in glob.glob(str(ROOT / "tests" / "examples" / "*.mzQC")))
+# POSIX paths, so they match PYMZQC_NORMALISED and the server URLs on Windows too
+EXAMPLES = sorted(Path(p).relative_to(ROOT).as_posix() for p in glob.glob(str(ROOT / "tests" / "examples" / "*.mzQC")))
 # pymzqc normalises these on load (adds a timezone, drops non-schema keys or
 # null values) whereas the viewer shows the file content as written.
 PYMZQC_NORMALISED = {
