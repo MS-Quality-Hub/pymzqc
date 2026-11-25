@@ -263,6 +263,34 @@
     return block;
   }
 
+  /** A fold whose content is built when it is first opened. */
+  function lazyFold(summary, build, open) {
+    const fold = h('details', { class: 'table-fold' }, h('summary', {}, summary));
+    const fill = () => { if (fold.childElementCount === 1) fold.append(build()); };
+    fold.addEventListener('toggle', () => { if (fold.open) fill(); });
+    if (open) {
+      fill();
+      fold.open = true;
+    }
+    return fold;
+  }
+
+  function heatmapBlock(matrix, shape, unit) {
+    const area = h('div', { class: 'plot-area' });
+    const robust = Core.heatScale(matrix, true);
+    const draw = (scale) => Plot.heatmap(area, { matrix, rows: shape.rows, cols: shape.cols, scale, label: unit });
+    let controls = null;
+    if (robust.clipped) {
+      const select = h('select', {},
+        h('option', { value: 'robust' }, '1st–99th percentile'),
+        h('option', { value: 'full' }, 'min – max'));
+      select.addEventListener('change', () => draw(select.value === 'robust' ? robust : Core.heatScale(matrix, false)));
+      controls = h('div', { class: 'plot-controls' }, h('label', {}, 'colour range ', select));
+    }
+    draw(robust);
+    return h('div', { class: 'plot-block' }, controls, area);
+  }
+
   function renderValue(metric) {
     const { value, shape, unit } = metric;
     const unitSpan = unit ? span('unit', unit) : null;
@@ -303,9 +331,11 @@
           plotBlock(numeric, shape.plot),
           h('details', { class: 'table-fold', open: shape.rows <= 20 }, h('summary', {}, caption), table));
       }
-      case 'matrix':
-        return h('div', {}, h('div', { class: 'caption' }, `Matrix (${shape.rows} × ${shape.cols})`, unitSpan),
-          dataTable(null, value));
+      case 'matrix': {
+        const caption = `Matrix (${shape.rows.toLocaleString()} rows × ${shape.cols.toLocaleString()} columns)`;
+        if (!shape.numeric) return h('div', {}, h('div', { class: 'caption' }, caption, unitSpan), dataTable(null, value));
+        return h('div', {}, heatmapBlock(value, shape, unit), lazyFold(caption, () => dataTable(null, value), shape.rows <= 20));
+      }
       case 'record':
         return h('dl', { class: 'record' }, Object.entries(value).flatMap(([k, v]) => [h('dt', { text: k }), h('dd', { text: fmt(v) })]));
       default: {

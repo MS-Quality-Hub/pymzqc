@@ -102,6 +102,33 @@
     eq(C.describeValue({ a: { b: 1 } }).type, 'json');
   });
 
+  test('describeValue marks numeric matrices, null cells allowed', () => {
+    eq(C.describeValue([[1, null], [3, 4, 5]]), { type: 'matrix', rows: 2, cols: 3, numeric: true });
+    assert(!C.describeValue([['a', 1], [2, 3]]).numeric);
+    assert(!C.describeValue([[null], [null]]).numeric);
+  });
+
+  test('heatScale keeps the full range of small matrices', () => {
+    eq(C.heatScale([[1, 2, 3], [4, 5, 6]]),
+      { lo: 1, hi: 6, min: 1, max: 6, diverging: false, clipped: false, values: 6, missing: 0 });
+  });
+
+  test('heatScale clips outliers to the 1st-99th percentile unless asked not to', () => {
+    const row = Array.from({ length: 200 }, (_, k) => 1000 + k);
+    row[0] = 1; // one outlier cell
+    const s = C.heatScale([row]);
+    eq([s.lo, s.hi, s.min, s.clipped], [1001, 1197, 1, true]);
+    const full = C.heatScale([row], false);
+    eq([full.lo, full.hi, full.clipped], [1, 1199, false]);
+  });
+
+  test('heatScale centres ranges across 0 for a diverging scale', () => {
+    const s = C.heatScale([[-4, 0, 1], [2, null, NaN]]);
+    eq([s.lo, s.hi, s.diverging, s.clipped], [-4, 4, true, false]);
+    eq([s.values, s.missing], [4, 2]);
+    eq(C.heatScale([[1, 2], [3]]).missing, 1, 'short rows count as missing cells');
+  });
+
   test('describeValue picks a monotonic x column and line plot for tables', () => {
     const shape = C.describeValue({ intensity: [5, 1, 3], rt: [1, 2, 3], label: ['a', 'b', 'c'] });
     eq(shape.type, 'table');

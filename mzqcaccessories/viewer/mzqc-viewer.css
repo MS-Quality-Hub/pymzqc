@@ -29,6 +29,13 @@
   --plot-grid: #e8ebf0;
   --plot-axis: #5d6675;
 
+  /* Heatmap ramps as comma separated stops, read by mzqc-plot.js. Sequential
+     (low -> high) is one blue hue, light to dark; diverging (negative -> 0 ->
+     positive) runs blue -> neutral grey -> red, with the red steps matched in
+     OKLCH lightness to the blue ones so both signs weigh the same. */
+  --heat-seq: #cce3fd, #b6d5f8, #9dc8f7, #84b9f3, #6aabf1, #519ced, #338ced, #257de0, #2370cd, #1b64be, #1757ac, #0f4a96, #0e3d7e;
+  --heat-div: #0e3d7e, #1757ac, #2370cd, #338ced, #6aabf1, #9dc8f7, #cce3fd, #efefef, #fcd6d2, #f4b0aa, #ea8780, #de5955, #be403f, #9d2b2c, #721c1d;
+
   --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -60,6 +67,12 @@
     --plot-line: #6ea8ff;
     --plot-grid: #262b35;
     --plot-axis: #9aa3b2;
+
+    /* On a dark surface, more is lighter. The diverging arms are interpolated
+       in OKLab from the grey centre, so colour grows as evenly away from 0 as
+       in the light ramp (the dark blue steps would jump to full colour at once). */
+    --heat-seq: #0e3d7e, #0f4a96, #1757ac, #1b64be, #2370cd, #257de0, #338ced, #519ced, #6aabf1, #84b9f3, #9dc8f7, #b6d5f8, #cce3fd;
+    --heat-div: #6aabf1, #5e8dbf, #526f90, #465362, #383838, #624c49, #8d5f5b, #bb736d, #ea8780;
   }
 }
 
@@ -301,6 +314,39 @@ details.table-fold > summary { cursor: pointer; color: var(--muted); font-size: 
 .plot-tip rect { fill: var(--fg); opacity: 0.9; }
 .plot-tip text { fill: var(--bg); font: 11px var(--mono); }
 .plot-empty { fill: var(--muted); }
+
+/* heatmaps: one canvas pixel per cell, scaled up without smoothing */
+.heatmap { margin: 8px 0; }
+.heatmap-frame { position: relative; width: 100%; background: var(--bg); box-shadow: 0 0 0 1px var(--border); }
+.heatmap-frame canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; cursor: crosshair; }
+.heatmap-frame canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.heatmap-cursor {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1.5px var(--fg), 0 0 0 3px var(--bg);
+  pointer-events: none;
+}
+.heatmap-tip {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  background: var(--fg);
+  color: var(--bg);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font: 11px/1.4 var(--mono);
+  white-space: nowrap;
+}
+.heatmap-tip strong { font-size: 12px; }
+.heatmap-where { opacity: 0.75; }
+.heat-legend { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 20px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.heat-scale { width: min(100%, 300px); }
+.heat-bar { height: 10px; border-radius: 2px; }
+.heat-ticks { position: relative; height: 17px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.heat-ticks span { position: absolute; top: 2px; white-space: nowrap; }
+.heat-label { color: var(--fg); }
+.heat-notes { display: grid; gap: 4px; max-width: 360px; }
+.heat-swatch { display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; background: var(--bg); box-shadow: 0 0 0 1px var(--muted); }
 
 /* drag and drop */
 .drop-overlay {

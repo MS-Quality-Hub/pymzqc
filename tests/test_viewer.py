@@ -180,6 +180,82 @@ def test_report_renders_metrics_tables_and_plots(page, base_url):
     assert vector.locator("svg.plot").count() == 1
 
 
+def _pixel(canvas, row, col):
+    return canvas.evaluate(f"c => Array.from(c.getContext('2d').getImageData({col}, {row}, 1, 1).data)")
+
+
+def _ramp(page, prop):
+    """RGBA of the colour stops of a --heat-* ramp."""
+    stops = page.evaluate(f"getComputedStyle(document.documentElement).getPropertyValue('{prop}')").split(",")
+    return [[int(s.strip()[k:k + 2], 16) for k in (1, 3, 5)] + [255] for s in stops]
+
+
+def test_matrix_is_drawn_as_a_heatmap(page, base_url):
+    open_viewer(page, base_url, SHOWCASE)
+    metric = page.locator('#report article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/7"]')
+    canvas = metric.locator(".heatmap canvas")
+    assert canvas.evaluate("c => [c.width, c.height]") == [3, 2]
+    # [[1, 2, 3], [4, 5, 6]]: the smallest value takes the light end, the largest the dark end
+    seq = _ramp(page, "--heat-seq")
+    assert _pixel(canvas, 0, 0) == seq[0] and _pixel(canvas, 1, 2) == seq[-1]
+    # a small matrix keeps its full range (no range control) and shows its table
+    assert metric.locator(".plot-controls").count() == 0
+    assert metric.locator("details.table-fold[open] table.data tbody tr").count() == 2
+    canvas.scroll_into_view_if_needed()
+    box = canvas.bounding_box()
+    page.mouse.move(box["x"] + box["width"] * 5 / 6, box["y"] + box["height"] * 3 / 4)
+    tip = metric.locator(".heatmap-tip")
+    assert tip.is_visible() and "row 1, column 2" in tip.inner_text()
+    assert tip.locator("strong").inner_text().startswith("6")
+    # repainted with the dark ramp when the colour scheme changes
+    page.emulate_media(color_scheme="dark")
+    dark = _ramp(page, "--heat-seq")
+    assert dark != seq and _pixel(canvas, 0, 0) == dark[0]
+
+
+def test_heatmap_scale_missing_cells_and_keyboard(page, base_url):
+    page.goto(f"{base_url}/{VIEWER}/index.html")
+    image = [[r * 30 + c - 450 for c in range(30)] for r in range(30)]
+    image[0][0] = -100000  # outlier
+    image[29][29] = None   # not acquired
+    doc = {"mzQC": {"version": "1.0.0", "runQualities": [{"metadata": {"label": "img"}, "qualityMetrics": [
+        {"accession": "MS:4000232", "name": "reference m/z error image", "value": image,
+         "unit": {"accession": "UO:0000169", "name": "parts per million"}}]}]}}
+    page.evaluate("text => MzqcViewer.loadText(text, 'image.mzQC')", json.dumps(doc))
+    metric = page.locator("#report article.metric")
+    canvas = metric.locator(".heatmap canvas")
+    div = _ramp(page, "--heat-div")
+    centre = div[len(div) // 2]
+    # values on both sides of 0: diverging scale, 0 at its grey centre; the
+    # outlier is outside the 1st-99th percentile range and takes the end colour
+    assert _pixel(canvas, 15, 0) == centre  # value 0
+    assert _pixel(canvas, 0, 0) == div[0]
+    assert _pixel(canvas, 29, 28) == div[-1]  # 448 is above the 99th percentile
+    assert _pixel(canvas, 29, 29)[3] == 0  # no value: transparent
+    legend = metric.locator(".heat-legend")
+    assert legend.locator(".heat-swatch").count() == 1
+    assert "1st–99th percentile" in legend.inner_text()
+    assert "0" in legend.locator(".heat-ticks").all_inner_texts()[0].split()
+    # min – max: the outlier stretches the scale, 448 is now close to 0
+    metric.locator(".plot-controls select").select_option("full")
+    assert _pixel(metric.locator(".heatmap canvas"), 29, 28) not in (div[-1], centre)
+    # keyboard: focus reads the first cell, arrows move (Shift: 10 cells)
+    canvas = metric.locator(".heatmap canvas")
+    canvas.focus()
+    tip = metric.locator(".heatmap-tip")
+    assert tip.inner_text().split("\n") == ["-100000 parts per million", "row 0, column 0"]
+    page.keyboard.press("ArrowRight")
+    page.keyboard.press("Shift+ArrowDown")
+    assert "row 10, column 1" in tip.inner_text()
+    canvas.blur()
+    assert not tip.is_visible()
+    # the number table of a large matrix is built when first opened
+    fold = metric.locator("details.table-fold")
+    assert fold.locator("table").count() == 0
+    fold.locator("summary").click()
+    sync_api.expect(fold.locator("table.data tbody tr")).to_have_count(30)
+
+
 def test_report_title_is_the_largest_text(page, base_url):
     open_viewer(page, base_url, SHOWCASE)
     sizes = page.evaluate("""() => {

@@ -1,6 +1,7 @@
 /*
- * mzqc-plot.js — small dependency-free SVG line/scatter plots for the report.
- * Requires mzqc-core.js (tick and number formatting). Exposes `MzqcPlot`.
+ * mzqc-plot.js — small dependency-free plots for the report: SVG line/scatter
+ * plots and canvas heatmaps for matrices. Requires mzqc-core.js (tick and
+ * number formatting). Exposes `MzqcPlot`.
  */
 (function (root) {
   'use strict';
@@ -138,5 +139,192 @@
     return svg;
   }
 
-  root.MzqcPlot = { render };
+  /* ------------------------------------------------------------------ */
+  /* Heatmaps                                                           */
+  /* ------------------------------------------------------------------ */
+
+  // Display size limits of a heatmap, in CSS pixels.
+  const HEAT_MAX_WIDTH = 760;
+  const HEAT_MAX_HEIGHT = 520;
+  const HEAT_MAX_CELL = 24;
+  // Only used if the stylesheet with the --heat-* ramps is missing.
+  const FALLBACK_RAMP = ['#e0e0e0', '#303030'];
+
+  function div(cls, ...children) {
+    const node = document.createElement('div');
+    if (cls) node.className = cls;
+    node.append(...children);
+    return node;
+  }
+
+  /** Colour stops of a CSS custom property holding a comma separated hex list. */
+  function rampStops(property) {
+    const stops = getComputedStyle(document.documentElement).getPropertyValue(property)
+      .split(',').map((s) => s.trim()).filter((s) => /^#[0-9a-f]{6}$/i.test(s));
+    return stops.length >= 2 ? stops : FALLBACK_RAMP;
+  }
+
+  /**
+   * RGB lookup table of 257 colours evenly interpolated along the stops, the
+   * way a CSS linear-gradient of the same stops is drawn. 257 (not 256)
+   * entries put the centre of a diverging ramp exactly on entry 128.
+   */
+  function lookupTable(stops) {
+    const rgb = stops.map((s) => [1, 3, 5].map((k) => parseInt(s.slice(k, k + 2), 16)));
+    const lut = new Uint8ClampedArray(257 * 3);
+    for (let k = 0; k <= 256; k++) {
+      const pos = (k / 256) * (rgb.length - 1);
+      const i = Math.min(rgb.length - 2, Math.floor(pos));
+      for (let ch = 0; ch < 3; ch++) lut[k * 3 + ch] = rgb[i][ch] + (rgb[i + 1][ch] - rgb[i][ch]) * (pos - i);
+    }
+    return lut;
+  }
+
+  function scaleLegend(scale, label, hasMissing) {
+    const bar = div('heat-bar');
+    const ticks = div('heat-ticks');
+    const span = scale.hi - scale.lo;
+    for (const t of span > 0 ? Core.niceTicks(scale.lo, scale.hi, 4) : [scale.lo]) {
+      const pos = span > 0 ? (t - scale.lo) / span : 0.5;
+      const tick = document.createElement('span');
+      tick.textContent = Core.formatTick(t);
+      tick.style.left = `${pos * 100}%`;
+      // Labels near the ends align to the bar's edge instead of overhanging it.
+      tick.style.transform = `translateX(${pos < 0.1 ? 0 : pos > 0.9 ? -100 : -50}%)`;
+      ticks.append(tick);
+    }
+    const notes = div('heat-notes');
+    if (hasMissing) notes.append(div(null, div('heat-swatch'), 'no value'));
+    if (scale.clipped) {
+      notes.append(div(null, `Colours span the 1st–99th percentile; all values: ${Core.formatNumber(scale.min)} – ${Core.formatNumber(scale.max)}`));
+    }
+    return { legend: div('heat-legend', div('heat-scale', bar, ticks, div('heat-label', label)), notes), bar };
+  }
+
+  /**
+   * Draw a numeric matrix as a heatmap with a colour scale into `container`
+   * (replacing its content). Row 0 is at the top, as in the table view.
+   * Values beyond the scale take its end colours; null and non-finite cells
+   * stay transparent ("no value"). Hovering or focusing a cell shows its value.
+   * @param {HTMLElement} container
+   * @param {{matrix: Array<Array<number|null>>, rows: number, cols: number,
+   *          scale: object, label?: string}} spec  `scale` from MzqcCore.heatScale()
+   * @returns {HTMLElement} the heatmap element
+   */
+  function heatmap(container, spec) {
+    const { matrix, rows, cols, scale } = spec;
+    const label = spec.label || 'value';
+    // Square cells, as large as fit the limits; a long, thin matrix gets
+    // elongated cells so that it does not shrink to a line.
+    const cell = Math.min(HEAT_MAX_CELL, HEAT_MAX_WIDTH / cols, HEAT_MAX_HEIGHT / rows);
+    const width = Math.max(cols * cell, Math.min(cols * HEAT_MAX_CELL, 48));
+    const height = Math.max(rows * cell, Math.min(rows * HEAT_MAX_CELL, 48));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = cols;
+    canvas.height = rows;
+    canvas.tabIndex = 0;
+    canvas.setAttribute('role', 'img');
+    canvas.setAttribute('aria-label', `Heatmap of ${rows} × ${cols} cells, colour shows ${label} from ` +
+      `${Core.formatNumber(scale.lo)} to ${Core.formatNumber(scale.hi)}; arrow keys read single cells`);
+    const cursor = div('heatmap-cursor');
+    const tipValue = document.createElement('strong');
+    const tipWhere = div('heatmap-where');
+    const tip = div('heatmap-tip', tipValue, tipWhere);
+    cursor.hidden = true;
+    tip.hidden = true;
+    const frame = div('heatmap-frame', canvas, cursor);
+    frame.style.maxWidth = `${width}px`;
+    frame.style.aspectRatio = `${width} / ${height}`;
+    const { legend, bar } = scaleLegend(scale, label, scale.missing > 0);
+    const block = div('heatmap', frame, legend, tip);
+
+    block._paint = () => {
+      const stops = rampStops(scale.diverging ? '--heat-div' : '--heat-seq');
+      const lut = lookupTable(stops);
+      const ctx = canvas.getContext('2d');
+      const image = ctx.createImageData(cols, rows);
+      const px = image.data;
+      const span = scale.hi - scale.lo;
+      for (let r = 0; r < rows; r++) {
+        const row = matrix[r];
+        for (let c = 0; c < row.length; c++) {
+          const v = row[c];
+          if (!Number.isFinite(v)) continue;
+          const t = span > 0 ? Math.min(1, Math.max(0, (v - scale.lo) / span)) : 0.5;
+          const k = Math.round(t * 256) * 3;
+          const o = (r * cols + c) * 4;
+          px[o] = lut[k];
+          px[o + 1] = lut[k + 1];
+          px[o + 2] = lut[k + 2];
+          px[o + 3] = 255;
+        }
+      }
+      ctx.putImageData(image, 0, 0);
+      bar.style.background = `linear-gradient(to right, ${stops.join(', ')})`;
+    };
+    block._paint();
+
+    let active = null; // [row, column] shown in the tooltip
+    function show(r, c, clientX, clientY) {
+      active = [r, c];
+      const v = matrix[r][c];
+      tipValue.textContent = typeof v === 'number' ? `${Core.formatNumber(v)} ${spec.label || ''}`.trim() : 'no value';
+      tipWhere.textContent = `row ${r}, column ${c}`;
+      cursor.style.left = `${((c + 0.5) / cols) * 100}%`;
+      cursor.style.top = `${((r + 0.5) / rows) * 100}%`;
+      cursor.style.width = `max(6px, ${100 / cols}%)`;
+      cursor.style.height = `max(6px, ${100 / rows}%)`;
+      cursor.hidden = false;
+      tip.hidden = false;
+      // Fixed position next to the point, flipped to stay inside the window.
+      let x = clientX + 14;
+      let y = clientY + 14;
+      if (x + tip.offsetWidth > window.innerWidth - 4) x = clientX - 14 - tip.offsetWidth;
+      if (y + tip.offsetHeight > window.innerHeight - 4) y = clientY - 14 - tip.offsetHeight;
+      tip.style.left = `${Math.max(4, x)}px`;
+      tip.style.top = `${Math.max(4, y)}px`;
+    }
+    function showCell(r, c) {
+      const box = canvas.getBoundingClientRect();
+      show(r, c, box.left + ((c + 1) / cols) * box.width, box.top + ((r + 1) / rows) * box.height);
+    }
+    function hide() {
+      cursor.hidden = true;
+      tip.hidden = true;
+    }
+    const clamp = (v, max) => Math.min(max, Math.max(0, v));
+
+    canvas.addEventListener('pointermove', (ev) => {
+      const box = canvas.getBoundingClientRect();
+      const r = clamp(Math.floor(((ev.clientY - box.top) / box.height) * rows), rows - 1);
+      const c = clamp(Math.floor(((ev.clientX - box.left) / box.width) * cols), cols - 1);
+      show(r, c, ev.clientX, ev.clientY);
+    });
+    canvas.addEventListener('pointerleave', hide);
+    canvas.addEventListener('focus', () => showCell(...(active || [0, 0])));
+    canvas.addEventListener('blur', hide);
+    canvas.addEventListener('keydown', (ev) => {
+      const step = ev.shiftKey ? 10 : 1;
+      const move = { ArrowUp: [-step, 0], ArrowDown: [step, 0], ArrowLeft: [0, -step], ArrowRight: [0, step] }[ev.key];
+      if (!move) return;
+      ev.preventDefault();
+      const [r, c] = active || [0, 0];
+      showCell(clamp(r + move[0], rows - 1), clamp(c + move[1], cols - 1));
+    });
+
+    container.textContent = '';
+    container.append(block);
+    return block;
+  }
+
+  // Canvas pixels and legend gradients take the --heat-* colours when drawn;
+  // redraw them when the colour scheme switches between light and dark.
+  if (root.matchMedia) {
+    root.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      document.querySelectorAll('.heatmap').forEach((node) => node._paint && node._paint());
+    });
+  }
+
+  root.MzqcPlot = { render, heatmap };
 })(typeof self !== 'undefined' ? self : this);
