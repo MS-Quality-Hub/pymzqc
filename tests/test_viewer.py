@@ -210,7 +210,11 @@ def test_matrix_is_drawn_as_a_heatmap(page, base_url):
     # repainted with the dark ramp when the colour scheme changes
     page.emulate_media(color_scheme="dark")
     dark = _ramp(page, "--heat-seq")
-    assert dark != seq and _pixel(canvas, 0, 0) == dark[0]
+    assert dark != seq
+    # the repaint runs from the colour-scheme change event, after emulate_media returns
+    page.wait_for_function(
+        "([c, want]) => Array.from(c.getContext('2d').getImageData(0, 0, 1, 1).data).join() === want.join()",
+        arg=[canvas.element_handle(), dark[0]], timeout=2000)
 
 
 def test_heatmap_scale_missing_cells_and_keyboard(page, base_url):
