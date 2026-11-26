@@ -13,5 +13,3 @@ dist/
 _build/
 doc/build/**
 doc/source/codegen/**
-
-.venv/
