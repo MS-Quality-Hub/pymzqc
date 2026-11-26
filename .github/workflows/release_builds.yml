@@ -7,7 +7,9 @@ on:
 
 jobs:
   unit-tests:
-    runs-on: ubuntu-latest
+    # Pinned: actions/setup-python has no Python 3.8/3.9 builds for
+    # Ubuntu 26.04 (the current ubuntu-latest); 24.04 is the newest that has them.
+    runs-on: ubuntu-24.04
     strategy:
       max-parallel: 4
       matrix:
