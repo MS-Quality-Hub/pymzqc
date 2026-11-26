@@ -230,7 +230,12 @@ class SemanticCheck(UserDict):
         return vocs
 
     _RE_ALPHA_NUM = re.compile(r'[^A-Za-z0-9]')
-    
+
+    @classmethod
+    def _infix_alpha_num(cls, inner: str, outer: str) -> bool:
+        """True if inner is part of outer, ignoring case and all but letters and digits."""
+        return cls._RE_ALPHA_NUM.sub('', inner).casefold() in cls._RE_ALPHA_NUM.sub('', outer).casefold()
+
     def _check_InputFile_consistency(self, issue_type_category: str, _document_collected_issues: bool = False):
         """Checks the InputFile consistency of given mzqc_object
 
@@ -264,14 +269,11 @@ class SemanticCheck(UserDict):
             return
 
         input_file_sets = defaultdict(set)  # [name: [location(s)]]
-        
-        lambda_infix_alpha_num = lambda inner,outer: self._RE_ALPHA_NUM.sub('', inner).casefold() in self._RE_ALPHA_NUM.sub('', outer).casefold()
-        
         for quality in chain(self.mzqc_obj.runQualities, self.mzqc_obj.setQualities):
             one_input_file_location_set = set()
             for input_file in quality.metadata.inputFiles:
                 input_file_sets[input_file.name].add(input_file.location)
-                if not lambda_infix_alpha_num(input_file.name, input_file.location):
+                if not self._infix_alpha_num(input_file.name, input_file.location):
                     self.raising(issue_type_category,
                                  SemanticIssue("Inconsistent input file", "INFO",
                                                 f'Possible file name and location inconsistency:'
@@ -672,11 +674,11 @@ class SemanticCheck(UserDict):
                     # explicit, no matter the performance:
                     # we want the first matching term in the first vocabulary,
                     # and the first unit if it has one
-                    quality_metric_term, quality_metric_term_unit = None, None
+                    quality_metric_term_unit = None
                     for voc in file_vocabularies.values():
-                        if voc.get(quality_metric.accession):
-                            quality_metric_term = voc.get(quality_metric.accession)
-                            quality_metric_term_unit = next(iter(voc.get(quality_metric.accession).relationships.get(voc.get_relationship('has_units'),[None])))
+                        quality_metric_term = voc.get(quality_metric.accession)
+                        if quality_metric_term:
+                            quality_metric_term_unit = next(iter(quality_metric_term.relationships.get(voc.get_relationship('has_units'),[None])))
                             break
                     if quality_metric_term_unit:  # Unit present in CV
                         if quality_metric.unit is None or quality_metric.unit == "":  # No unit present in metric
