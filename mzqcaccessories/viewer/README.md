@@ -13,9 +13,16 @@ The file is read by the browser only; nothing is uploaded.
   run or set with its input files, analysis software and metrics. Single values, ranges, value lists,
   tables and matrices each get a fitting display. Tables with two or more numeric columns of equal length,
   and numeric value lists, are plotted (line plot when the x column is sorted, otherwise scatter), with
-  selectable columns. **{ } source** jumps to the metric in the source panel.
+  selectable columns. Numeric matrices, such as the pixel images of imaging metrics (e.g. MS:4000228), are
+  drawn as heatmaps: shades of blue for magnitudes, or blue–grey–red centred on 0 when the values lie on both
+  sides of 0; `null` cells stay blank. The colours span the 1st to 99th percentile so that a few outlier cells
+  do not wash out the rest (switchable to min – max). Hover over a cell, or focus the heatmap and use the
+  arrow keys, to read its value; the numbers are also in a table below. **{ } source** jumps to the metric in
+  the source panel.
 - On wide windows (at least 1100 px) both panels are shown side by side, like a markdown preview;
-  narrower windows switch between them with tabs.
+  narrower windows switch between them with tabs. Drag the bar between the panels (or focus it and use
+  the arrow keys) to change their widths; double-click it to reset. The **Source** and **Report-Style**
+  buttons hide or show either panel.
 - `index.html?url=<address>` opens a file from the web (the server must allow cross-origin requests).
 
 ### Running it
@@ -30,8 +37,8 @@ The viewer is plain HTML, CSS and JavaScript with no dependencies and no build s
 ### Code layout
 | File | Purpose |
 |---|---|
-| `mzqc-core.js` | DOM-free logic: JSON parser that keeps number text as written, the readability=2 transform, serialisation, highlight classes, report model |
-| `mzqc-plot.js` | small SVG line/scatter plots |
+| `mzqc-core.js` | DOM-free logic: JSON parser that keeps number text as written, the readability=2 transform, serialisation, highlight classes, report model, heatmap colour ranges |
+| `mzqc-plot.js` | small SVG line/scatter plots and canvas heatmaps (colours from the `--heat-*` ramps in `mzqc-viewer.css`) |
 | `mzqc-viewer.js` | page logic: loading, source view, report view, layout |
 | `tests/` | `tests/index.html` runs the unit tests of `mzqc-core.js` in a browser; `fixtures/showcase.mzQC` exercises every value display |
 

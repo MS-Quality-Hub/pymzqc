@@ -20,7 +20,8 @@
       <button type="button" class="btn" id="expand-all">Expand all</button>
       <button type="button" class="btn" id="collapse-all">Collapse all</button>
       <button type="button" class="btn" id="download" title="Save the file as shown: 4-space indentation, empty optional elements removed">Download</button>
-      <button type="button" class="btn wide-only" id="toggle-report" aria-pressed="true">Report-Style</button>
+      <button type="button" class="btn wide-only" id="toggle-source" aria-pressed="true" title="Show or hide the Source panel">Source</button>
+      <button type="button" class="btn wide-only" id="toggle-report" aria-pressed="true" title="Show or hide the Report-Style panel">Report-Style</button>
     </div>
   </header>
 
@@ -40,6 +41,10 @@
     <section id="source-panel" class="panel source-panel doc-only" aria-label="mzQC source">
       <div id="source" class="code" hidden></div>
     </section>
+    <div id="splitter" class="splitter doc-only" role="separator" tabindex="0" aria-orientation="vertical"
+         aria-controls="source-panel report-panel" aria-label="Width of the Source panel"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+         title="Drag to resize the panels; double-click to reset"></div>
     <section id="report-panel" class="panel report-panel doc-only" aria-label="Report">
       <div id="report" class="report"></div>
     </section>

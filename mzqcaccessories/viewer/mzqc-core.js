@@ -8,6 +8,7 @@
  * - serialize():      4-space indented text, the layout of readability=2.
  * - buildReport():    turns the parsed document into a report model
  *                     (runs/sets, metrics, value shapes for tables and plots).
+ * - heatScale():      colour range of a matrix shown as a heatmap.
  *
  * Loaded as a classic script (exposes `MzqcCore`) so the viewer also works
  * when index.html is opened straight from disk.
@@ -305,7 +306,9 @@
         return { type: 'vector', numeric, plottable: numeric && v.length > 2 };
       }
       if (v.every((row) => Array.isArray(row) && row.every(isScalar))) {
-        return { type: 'matrix', rows: v.length, cols: Math.max(...v.map((r) => r.length)) };
+        // numeric: can be drawn as a heatmap (null cells have no value)
+        const numeric = v.some((row) => row.some(isNumeric)) && v.every((row) => row.every((x) => isNumeric(x) || x === null));
+        return { type: 'matrix', rows: v.length, cols: Math.max(...v.map((r) => r.length)), numeric };
       }
       return { type: 'json' };
     }
@@ -352,6 +355,41 @@
       if (values[k] > values[k - 1]) down = false;
     }
     return up || down;
+  }
+
+  /**
+   * Colour range of a numeric matrix shown as a heatmap.
+   *
+   * With `robust`, the range spans the 1st to 99th percentile (nearest rank, so
+   * matrices with fewer than 100 values keep their full range): a few outlier
+   * cells, such as an edge pixel of an image, would otherwise squeeze all
+   * other cells into a few colours. A range on both sides of 0 is made
+   * symmetric for a diverging scale with 0 at its centre.
+   * @returns {{lo, hi, min, max, diverging, clipped, values, missing}} `clipped`:
+   *   some cells lie outside [lo, hi]; `values`/`missing`: cells with/without a
+   *   finite number (rows shorter than the longest row count as missing).
+   */
+  function heatScale(matrix, robust = true) {
+    const cols = Math.max(0, ...matrix.map((r) => r.length));
+    const sorted = new Float64Array(matrix.reduce((n, r) => n + r.length, 0));
+    let n = 0;
+    for (const row of matrix) {
+      for (const x of row) if (Number.isFinite(x)) sorted[n++] = x;
+    }
+    const values = sorted.subarray(0, n).sort();
+    const missing = matrix.length * cols - n;
+    if (n === 0) return { lo: 0, hi: 0, min: NaN, max: NaN, diverging: false, clipped: false, values: 0, missing };
+    const rank = (q) => values[Math.min(n - 1, Math.max(0, Math.ceil(q * n) - 1))];
+    const min = values[0];
+    const max = values[n - 1];
+    let lo = robust ? rank(0.01) : min;
+    let hi = robust ? rank(0.99) : max;
+    const diverging = lo < 0 && hi > 0;
+    if (diverging) {
+      hi = Math.max(-lo, hi);
+      lo = -hi;
+    }
+    return { lo, hi, min, max, diverging, clipped: min < lo || max > hi, values: n, missing };
   }
 
   /** Human readable unit text; units may be one CV term or a list of terms. */
@@ -478,6 +516,7 @@
     keyClass,
     valueClass,
     describeValue,
+    heatScale,
     unitText,
     buildReport,
     formatNumber,

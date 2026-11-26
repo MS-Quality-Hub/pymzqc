@@ -16,6 +16,8 @@
   const ROW_LIMIT = 100;
   // Above this many JSON nodes, "Expand all" asks first.
   const EXPAND_ALL_CONFIRM = 40000;
+  // Narrowest a panel can be dragged with the splitter, in CSS pixels.
+  const PANEL_MIN_WIDTH = 280;
   const OLS_URL = 'https://www.ebi.ac.uk/ols4/search?q=';
 
   const state = {
@@ -24,6 +26,7 @@
     nodeCount: 0,
     report: null,
     lines: new Map(),  // JSON pointer -> rendered element (details or line div)
+    split: 0.5,        // share of the wide layout given to the source panel
   };
 
   /* ------------------------------------------------------------------ */
@@ -172,6 +175,7 @@
     const target = state.lines.get(path);
     if (!target) return;
     showTab('source');
+    setPanelShown('source', true);
     const line = target.tagName === 'DETAILS' ? target.querySelector(':scope > summary') : target;
     line.scrollIntoView({ block: 'center', behavior: 'smooth' });
     target.classList.remove('flash');
@@ -259,6 +263,34 @@
     return block;
   }
 
+  /** A fold whose content is built when it is first opened. */
+  function lazyFold(summary, build, open) {
+    const fold = h('details', { class: 'table-fold' }, h('summary', {}, summary));
+    const fill = () => { if (fold.childElementCount === 1) fold.append(build()); };
+    fold.addEventListener('toggle', () => { if (fold.open) fill(); });
+    if (open) {
+      fill();
+      fold.open = true;
+    }
+    return fold;
+  }
+
+  function heatmapBlock(matrix, shape, unit) {
+    const area = h('div', { class: 'plot-area' });
+    const robust = Core.heatScale(matrix, true);
+    const draw = (scale) => Plot.heatmap(area, { matrix, rows: shape.rows, cols: shape.cols, scale, label: unit });
+    let controls = null;
+    if (robust.clipped) {
+      const select = h('select', {},
+        h('option', { value: 'robust' }, '1st–99th percentile'),
+        h('option', { value: 'full' }, 'min – max'));
+      select.addEventListener('change', () => draw(select.value === 'robust' ? robust : Core.heatScale(matrix, false)));
+      controls = h('div', { class: 'plot-controls' }, h('label', {}, 'colour range ', select));
+    }
+    draw(robust);
+    return h('div', { class: 'plot-block' }, controls, area);
+  }
+
   function renderValue(metric) {
     const { value, shape, unit } = metric;
     const unitSpan = unit ? span('unit', unit) : null;
@@ -299,9 +331,11 @@
           plotBlock(numeric, shape.plot),
           h('details', { class: 'table-fold', open: shape.rows <= 20 }, h('summary', {}, caption), table));
       }
-      case 'matrix':
-        return h('div', {}, h('div', { class: 'caption' }, `Matrix (${shape.rows} × ${shape.cols})`, unitSpan),
-          dataTable(null, value));
+      case 'matrix': {
+        const caption = `Matrix (${shape.rows.toLocaleString()} rows × ${shape.cols.toLocaleString()} columns)`;
+        if (!shape.numeric) return h('div', {}, h('div', { class: 'caption' }, caption, unitSpan), dataTable(null, value));
+        return h('div', {}, heatmapBlock(value, shape, unit), lazyFold(caption, () => dataTable(null, value), shape.rows <= 20));
+      }
       case 'record':
         return h('dl', { class: 'record' }, Object.entries(value).flatMap(([k, v]) => [h('dt', { text: k }), h('dd', { text: fmt(v) })]));
       default: {
@@ -466,6 +500,61 @@
     document.querySelectorAll('#tabs [role=tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
   }
 
+  /** Show or hide a panel of the wide layout ('source' or 'report'). */
+  function setPanelShown(panel, shown) {
+    const main = $('main');
+    main.classList.toggle(`no-${panel}`, !shown);
+    for (const [name, other] of [['source', 'report'], ['report', 'source']]) {
+      const button = $(`toggle-${name}`);
+      button.setAttribute('aria-pressed', String(!main.classList.contains(`no-${name}`)));
+      // Hiding both would leave an empty page, so the last shown panel stays.
+      button.disabled = main.classList.contains(`no-${other}`);
+    }
+  }
+
+  /** Give the source panel `share` (0..1) of the wide layout, the report the rest. */
+  function setSplit(share) {
+    const main = $('main');
+    const width = main.clientWidth - $('splitter').offsetWidth;
+    const min = Math.min(0.5, PANEL_MIN_WIDTH / Math.max(width, 1));
+    state.split = Math.min(1 - min, Math.max(min, share));
+    main.style.setProperty('--source-fr', `${state.split * 100}fr`);
+    main.style.setProperty('--report-fr', `${(1 - state.split) * 100}fr`);
+    const percent = Math.round(state.split * 100);
+    $('splitter').setAttribute('aria-valuenow', String(percent));
+    $('splitter').setAttribute('aria-valuetext', `Source ${percent} %, Report-Style ${100 - percent} %`);
+  }
+
+  function initSplitter() {
+    const bar = $('splitter');
+    bar.addEventListener('pointerdown', (ev) => {
+      if (ev.button !== 0) return;
+      ev.preventDefault();
+      bar.focus();
+      bar.setPointerCapture(ev.pointerId);
+      document.body.classList.add('resizing');
+      const box = $('main').getBoundingClientRect();
+      const move = (e) => setSplit((e.clientX - box.left - bar.offsetWidth / 2) / (box.width - bar.offsetWidth));
+      const end = () => {
+        document.body.classList.remove('resizing');
+        bar.removeEventListener('pointermove', move);
+        bar.removeEventListener('pointerup', end);
+        bar.removeEventListener('pointercancel', end);
+      };
+      bar.addEventListener('pointermove', move);
+      bar.addEventListener('pointerup', end);
+      bar.addEventListener('pointercancel', end);
+    });
+    bar.addEventListener('dblclick', () => setSplit(0.5));
+    bar.addEventListener('keydown', (ev) => {
+      const step = ev.shiftKey ? 0.1 : 0.02;
+      const target = { ArrowLeft: state.split - step, ArrowRight: state.split + step, Home: 0, End: 1, Enter: 0.5 }[ev.key];
+      if (target === undefined) return;
+      ev.preventDefault();
+      setSplit(target);
+    });
+  }
+
   function init() {
     $('file-input').addEventListener('change', (ev) => {
       if (ev.target.files[0]) loadFile(ev.target.files[0]);
@@ -474,10 +563,10 @@
     $('expand-all').addEventListener('click', expandAll);
     $('collapse-all').addEventListener('click', collapseAll);
     $('download').addEventListener('click', download);
-    $('toggle-report').addEventListener('click', (ev) => {
-      const hidden = $('main').classList.toggle('no-report');
-      ev.currentTarget.setAttribute('aria-pressed', String(!hidden));
-    });
+    for (const panel of ['source', 'report']) {
+      $(`toggle-${panel}`).addEventListener('click', () => setPanelShown(panel, $('main').classList.contains(`no-${panel}`)));
+    }
+    initSplitter();
     document.querySelectorAll('#tabs [role=tab]').forEach((b) => b.addEventListener('click', () => showTab(b.dataset.tab)));
     showTab('source');
 
@@ -499,7 +588,7 @@
   }
 
   window.MzqcViewer = {
-    loadText, loadUrl, expandAll, collapseAll, revealPath, showTab,
+    loadText, loadUrl, expandAll, collapseAll, revealPath, showTab, setPanelShown, setSplit,
     serialize: () => (state.tree ? Core.serialize(state.tree) : ''),
     state,
   };
