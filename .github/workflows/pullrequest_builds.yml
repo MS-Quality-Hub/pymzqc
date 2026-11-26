@@ -13,11 +13,11 @@ jobs:
         python-version: ["3.10", "3.14"]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -42,11 +42,11 @@ jobs:
     # warning annotation on the run but never fails the workflow.
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: "3.14"
     - name: Viewer tests (non-blocking)
@@ -74,11 +74,11 @@ jobs:
 
     steps:
     - name: Checkout git
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Build wheel
@@ -89,7 +89,7 @@ jobs:
         ls -l dist/
         ls -l .
     - name: Upload wheel
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: wheel_${{ github.sha }}
         path: dist/pymzqc-*any.whl
@@ -108,11 +108,11 @@ jobs:
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Get wheel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wheel_${{ github.sha }}
       - name: Set image tag
@@ -123,16 +123,16 @@ jobs:
           ref="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
           printf 'SAFE_REF=%s\n' "$(printf '%s' "$ref" | tr -c 'a-zA-Z0-9_.-' '-')" >> "$GITHUB_ENV"
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 #      - name: Login to DockerHub
-#        uses: docker/login-action@v3
+#        uses: docker/login-action@v4
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build image for the smoke test
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: containers/Dockerfile
@@ -143,13 +143,13 @@ jobs:
         run: bash .github/scripts/smoke-test-container.sh pymzqc pymzqc-smoke-test
       - name: Login to quay.io
         if: env.CAN_PUSH == 'true'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.quay_user_mzqc_action }}
           password: ${{ secrets.quay_pw_mzqc_action }}
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: containers/Dockerfile
@@ -168,11 +168,11 @@ jobs:
 
     steps:
       - name: Get dockerfile
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Get wheel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: wheel_${{ github.sha }}
       - name: Set image tag
@@ -183,16 +183,16 @@ jobs:
           ref="${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}"
           printf 'SAFE_REF=%s\n' "$(printf '%s' "$ref" | tr -c 'a-zA-Z0-9_.-' '-')" >> "$GITHUB_ENV"
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 #      - name: Login to DockerHub
-#        uses: docker/login-action@v3
+#        uses: docker/login-action@v4
 #        with:
 #          username: ${{ secrets.DOCKERHUB_USERNAME }}
 #          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build image for the smoke test
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: mzqcaccessories/onlinevalidator/Dockerfile
@@ -203,13 +203,13 @@ jobs:
         run: bash .github/scripts/smoke-test-container.sh validator validator-smoke-test
       - name: Login to quay.io
         if: env.CAN_PUSH == 'true'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.quay_user_mzqc_action }}
           password: ${{ secrets.quay_pw_mzqc_action }}
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: mzqcaccessories/onlinevalidator/Dockerfile
