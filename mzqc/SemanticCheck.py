@@ -1,5 +1,6 @@
 __author__ = 'bittremieux, walzer'
 import os
+import re
 import sys
 from itertools import chain
 from dataclasses import dataclass
@@ -228,6 +229,13 @@ class SemanticCheck(UserDict):
                                           f'Error loading the following online ontology referenced in mzQC file: {e}'))
         return vocs
 
+    _RE_ALPHA_NUM = re.compile(r'[^A-Za-z0-9]')
+
+    @classmethod
+    def _infix_alpha_num(cls, inner: str, outer: str) -> bool:
+        """True if inner is part of outer, ignoring case and all but letters and digits."""
+        return cls._RE_ALPHA_NUM.sub('', inner).casefold() in cls._RE_ALPHA_NUM.sub('', outer).casefold()
+
     def _check_InputFile_consistency(self, issue_type_category: str, _document_collected_issues: bool = False):
         """Checks the InputFile consistency of given mzqc_object
 
@@ -265,11 +273,11 @@ class SemanticCheck(UserDict):
             one_input_file_location_set = set()
             for input_file in quality.metadata.inputFiles:
                 input_file_sets[input_file.name].add(input_file.location)
-                if input_file.name not in input_file.location:
+                if not self._infix_alpha_num(input_file.name, input_file.location):
                     self.raising(issue_type_category,
                                  SemanticIssue("Inconsistent input file", "INFO",
                                                 f'Possible file name and location inconsistency:'
-                                                f'{input_file.name}/{input_file.location}'))
+                                                f' {input_file.name} <> {input_file.location}'))
                 one_input_file_location_set.add(input_file.location)
 
             # if more than 2 inputs but just one location
@@ -412,35 +420,40 @@ class SemanticCheck(UserDict):
         else:
             return set(next(filter(lambda x: x[0].name=='has_column', tab_def.relationships.items()), (None,frozenset()))[1]), set(next(filter(lambda x: x[0].name=='has_optional_column', tab_def.relationships.items()), (None,frozenset()))[1])
 
+    # MaxQuant ID outputs, matched case-insensitively at the end of a path or name and
+    # either standing alone or after a separator, e.g. 'txt/proteinGroups.txt' or
+    # 'exp1_proteinGroups.txt' (but not 'allPeptides.txt')
+    _RE_MAXQUANT_ID_FILE = re.compile(
+        r'(?:^|[^a-z0-9])(?:proteingroups|evidence|msms|msmsscans|peptides)\.txt$')
+
     def _has_id_InputFile(self, run_or_set_quality: BaseQuality, idfile_cvs: Set) -> bool:
         """Confirms if a run or set_quality has ID type file in their inputFile
 
-        For now, the ID types are recognised by ther filename extensions, including:
-        '.mzid', '.pepxml', '.idxml', '.mztab', '.proteinGroups.txt', '.evidence.txt', 
-        '.msms.txt', '.msmsScans.txt', '.peptides.txt', in various forms of spelling, 
-        and children of CV term "MS:1002130 | identification file format".
+        For now, the ID types are recognised by their file name (location or name),
+        case-insensitively, including the extensions '.mzid', '.pepxml', '.idxml',
+        '.mztab' (also gzipped), the MaxQuant outputs 'proteinGroups.txt',
+        'evidence.txt', 'msms.txt', 'msmsScans.txt', 'peptides.txt' (also prefixed,
+        e.g. 'exp1_proteinGroups.txt'), and children of CV term
+        "MS:1002130 | identification file format".
 
         Parameters
         ----------
         run_or_set_quality : BaseQuality
             the run or set quality collection to be confirmed
+        idfile_cvs : Set
+            accessions of the ID file format terms (see _get_vocabulary_idfiles)
 
         Returns
         -------
         bool
             returns True if any of the notorious ID type files is present
         """
-        idfext = ('.mzid', '.pepxml', '.idxml', '.mztab')
-        idfext = idfext + tuple(f+'.gz' for f in idfext)
-        mqfext = ('.proteinGroups.txt', '.evidence.txt',
-                  '.msms.txt', '.msmsScans.txt', '.peptides.txt')
-        # NB case is all _lower_ and to be used after .lower() on target
-        # idf_cvs =_getVocabularyIDFiles()
+        idfext = tuple(ext + gz for gz in ('', '.gz') for ext in ('.mzid', '.pepxml', '.idxml', '.mztab'))
         for input_file in run_or_set_quality.metadata.inputFiles:
-            if input_file.location.lower().endswith(idfext+mqfext) or \
-                input_file.name.lower().endswith(idfext+mqfext): # or \
-                return True
-            elif input_file.fileFormat.accession in idfile_cvs:
+            for file_ref in (input_file.location.lower(), input_file.name.lower()):
+                if file_ref.endswith(idfext) or self._RE_MAXQUANT_ID_FILE.search(file_ref):
+                    return True
+            if input_file.fileFormat.accession in idfile_cvs:
                 return True
         return False
 
@@ -661,11 +674,11 @@ class SemanticCheck(UserDict):
                     # explicit, no matter the performance:
                     # we want the first matching term in the first vocabulary,
                     # and the first unit if it has one
-                    quality_metric_term, quality_metric_term_unit = None, None
+                    quality_metric_term_unit = None
                     for voc in file_vocabularies.values():
-                        if voc.get(quality_metric.accession):
-                            quality_metric_term = voc.get(quality_metric.accession)
-                            quality_metric_term_unit = next(iter(voc.get(quality_metric.accession).relationships.get(voc.get_relationship('has_units'),[None])))
+                        quality_metric_term = voc.get(quality_metric.accession)
+                        if quality_metric_term:
+                            quality_metric_term_unit = next(iter(quality_metric_term.relationships.get(voc.get_relationship('has_units'),[None])))
                             break
                     if quality_metric_term_unit:  # Unit present in CV
                         if quality_metric.unit is None or quality_metric.unit == "":  # No unit present in metric

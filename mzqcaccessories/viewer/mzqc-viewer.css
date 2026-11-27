@@ -1,0 +1,371 @@
+/* mzQC Viewer styles. Colours are tokens so light and dark themes stay in sync. */
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --bg-soft: #f5f6f8;
+  --bg-code: #fbfbfc;
+  --fg: #1d2330;
+  --muted: #5d6675;
+  --border: #dde1e7;
+  --accent: #1f5fbf;
+  --accent-fg: #ffffff;
+  --hover: rgba(31, 95, 191, 0.07);
+  --flash: rgba(255, 196, 0, 0.35);
+
+  /* syntax tokens */
+  --t-key-mzqc: #1f4fa8;
+  --t-key-data: #0e7470;
+  --t-string: #2c7a2c;
+  --t-accession: #a14d00;
+  --t-uri: #2c7a2c;
+  --t-date: #2c7a2c;
+  --t-number: #b3261e;
+  --t-boolean: #7a3fc2;
+  --t-null: #6b7280;
+  --t-punct: #7a8291;
+
+  /* plots */
+  --plot-line: #1f5fbf;
+  --plot-grid: #e8ebf0;
+  --plot-axis: #5d6675;
+
+  /* Heatmap ramps as comma separated stops, read by mzqc-plot.js. Sequential
+     (low -> high) is one blue hue, light to dark; diverging (negative -> 0 ->
+     positive) runs blue -> neutral grey -> red, with the red steps matched in
+     OKLCH lightness to the blue ones so both signs weigh the same. */
+  --heat-seq: #cce3fd, #b6d5f8, #9dc8f7, #84b9f3, #6aabf1, #519ced, #338ced, #257de0, #2370cd, #1b64be, #1757ac, #0f4a96, #0e3d7e;
+  --heat-div: #0e3d7e, #1757ac, #2370cd, #338ced, #6aabf1, #9dc8f7, #cce3fd, #efefef, #fcd6d2, #f4b0aa, #ea8780, #de5955, #be403f, #9d2b2c, #721c1d;
+
+  --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181e;
+    --bg-soft: #1c2028;
+    --bg-code: #181b22;
+    --fg: #e3e6eb;
+    --muted: #9aa3b2;
+    --border: #2e3440;
+    --accent: #6ea8ff;
+    --accent-fg: #0d1117;
+    --hover: rgba(110, 168, 255, 0.09);
+    --flash: rgba(255, 196, 0, 0.25);
+
+    --t-key-mzqc: #82b1ff;
+    --t-key-data: #5fd4c8;
+    --t-string: #9ed58c;
+    --t-accession: #f5b453;
+    --t-uri: #9ed58c;
+    --t-date: #9ed58c;
+    --t-number: #ff8f85;
+    --t-boolean: #c8a6ff;
+    --t-null: #8b93a1;
+    --t-punct: #7f8898;
+
+    --plot-line: #6ea8ff;
+    --plot-grid: #262b35;
+    --plot-axis: #9aa3b2;
+
+    /* On a dark surface, more is lighter. The diverging arms are interpolated
+       in OKLab from the grey centre, so colour grows as evenly away from 0 as
+       in the light ramp (the dark blue steps would jump to full colour at once). */
+    --heat-seq: #0e3d7e, #0f4a96, #1757ac, #1b64be, #2370cd, #257de0, #338ced, #519ced, #6aabf1, #84b9f3, #9dc8f7, #b6d5f8, #cce3fd;
+    --heat-div: #6aabf1, #5e8dbf, #526f90, #465362, #383838, #624c49, #8d5f5b, #bb736d, #ea8780;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.45 var(--sans);
+  display: flex;
+  flex-direction: column;
+}
+a { color: var(--accent); }
+code { font-family: var(--mono); font-size: 0.92em; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+[hidden] { display: none !important; }
+
+/* ---------- top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+.topbar h1 { font-size: 16px; margin: 0 8px 0 0; font-weight: 650; }
+.spacer { flex: 1; }
+.file-name { font-family: var(--mono); font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
+.btn {
+  font: inherit;
+  font-size: 13px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.btn[aria-pressed="false"] { color: var(--muted); }
+/* A disabled panel toggle is the last shown panel: it keeps its "on" look. */
+.btn:disabled { cursor: default; border-color: var(--border); }
+label.btn input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+label.btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.link-btn {
+  font: inherit;
+  font-size: 12px;
+  background: none;
+  border: 0;
+  padding: 2px 4px;
+  color: var(--accent);
+  cursor: pointer;
+}
+.link-btn:hover { text-decoration: underline; }
+
+/* ---------- layout ---------- */
+body:not(.has-doc) .doc-only { display: none !important; }
+.layout { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+.panel { min-height: 0; overflow: auto; }
+.source-panel { background: var(--bg-code); }
+
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 16px; }
+.tabs button {
+  font: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 14px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.wide-only { display: none; }
+.splitter { display: none; }
+
+/* narrow: one panel at a time, chosen by the tabs */
+.layout[data-tab="source"] .report-panel { display: none; }
+.layout[data-tab="report"] .source-panel { display: none; }
+
+/* wide: source and report side by side, like a markdown preview. The splitter
+   sets --source-fr/--report-fr (they always sum to 100, as flex factors that sum
+   to less than 1 would leave part of the row empty). */
+@media (min-width: 1100px) {
+  .tabs { display: none; }
+  .wide-only { display: inline-block; }
+  body.has-doc .layout {
+    grid-template-columns: minmax(0, var(--source-fr, 1fr)) auto minmax(0, var(--report-fr, 1fr));
+  }
+  body.has-doc .layout.no-report,
+  body.has-doc .layout.no-source { grid-template-columns: minmax(0, 1fr); }
+  .layout[data-tab] .source-panel,
+  .layout[data-tab] .report-panel { display: block; }
+  .layout.no-report .report-panel,
+  .layout.no-source .source-panel { display: none !important; }
+  .splitter { display: block; }
+  .layout.no-report .splitter,
+  .layout.no-source .splitter { display: none !important; }
+}
+.splitter {
+  width: 7px;
+  cursor: col-resize;
+  touch-action: none;
+  background: linear-gradient(var(--border), var(--border)) center / 1px 100% no-repeat;
+}
+.splitter:hover,
+.splitter:focus-visible,
+body.resizing .splitter { background-image: linear-gradient(var(--accent), var(--accent)); background-size: 3px 100%; }
+.splitter:focus-visible { outline: none; }
+body.resizing { cursor: col-resize; user-select: none; }
+
+.empty-state { padding: 48px 16px; max-width: 640px; margin: 0 auto; text-align: center; }
+.empty-state .lead { font-size: 18px; margin-bottom: 8px; }
+
+.messages:empty { display: none; }
+.messages { padding: 8px 16px 0; display: grid; gap: 6px; }
+.msg { border-radius: 6px; padding: 8px 12px; border: 1px solid var(--border); font-size: 13px; }
+.msg pre { margin: 8px 0 0; font: 12px/1.4 var(--mono); overflow-x: auto; }
+.msg-error { border-color: #d64545; background: rgba(214, 69, 69, 0.08); }
+.msg-warn { border-color: #d39b1b; background: rgba(211, 155, 27, 0.08); }
+
+/* ---------- source view ---------- */
+.code {
+  font: 13px/1.55 var(--mono);
+  white-space: pre;
+  padding: 12px 16px 24px 28px;
+  min-width: max-content;
+  tab-size: 4;
+}
+.ln { min-height: 1.55em; }
+details.fold > summary { list-style: none; cursor: pointer; position: relative; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before {
+  content: "▾";
+  position: absolute;
+  left: calc(var(--d) * 4ch - 1.8ch);
+  width: 1.6ch;
+  text-align: center;
+  color: var(--t-punct);
+  font-size: 11px;
+}
+details.fold:not([open]) > summary::before { content: "▸"; }
+details.fold > summary:hover::before { color: var(--accent); }
+details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+details.fold:has(> summary:hover) { background: var(--hover); }
+.fold-hint { display: none; }
+details.fold:not([open]) > summary .fold-hint { display: inline; }
+.fold-count { color: var(--muted); font-family: var(--sans); font-size: 11px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; margin: 0 2px; }
+.flash { animation: flash 1.6s ease-out; }
+@keyframes flash { from { background: var(--flash); } to { background: transparent; } }
+/* Source lines of the plot point or heatmap cell last clicked in the report */
+.picked { background: var(--flash); }
+
+.t-key-mzqc { color: var(--t-key-mzqc); font-weight: 600; }
+.t-key-data { color: var(--t-key-data); }
+.t-string { color: var(--t-string); }
+.t-accession { color: var(--t-accession); }
+.t-uri { color: var(--t-uri); text-decoration: underline dotted; text-underline-offset: 2px; }
+.t-date { color: var(--t-date); font-style: italic; }
+.t-number { color: var(--t-number); }
+.t-boolean { color: var(--t-boolean); font-weight: 600; }
+.t-null { color: var(--t-null); font-style: italic; }
+.t-punct { color: var(--t-punct); }
+
+/* ---------- report ---------- */
+.report { padding: 16px 20px 40px; max-width: 980px; }
+/* The file title is the largest text in the report (larger than .big-num values). */
+.report-head h2 { margin: 0 0 4px; font-size: 26px; line-height: 1.25; overflow-wrap: anywhere; }
+.report-head .description { margin: 4px 0 12px; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 2px 16px; margin: 0 0 12px; font-size: 13px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+.cvs ul, .software { margin: 4px 0 12px; padding-left: 18px; font-size: 13px; }
+.toc { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin: 8px 0; font-size: 13px; }
+
+.quality { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 20px; }
+.quality-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.quality-head h3 { margin: 0; font-size: 18px; overflow-wrap: anywhere; }
+.badge { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; padding: 1px 7px; border-radius: 9px; border: 1px solid currentColor; }
+.badge-run { color: var(--accent); }
+.badge-set { color: var(--t-boolean); }
+.file-title { font-weight: 600; overflow-wrap: anywhere; }
+.software-wrap { margin-top: 8px; }
+
+.metric { margin: 14px 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
+.metric-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.metric-head h4 { margin: 0; font-size: 15px; }
+.source-link { margin-left: auto; font-family: var(--mono); }
+.chip {
+  font: 11px var(--mono);
+  color: var(--t-accession);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 0 7px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.chip:hover { border-color: var(--t-accession); }
+.description { margin: 4px 0 8px; font-size: 13px; }
+.metric-value { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.big-num { font: 600 22px/1.2 var(--mono); font-variant-numeric: tabular-nums; }
+.big-text { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+.range-dash { color: var(--muted); }
+.unit { color: var(--muted); font-size: 13px; }
+.value-chip { font-family: var(--mono); background: var(--bg-soft); border: 1px solid var(--border); border-radius: 4px; padding: 0 6px; }
+.caption { color: var(--muted); font-size: 12px; margin: 6px 0; display: flex; gap: 8px; }
+
+.table-wrap { overflow-x: auto; max-width: 100%; }
+table.data { border-collapse: collapse; font-size: 12.5px; margin: 6px 0; }
+table.data th, table.data td { border-bottom: 1px solid var(--border); padding: 3px 10px; text-align: left; vertical-align: top; }
+table.data th { font-weight: 600; background: var(--bg-soft); position: sticky; top: 0; }
+table.data .num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+table.files { width: 100%; margin-top: 10px; }
+details.table-fold > summary { cursor: pointer; color: var(--muted); font-size: 12px; margin: 6px 0; }
+.record { display: grid; grid-template-columns: max-content 1fr; gap: 2px 14px; font-size: 13px; }
+.record dt { color: var(--t-key-data); font-family: var(--mono); }
+.record dd { margin: 0; font-family: var(--mono); }
+.json-block { font: 12px/1.45 var(--mono); background: var(--bg-code); padding: 8px; border-radius: 6px; overflow: auto; max-height: 320px; }
+
+/* plots */
+.plot-block { margin: 8px 0; }
+.plot-controls { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); }
+.plot-controls select { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 4px; }
+.plot-area svg { width: 100%; max-width: 760px; height: auto; display: block; }
+.plot { font: 11px var(--sans); }
+.plot-grid line { stroke: var(--plot-grid); }
+.plot-axis text { fill: var(--plot-axis); }
+.plot-axis .plot-label { fill: var(--fg); font-size: 12px; }
+.plot-baseline { stroke: var(--plot-axis); }
+.plot-line { fill: none; stroke: var(--plot-line); stroke-width: 1.6; stroke-linejoin: round; }
+.plot-dots { stroke: var(--plot-line); stroke-width: 5; stroke-linecap: round; opacity: 0.75; }
+.plot-marker { fill: var(--bg); stroke: var(--plot-line); stroke-width: 2; pointer-events: none; }
+.plot-overlay { fill: transparent; cursor: crosshair; }
+.plot-tip { pointer-events: none; }
+.plot-tip rect { fill: var(--fg); opacity: 0.9; }
+.plot-tip text { fill: var(--bg); font: 11px var(--mono); }
+.plot-empty { fill: var(--muted); }
+
+/* heatmaps: one canvas pixel per cell, scaled up without smoothing */
+.heatmap { margin: 8px 0; }
+.heatmap-frame { position: relative; width: 100%; background: var(--bg); box-shadow: 0 0 0 1px var(--border); }
+.heatmap-frame canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; cursor: crosshair; }
+.heatmap-frame canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.heatmap-cursor {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1.5px var(--fg), 0 0 0 3px var(--bg);
+  pointer-events: none;
+}
+.heatmap-tip {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  background: var(--fg);
+  color: var(--bg);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font: 11px/1.4 var(--mono);
+  white-space: nowrap;
+}
+.heatmap-tip strong { font-size: 12px; }
+.heatmap-where { opacity: 0.75; }
+.heat-legend { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 20px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.heat-scale { width: min(100%, 300px); }
+.heat-bar { height: 10px; border-radius: 2px; }
+.heat-ticks { position: relative; height: 17px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.heat-ticks span { position: absolute; top: 2px; white-space: nowrap; }
+.heat-label { color: var(--fg); }
+.heat-notes { display: grid; gap: 4px; max-width: 360px; }
+.heat-swatch { display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; background: var(--bg); box-shadow: 0 0 0 1px var(--muted); }
+
+/* drag and drop */
+.drop-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 95, 191, 0.12);
+  border: 3px dashed var(--accent);
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  pointer-events: none;
+}
+body.dragging .drop-overlay { display: flex; }
+
+@media (max-width: 600px) {
+  .topbar h1 { font-size: 15px; }
+  .code { font-size: 12px; }
+  .report { padding: 12px 16px 32px; }
+}

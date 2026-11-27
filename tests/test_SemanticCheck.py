@@ -6,6 +6,7 @@ from mzqc.SemanticCheck import SemanticCheck
 from mzqc.SemanticCheck import SemanticIssue
 from mzqc.MZQCFile import MzQcFile as mzqc_file
 from mzqc.MZQCFile import JsonSerialisable as mzqc_io
+from mzqc.MZQCFile import CvParameter, InputFile, MetaDataParameters, SetQuality
 import warnings
 from itertools import chain
 
@@ -192,3 +193,40 @@ def test_SemanticCheck_validation_success():
     # print(json.dumps(sem_val.string_export(), sort_keys=True, indent=4))
     for issue_type_category in sem_val.keys():
         assert(len(sem_val.get(issue_type_category,list()))==0)
+
+def _set_quality_with_input(location, name, format_accession="MS:1000914"):
+    infile = InputFile(location=location, name=name,
+                       fileFormat=CvParameter(accession=format_accession, name="file format"))
+    return SetQuality(metadata=MetaDataParameters(label="set", inputFiles=[infile]))
+
+@pytest.mark.parametrize("location, name, expected", [
+    # MaxQuant txt outputs under their canonical (mixed-case, dot-less) names
+    ("file:///data/combined/txt/proteinGroups.txt", "proteinGroups", True),
+    ("file://C:/msdata/msmsScans.txt", "msmsScans", True),
+    (r"C:\mq\combined\txt\evidence.txt", "evidence", True),
+    ("file:///data/txt/msms.txt", "msms", True),
+    ("file:///data/txt/peptides.txt", "peptides", True),
+    # ... also when prefixed or differently cased, or only recognisable by name
+    ("file:///data/exp1_proteinGroups.txt", "exp1_proteinGroups", True),
+    ("file:///data/EXP1.PROTEINGROUPS.TXT", "exp1", True),
+    ("", "proteinGroups.txt", True),
+    # regular ID formats keep working
+    ("file:///data/run.mzid.gz", "run", True),
+    ("file:///data/RUN.mzTab", "RUN", True),
+    # not ID files
+    ("file:///data/run.mzML", "run", False),
+    ("file:///data/combined/txt/allPeptides.txt", "allPeptides", False),
+    ("file:///data/combined/txt/summary.txt", "summary", False),
+    ("file:///data/combined/txt/proteinGroups.tsv", "proteinGroups", False),
+])
+def test_SemanticCheck_has_id_InputFile_by_filename(location, name, expected):
+    # Regression: MaxQuant ID outputs (e.g. proteinGroups.txt) were never recognised,
+    # because their suffixes were mixed-case and dot-prefixed but compared against
+    # lowercased file names. No ID file format terms are given, so the file name alone decides.
+    sq = _set_quality_with_input(location, name)
+    assert SemanticCheck(None)._has_id_InputFile(sq, idfile_cvs=set()) is expected
+
+def test_SemanticCheck_has_id_InputFile_by_fileformat():
+    sq = _set_quality_with_input("file:///data/ids.tsv", "ids", format_accession="MS:1002130")
+    assert SemanticCheck(None)._has_id_InputFile(sq, idfile_cvs={"MS:1002130"})
+    assert not SemanticCheck(None)._has_id_InputFile(sq, idfile_cvs=set())

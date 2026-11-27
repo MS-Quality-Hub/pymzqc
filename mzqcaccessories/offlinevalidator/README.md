@@ -1,4 +1,6 @@
 ## Local validation
+The offline validator is part of the base installation (`pip install pymzqc`).
+
 ```
 mzqc-validator [OPTIONS] INFILE
 ```

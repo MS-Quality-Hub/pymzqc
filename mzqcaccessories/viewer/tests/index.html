@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>mzQC Viewer unit tests</title>
+  <style>
+    body { font: 14px/1.5 system-ui, sans-serif; margin: 16px; }
+    .pass { color: #2c7a2c; }
+    .fail { color: #b3261e; font-weight: 600; }
+    pre { margin: 0 0 0 20px; color: #b3261e; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>mzQC Viewer unit tests</h1>
+  <p id="summary">running…</p>
+  <ol id="results"></ol>
+  <script src="../mzqc-core.js"></script>
+  <script>
+    // Minimal test runner: results land in the page and in window.__testResults
+    // (read by tests/test_viewer.py through Playwright).
+    const cases = [];
+    function test(name, fn) { cases.push({ name, fn }); }
+    function assert(cond, msg) { if (!cond) throw new Error(msg || 'assertion failed'); }
+    function eq(actual, expected, msg) {
+      const a = JSON.stringify(actual);
+      const e = JSON.stringify(expected);
+      if (a !== e) throw new Error(`${msg ? msg + ': ' : ''}expected ${e}, got ${a}`);
+    }
+    function throws(fn, pattern) {
+      try { fn(); } catch (err) {
+        if (pattern && !pattern.test(err.message)) throw new Error(`wrong error: ${err.message}`);
+        return err;
+      }
+      throw new Error('expected an exception');
+    }
+  </script>
+  <script src="core.test.js"></script>
+  <script>
+    window.__testResults = cases.map(({ name, fn }) => {
+      try { fn(); return { name, ok: true }; } catch (err) { return { name, ok: false, error: err.message }; }
+    });
+    const list = document.getElementById('results');
+    for (const r of window.__testResults) {
+      const li = document.createElement('li');
+      li.className = r.ok ? 'pass' : 'fail';
+      li.textContent = `${r.ok ? '✓' : '✗'} ${r.name}`;
+      if (!r.ok) { const pre = document.createElement('pre'); pre.textContent = r.error; li.append(pre); }
+      list.append(li);
+    }
+    const failed = window.__testResults.filter((r) => !r.ok).length;
+    document.getElementById('summary').textContent =
+      `${window.__testResults.length - failed} passed, ${failed} failed`;
+    document.getElementById('summary').className = failed ? 'fail' : 'pass';
+  </script>
+</body>
+</html>

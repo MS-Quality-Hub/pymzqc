@@ -1,7 +1,7 @@
 Build and Container
 ===================
 
-The simplest way to get pymzqc is through `PyPi <https://pypi.com/project/pymzqc>`_
+The simplest way to get pymzqc is through `PyPi <https://pypi.org/project/pymzqc/>`_
 
 If you need to build it your self or do not want to use `pip` (or can), there are alternatives:
 

@@ -1,3 +1,5 @@
+These tools are part of every pymzqc installation (`pip install pymzqc`).
+
 ## Fileinfo
 ```
 mzqc-fileinfo [OPTIONS] INFILE

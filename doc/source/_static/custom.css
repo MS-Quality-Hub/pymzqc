@@ -1,0 +1,17 @@
+/* Loaded by alabaster after its own stylesheet (see html_theme_options in conf.py). */
+
+/* Fluid page on wide screens instead of alabaster's fixed page_width.
+   Side margin: 20px, growing by a quarter of the window width beyond 1600px
+   (e.g. 100px at 1920px, 260px at 2560px). Smaller screens keep alabaster's
+   single-column layout (max-width: page_width media query). */
+@media screen and (min-width: 1001px) {
+    div.document,
+    div.footer {
+        box-sizing: border-box;
+        width: auto;
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 0 max(20px, calc((100vw - 1600px) / 4 + 20px));
+    }
+}
