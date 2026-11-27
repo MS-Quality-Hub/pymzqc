@@ -138,7 +138,7 @@ def test_highlighting_classes(page, base_url):
     data_keys = set(page.locator("#source .t-key-data").all_inner_texts())
     assert {'"qualityMetrics"', '"accession"', '"value"', '"unit"'} <= mzqc_keys
     # table column names below a metric value are data, not schema elements
-    assert {'"MS:1000894"', '"m/z"', '"charge"'} <= data_keys
+    assert {'"MS:1000894"', '"MS:1000767"', '"MS:1003169"'} <= data_keys
     assert page.locator("#source .t-accession", has_text='"MS:4000059"').count() >= 1
     assert page.locator("#source .t-number").count() > 100
     assert page.locator("#source .t-boolean").count() >= 1
@@ -162,13 +162,14 @@ def test_report_renders_metrics_tables_and_plots(page, base_url):
     assert report.locator("section.quality").count() == 2
     assert report.locator("article.metric").count() == 9
     assert report.locator(".badge-run").count() == 1 and report.locator(".badge-set").count() == 1
-    # TIC table plotted as a line over retention time, precursor table as a scatter plot
+    # TIC table plotted as a line over retention time, the unsorted iRT peptide table as a scatter plot
     tic = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/2"]')
     assert tic.locator("svg.plot path.plot-line").count() == 1
-    precursors = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/3"]')
-    assert precursors.locator("svg.plot path.plot-dots").count() == 1
-    assert precursors.locator(".plot-controls select").nth(1).input_value() == "intensity"
-    assert precursors.locator("table.data tbody tr").count() == 60
+    peptides = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/3"]')
+    assert peptides.locator("svg.plot path.plot-dots").count() == 1
+    # y: retention time (11 distinct values) rather than the spectrum counts next to it
+    assert peptides.locator(".plot-controls select").nth(1).input_value() == "MS:1000894"
+    assert peptides.locator("table.data tbody tr").count() == 11
     # switching the plot style redraws
     tic.locator(".plot-controls select").last.select_option("scatter")
     assert tic.locator("svg.plot path.plot-dots").count() == 1
