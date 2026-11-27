@@ -186,6 +186,57 @@ def test_report_renders_metrics_tables_and_plots(page, base_url):
     assert image.locator(".plot-controls select").count() == 1
 
 
+def _picked(page):
+    return page.locator("#source .picked").evaluate_all("lines => lines.map(l => l.dataset.path)")
+
+
+def _plot_box(page, path):
+    overlay = page.locator(f'#report article.metric[data-path="{path}"] .plot-overlay')
+    overlay.scroll_into_view_if_needed()
+    return overlay.bounding_box()
+
+
+def test_clicking_a_plot_point_marks_its_values_in_the_source(page, base_url):
+    open_viewer(page, base_url, SHOWCASE)
+    page.click("#toggle-source")
+    run = "/mzQC/runQualities/0/qualityMetrics"
+    # scatter plot of the iRT peptides: the top right point is LFLQFGAQGSPFLK, row 5; its values in all
+    # columns are marked, and the source panel comes back, scrolled to the plotted y value
+    box = _plot_box(page, f"{run}/4")
+    page.mouse.click(box["x"] + box["width"] - 1, box["y"] + 1)
+    assert page.locator("#source-panel").is_visible()
+    columns = ["MS:1003169", "MS:1000897", "MS:1003251", "MS:1000894", "MS:4000072"]
+    assert sorted(_picked(page)) == sorted(f"{run}/4/value/{c}/5" for c in columns)
+    assert "LFLQFGAQGSPFLK" in page.inner_text(f'#source [data-path="{run}/4/value/MS:1003169/5"]')
+    page.wait_for_function(f"""() => {{
+        const line = document.querySelector('#source [data-path="{run}/4/value/MS:1000894/5"]').getBoundingClientRect();
+        const panel = document.querySelector('#source-panel').getBoundingClientRect();
+        return line.top >= panel.top && line.bottom <= panel.bottom;
+    }}""", timeout=2000)
+    # line plot: the nearest point along x; the long TIC columns are built for it; a new click replaces the marks
+    box = _plot_box(page, f"{run}/2")
+    page.mouse.click(box["x"] + 1, box["y"] + box["height"] / 2)
+    assert sorted(_picked(page)) == sorted(f"{run}/2/value/{c}/0" for c in ["MS:1000894", "MS:1000285", "MS:1000767"])
+    # value list
+    box = _plot_box(page, f"{run}/5")
+    page.mouse.click(box["x"] + box["width"] - 1, box["y"] + box["height"] / 2)
+    assert _picked(page) == [f"{run}/5/value/4"]
+
+
+def test_clicking_a_heatmap_cell_marks_its_value_in_the_source(page, base_url):
+    open_viewer(page, base_url, SHOWCASE)
+    path = "/mzQC/runQualities/0/qualityMetrics/3"
+    canvas = page.locator(f'#report article.metric[data-path="{path}"] .heatmap canvas')
+    canvas.scroll_into_view_if_needed()
+    box = canvas.bounding_box()
+    page.mouse.click(box["x"] + box["width"] * 25.5 / 50, box["y"] + box["height"] * 20.5 / 40)
+    assert _picked(page) == [f"{path}/value/20/25"]
+    # keyboard: the focused cell moves with the arrow keys, Enter marks it
+    page.keyboard.press("ArrowRight")
+    page.keyboard.press("Enter")
+    assert _picked(page) == [f"{path}/value/20/26"]
+
+
 def _pixel(canvas, row, col):
     return canvas.evaluate(f"c => Array.from(c.getContext('2d').getImageData({col}, {row}, 1, 1).data)")
 

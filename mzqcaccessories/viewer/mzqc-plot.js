@@ -19,7 +19,9 @@
    * Draw a plot into `container` (replacing its content).
    * @param {HTMLElement} container
    * @param {{x: number[], y: number[], xLabel: string, yLabel: string,
-   *          mode: 'line'|'scatter', width?: number, height?: number}} spec
+   *          mode: 'line'|'scatter', width?: number, height?: number,
+   *          onPick?: function(number)}} spec  `onPick` gets the index (into x and y)
+   *          of the point nearest to a click
    * @returns {SVGSVGElement}
    */
   function render(container, spec) {
@@ -29,11 +31,11 @@
     const pw = width - m.left - m.right;
     const ph = height - m.top - m.bottom;
 
-    const points = [];
+    const points = []; // [x, y, index into spec.x and spec.y]
     for (let k = 0; k < Math.min(spec.x.length, spec.y.length); k++) {
       const px = spec.x[k];
       const py = spec.y[k];
-      if (Number.isFinite(px) && Number.isFinite(py)) points.push([px, py]);
+      if (Number.isFinite(px) && Number.isFinite(py)) points.push([px, py, k]);
     }
 
     container.textContent = '';
@@ -107,7 +109,8 @@
       x: m.left, y: m.top, width: pw, height: ph, class: 'plot-overlay',
     }, svg);
 
-    overlay.addEventListener('pointermove', (ev) => {
+    // A line plot reads along x, so there the nearest point is the nearest in x.
+    function nearest(ev) {
       const box = svg.getBoundingClientRect();
       const mx = ((ev.clientX - box.left) / box.width) * width;
       const my = ((ev.clientY - box.top) / box.height) * height;
@@ -119,6 +122,11 @@
         const dist = dx * dx + dy * dy;
         if (dist < bestDist) { bestDist = dist; best = k; }
       }
+      return best;
+    }
+
+    overlay.addEventListener('pointermove', (ev) => {
+      const best = nearest(ev);
       const [px, py] = pixels[best];
       marker.setAttribute('cx', px);
       marker.setAttribute('cy', py);
@@ -136,6 +144,7 @@
       marker.setAttribute('visibility', 'hidden');
       tip.setAttribute('visibility', 'hidden');
     });
+    if (spec.onPick) overlay.addEventListener('click', (ev) => spec.onPick(points[nearest(ev)][2]));
     return svg;
   }
 
@@ -208,7 +217,9 @@
    * stay transparent ("no value"). Hovering or focusing a cell shows its value.
    * @param {HTMLElement} container
    * @param {{matrix: Array<Array<number|null>>, rows: number, cols: number,
-   *          scale: object, label?: string}} spec  `scale` from MzqcCore.heatScale()
+   *          scale: object, label?: string, onPick?: function(number, number)}} spec
+   *          `scale` from MzqcCore.heatScale(); `onPick` gets the row and column of a
+   *          clicked cell, or of the focused cell on Enter
    * @returns {HTMLElement} the heatmap element
    */
   function heatmap(container, spec) {
@@ -226,7 +237,8 @@
     canvas.tabIndex = 0;
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', `Heatmap of ${rows} × ${cols} cells, colour shows ${label} from ` +
-      `${Core.formatNumber(scale.lo)} to ${Core.formatNumber(scale.hi)}; arrow keys read single cells`);
+      `${Core.formatNumber(scale.lo)} to ${Core.formatNumber(scale.hi)}; arrow keys read single cells` +
+      (spec.onPick ? ', Enter selects one' : ''));
     const cursor = div('heatmap-cursor');
     const tipValue = document.createElement('strong');
     const tipWhere = div('heatmap-where');
@@ -294,17 +306,22 @@
       tip.hidden = true;
     }
     const clamp = (v, max) => Math.min(max, Math.max(0, v));
-
-    canvas.addEventListener('pointermove', (ev) => {
+    function cellAt(ev) {
       const box = canvas.getBoundingClientRect();
-      const r = clamp(Math.floor(((ev.clientY - box.top) / box.height) * rows), rows - 1);
-      const c = clamp(Math.floor(((ev.clientX - box.left) / box.width) * cols), cols - 1);
-      show(r, c, ev.clientX, ev.clientY);
-    });
+      return [clamp(Math.floor(((ev.clientY - box.top) / box.height) * rows), rows - 1),
+        clamp(Math.floor(((ev.clientX - box.left) / box.width) * cols), cols - 1)];
+    }
+
+    canvas.addEventListener('pointermove', (ev) => show(...cellAt(ev), ev.clientX, ev.clientY));
     canvas.addEventListener('pointerleave', hide);
+    if (spec.onPick) canvas.addEventListener('click', (ev) => spec.onPick(...cellAt(ev)));
     canvas.addEventListener('focus', () => showCell(...(active || [0, 0])));
     canvas.addEventListener('blur', hide);
     canvas.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' && spec.onPick) {
+        spec.onPick(...(active || [0, 0]));
+        return;
+      }
       const step = ev.shiftKey ? 10 : 1;
       const move = { ArrowUp: [-step, 0], ArrowDown: [step, 0], ArrowLeft: [0, -step], ArrowRight: [0, step] }[ev.key];
       if (!move) return;

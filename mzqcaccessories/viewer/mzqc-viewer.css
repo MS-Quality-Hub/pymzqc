@@ -228,6 +228,8 @@ details.fold:not([open]) > summary .fold-hint { display: inline; }
 .fold-count { color: var(--muted); font-family: var(--sans); font-size: 11px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 0 6px; margin: 0 2px; }
 .flash { animation: flash 1.6s ease-out; }
 @keyframes flash { from { background: var(--flash); } to { background: transparent; } }
+/* Source lines of the plot point or heatmap cell last clicked in the report */
+.picked { background: var(--flash); }
 
 .t-key-mzqc { color: var(--t-key-mzqc); font-weight: 600; }
 .t-key-data { color: var(--t-key-data); }

@@ -26,6 +26,7 @@
     nodeCount: 0,
     report: null,
     lines: new Map(),  // JSON pointer -> rendered element (details or line div)
+    picked: [],        // source lines of the plot point or heatmap cell last clicked
     split: 0.5,        // share of the wide layout given to the source panel
   };
 
@@ -132,6 +133,7 @@
     const code = $('source');
     code.textContent = '';
     state.lines.clear();
+    state.picked = [];
     code.append(renderNode(tree, { key: null, ownerKey: null, depth: 0, last: true, path: '', insideValue: false }));
     code.hidden = false;
   }
@@ -160,27 +162,46 @@
     });
   }
 
-  /** Open every fold on the way to `path`, then scroll to and flash it. */
-  function revealPath(path) {
-    const segments = path.split('/').slice(1);
-    let prefix = '';
+  /** Open every fold on the way to `path`; returns its element, if there is one. */
+  function openPath(path) {
     const root = state.lines.get('');
     if (root && root.tagName === 'DETAILS') openFold(root);
-    for (const seg of segments) {
+    let prefix = '';
+    for (const seg of path.split('/').slice(1)) {
       prefix += `/${seg}`;
       const node = state.lines.get(prefix);
       if (!node) break;
       if (node.tagName === 'DETAILS') openFold(node);
     }
-    const target = state.lines.get(path);
-    if (!target) return;
+    return state.lines.get(path);
+  }
+
+  function scrollToLine(target) {
     showTab('source');
     setPanelShown('source', true);
     const line = target.tagName === 'DETAILS' ? target.querySelector(':scope > summary') : target;
     line.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  /** Open every fold on the way to `path`, then scroll to and flash it. */
+  function revealPath(path) {
+    const target = openPath(path);
+    if (!target) return;
+    scrollToLine(target);
     target.classList.remove('flash');
     void target.offsetWidth; // restart the animation
     target.classList.add('flash');
+  }
+
+  /**
+   * Mark the source lines of the values behind a plot point or heatmap cell
+   * clicked in the report, until the next click, and scroll to the first.
+   */
+  function pickValues(paths) {
+    state.picked.forEach((line) => line.classList.remove('picked'));
+    state.picked = paths.map(openPath).filter(Boolean);
+    state.picked.forEach((line) => line.classList.add('picked'));
+    if (state.picked.length) scrollToLine(state.picked[0]);
   }
 
   /* ------------------------------------------------------------------ */
@@ -237,8 +258,9 @@
     return h('div', { class: 'table-wrap' }, table, more);
   }
 
-  function plotBlock(columns, initial) {
-    // columns: [{name, values}] numeric columns of equal length
+  function plotBlock(columns, initial, onPick) {
+    // columns: [{name, values}] numeric columns of equal length;
+    // onPick(index, xName, yName), if given, is called for a clicked point
     const block = h('div', { class: 'plot-block' });
     const area = h('div', { class: 'plot-area' });
     const select = (label, value) => h('label', {}, `${label} `,
@@ -254,6 +276,7 @@
       Plot.render(area, {
         x: byName(xName), y: byName(yName), xLabel: xName, yLabel: yName,
         mode: modeSel.querySelector('select').value,
+        onPick: onPick && ((k) => onPick(k, xName, yName)),
       });
     };
     const controls = h('div', { class: 'plot-controls' }, columns.length > 2 || initial.x !== 'index' ? [xSel, ySel] : [], modeSel);
@@ -275,10 +298,10 @@
     return fold;
   }
 
-  function heatmapBlock(matrix, shape, unit) {
+  function heatmapBlock(matrix, shape, unit, onPick) {
     const area = h('div', { class: 'plot-area' });
     const robust = Core.heatScale(matrix, true);
-    const draw = (scale) => Plot.heatmap(area, { matrix, rows: shape.rows, cols: shape.cols, scale, label: unit });
+    const draw = (scale) => Plot.heatmap(area, { matrix, rows: shape.rows, cols: shape.cols, scale, label: unit, onPick });
     let controls = null;
     if (robust.clipped) {
       const select = h('select', {},
@@ -294,6 +317,8 @@
   function renderValue(metric) {
     const { value, shape, unit } = metric;
     const unitSpan = unit ? span('unit', unit) : null;
+    // JSON pointer of an element inside the value, e.g. at(column, row)
+    const at = (...segments) => segments.reduce((path, seg) => pointer(path, seg), pointer(metric.path, 'value'));
     switch (shape.type) {
       case 'empty':
         return h('div', { class: 'metric-value muted' }, 'no value');
@@ -311,7 +336,8 @@
         if (shape.plottable) {
           parts.push(plotBlock(
             [{ name: 'index', values: value.map((_, k) => k) }, { name: unit || 'value', values: value }],
-            { x: 'index', y: unit || 'value', mode: 'line' }));
+            { x: 'index', y: unit || 'value', mode: 'line' },
+            (k) => pickValues([at(k)])));
         }
         if (value.length > 12) {
           parts.push(h('details', { class: 'table-fold' }, h('summary', {}, `Values (${value.length.toLocaleString()})`),
@@ -327,14 +353,17 @@
         const caption = `Table (${shape.rows.toLocaleString()} rows × ${names.length} columns)`;
         if (!shape.plottable) return h('div', {}, h('div', { class: 'caption' }, caption, unitSpan), table);
         const numeric = shape.columns.filter((c) => c.numeric).map((c) => ({ name: c.name, values: value[c.name] }));
+        // A point stands for a table row: mark the row's value in every column, the plotted y value first.
+        const pickRow = (k, x, y) => pickValues([y, x, ...names.filter((n) => n !== x && n !== y)].map((n) => at(n, k)));
         return h('div', {},
-          plotBlock(numeric, shape.plot),
+          plotBlock(numeric, shape.plot, pickRow),
           h('details', { class: 'table-fold', open: shape.rows <= 20 }, h('summary', {}, caption), table));
       }
       case 'matrix': {
         const caption = `Matrix (${shape.rows.toLocaleString()} rows × ${shape.cols.toLocaleString()} columns)`;
         if (!shape.numeric) return h('div', {}, h('div', { class: 'caption' }, caption, unitSpan), dataTable(null, value));
-        return h('div', {}, heatmapBlock(value, shape, unit), lazyFold(caption, () => dataTable(null, value), shape.rows <= 20));
+        return h('div', {}, heatmapBlock(value, shape, unit, (r, c) => pickValues([at(r, c)])),
+          lazyFold(caption, () => dataTable(null, value), shape.rows <= 20));
       }
       case 'record':
         return h('dl', { class: 'record' }, Object.entries(value).flatMap(([k, v]) => [h('dt', { text: k }), h('dd', { text: fmt(v) })]));

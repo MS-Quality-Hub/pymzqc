@@ -17,8 +17,9 @@ The file is read by the browser only; nothing is uploaded.
   drawn as heatmaps: shades of blue for magnitudes, or blue–grey–red centred on 0 when the values lie on both
   sides of 0; `null` cells stay blank. The colours span the 1st to 99th percentile so that a few outlier cells
   do not wash out the rest (switchable to min – max). Hover over a cell, or focus the heatmap and use the
-  arrow keys, to read its value; the numbers are also in a table below. **{ } source** jumps to the metric in
-  the source panel.
+  arrow keys, to read its value; the numbers are also in a table below. Clicking a plot point or a heatmap
+  cell (or pressing Enter on a focused heatmap) highlights its value in the source panel; for a table plot,
+  the values of that row in all columns. **{ } source** jumps to the metric in the source panel.
 - On wide windows (at least 1100 px) both panels are shown side by side, like a markdown preview;
   narrower windows switch between them with tabs. Drag the bar between the panels (or focus it and use
   the arrow keys) to change their widths; double-click it to reset. The **Source** and **Report-Style**
