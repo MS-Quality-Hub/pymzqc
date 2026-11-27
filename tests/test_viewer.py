@@ -165,7 +165,7 @@ def test_report_renders_metrics_tables_and_plots(page, base_url):
     # TIC table plotted as a line over retention time, the unsorted iRT peptide table as a scatter plot
     tic = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/2"]')
     assert tic.locator("svg.plot path.plot-line").count() == 1
-    peptides = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/3"]')
+    peptides = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/4"]')
     assert peptides.locator("svg.plot path.plot-dots").count() == 1
     # y: retention time (11 distinct values) rather than the spectrum counts next to it
     assert peptides.locator(".plot-controls select").nth(1).input_value() == "MS:1000894"
@@ -177,8 +177,13 @@ def test_report_renders_metrics_tables_and_plots(page, base_url):
     assert report.locator(".big-num", has_text="5074").count() == 2
     assert report.locator(".range-dash").count() == 1
     assert report.locator(".value-chip").count() == 5
-    vector = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/4"]')
+    vector = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/5"]')
     assert vector.locator("svg.plot").count() == 1
+    # a mouse brain base peak fraction image (block means, 40 rows x 50 columns), one canvas pixel per cell;
+    # its range extends beyond the 1st-99th percentile, hence the colour range control
+    image = report.locator('article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/3"]')
+    assert image.locator(".heatmap canvas").evaluate("c => [c.width, c.height]") == [50, 40]
+    assert image.locator(".plot-controls select").count() == 1
 
 
 def _pixel(canvas, row, col):
@@ -192,8 +197,12 @@ def _ramp(page, prop):
 
 
 def test_matrix_is_drawn_as_a_heatmap(page, base_url):
-    open_viewer(page, base_url, SHOWCASE)
-    metric = page.locator('#report article.metric[data-path="/mzQC/runQualities/0/qualityMetrics/7"]')
+    page.goto(f"{base_url}/{VIEWER}/index.html")
+    doc = {"mzQC": {"version": "1.0.0", "runQualities": [{"metadata": {"label": "img"}, "qualityMetrics": [
+        {"accession": "MS:4000228", "name": "total ion current image", "value": [[1, 2, 3], [4, 5, 6]],
+         "unit": {"accession": "MS:1000043", "name": "intensity unit"}}]}]}}
+    page.evaluate("text => MzqcViewer.loadText(text, 'image.mzQC')", json.dumps(doc))
+    metric = page.locator("#report article.metric")
     canvas = metric.locator(".heatmap canvas")
     assert canvas.evaluate("c => [c.width, c.height]") == [3, 2]
     # [[1, 2, 3], [4, 5, 6]]: the smallest value takes the light end, the largest the dark end
